@@ -1,0 +1,213 @@
+Complete Bill of Materials (BOM)
+Project: Cerebral Oximeter (Prototype 1)
+Aligned documents: spec.txt Rev 3.2, validation_and_verification_plan.txt Rev 3.2
+Build quantity: 1 unit
+Date: 2026-02-28
+
+Notes:
+- Prices are indicative and vary by distributor/region.
+- For components with no public per-part datasheet page, vendor request links are provided.
+- Qty includes only assembly parts (not lab instruments/tools).
+
+================================================================================
+1) Core Electronics
+================================================================================
+
+1. MCU Board
+   Qty: 1
+   MPN: ABX00027
+   Description: Arduino Nano 33 IoT
+   Product page: https://docs.arduino.cc/hardware/nano-33-iot
+   Datasheet: https://docs.arduino.cc/resources/datasheets/ABX00027-datasheet.pdf
+
+2. External ADC Module
+   Qty: 1
+   MPN: Adafruit 1085 (ADS1115 breakout)
+   Description: 16-bit I2C ADC board
+   Product page: https://www.adafruit.com/product/1085
+   Datasheet (ADC IC): https://www.ti.com/lit/ds/symlink/ads1115.pdf
+
+3. Dual Op-Amp
+   Qty: 1
+   MPN: MCP6022-I/P
+   Description: Rail-to-rail dual op-amp, DIP-8
+   Product page: https://www.microchip.com/en-us/product/MCP6022
+   Datasheet: https://ww1.microchip.com/downloads/en/DeviceDoc/20001685E.pdf
+
+4. Photodiode
+   Qty: 1
+   MPN: BPW34
+   Description: Silicon PIN photodiode
+   Product page: https://www.vishay.com/en/product/81521/
+   Datasheet: https://www.vishay.com/docs/81521/bpw34.pdf
+
+5. NPN LED Driver Transistor
+   Qty: 2
+   MPN: TIP31C
+   Description: NPN power transistor, TO-220
+   Product page: https://www.onsemi.com/products/discrete-power-modules/general-purpose-and-low-vcesat-transistors/tip31c-legacy-fairchild
+   Datasheet: https://www.onsemi.com/download/data-sheet/pdf/tip31c-d.pdf
+
+6. 730nm Source LED (per spec primary)
+   Qty: 1
+   MPN: LST1-01G01-FRD1-00
+   Description: 730nm far-red emitter, Luminus SST-10 on New-Energy Star Board, 130 deg
+   Product page: https://www.mouser.com/ProductDetail/New-Energy/LST1-01G01-FRD1-00?qs=wd5RIQLrsJi1z5h%252BFO29xg%3D%3D
+   Datasheet: https://new-energyllc.com/wp-content/uploads/NewEnergy_StarBoard_Lumileds_Luxeon-C_DataSheet.pdf
+
+7. 850nm Source LED (per spec primary)
+   Qty: 1
+   MPN: SFH4253B
+   Description: 850nm centroid (860nm peak) IR emitter, SMT PLCC-2, 120 deg beam
+   Product page: https://ams-osram.com/products/leds/ir-leds/osram-topled-sfh-4253b
+   Datasheet: https://look.ams-osram.com/m/631defe919332729/original/SFH-4253B.pdf
+
+================================================================================
+2) Resistors
+================================================================================
+
+8. LED current resistor (730nm channel)
+   Qty: 1
+   MPN: CFR-50JB-52-68R
+   Description: 68 ohm, 0.5W, axial
+   Product page: https://www.mouser.com/ProductDetail/YAGEO/CFR-50JB-52-68R
+   Datasheet (series): https://www.mouser.com/datasheet/2/447/YAGEO_CFR_datasheet_2023v2-3388672.pdf
+
+9. LED current resistor (850nm channel)
+   Qty: 1
+   MPN: CFR-50JB-52-68R
+   Description: 68 ohm, 0.5W, axial
+   Product page: https://www.mouser.com/ProductDetail/YAGEO/CFR-50JB-52-68R
+   Datasheet (series): https://www.mouser.com/datasheet/2/447/YAGEO_CFR_datasheet_2023v2-3388672.pdf
+
+10. Transistor base resistor
+    Qty: 2
+    MPN: CFR-50JB-52-470R
+    Description: 470 ohm, 0.5W, axial
+    Product page: https://www.mouser.com/ProductDetail/YAGEO/CFR-50JB-52-470R
+    Datasheet (series): https://www.mouser.com/datasheet/2/447/YAGEO_CFR_datasheet_2023v2-3388672.pdf
+
+11. TIA feedback resistor
+    Qty: 1
+    MPN: MFR-25FBF52-100K
+    Description: 100 kohm, 1%, metal film
+    Product page: https://www.mouser.com/ProductDetail/YAGEO/MFR-25FBF52-100K
+    Datasheet (series): https://www.mouser.com/datasheet/2/447/YAGEO_MFR_datasheet_2021v1-3003041.pdf
+
+12. Stage-2 feedback resistor
+    Qty: 1
+    MPN: MFR-25FBF52-47K
+    Description: 47 kohm, 1%, metal film
+    Product page: https://www.mouser.com/ProductDetail/YAGEO/MFR-25FBF52-47K
+    Datasheet (series): https://www.mouser.com/datasheet/2/447/YAGEO_MFR_datasheet_2021v1-3003041.pdf
+
+13. Stage-2 gain set resistor
+    Qty: 1
+    MPN: MFR-25FBF52-1K
+    Description: 1 kohm, 1%, metal film
+    Product page: https://www.mouser.com/ProductDetail/YAGEO/MFR-25FBF52-1K
+    Datasheet (series): https://www.mouser.com/datasheet/2/447/YAGEO_MFR_datasheet_2021v1-3003041.pdf
+
+================================================================================
+3) Capacitors
+================================================================================
+
+14. TIA compensation capacitor
+    Qty: 1
+    MPN: C315C4R7J5G5TA7301
+    Description: 4.7pF, C0G/NP0, radial ceramic
+    Product page: https://www.mouser.com/ProductDetail/KEMET/C315C4R7J5G5TA7301
+    Datasheet (series): https://content.kemet.com/datasheets/KEM_C1000_C0G.pdf
+
+15. Local high-frequency decoupling capacitors
+    Qty: 2
+    MPN: C315C104K5R5TA7301
+    Description: 0.1uF, radial ceramic
+    Product page: https://www.mouser.com/ProductDetail/KEMET/C315C104K5R5TA
+    Datasheet (series): https://content.kemet.com/datasheets/KEM_C1006_X7R.pdf
+
+16. 5V rail bulk capacitor
+    Qty: 1
+    MPN: EEU-FR1A101B
+    Description: 100uF, 10V, low-ESR electrolytic (use 47uF-100uF range)
+    Product page: https://www.mouser.com/ProductDetail/Panasonic/EEU-FR1A101B
+    Datasheet (series): https://www.alldatasheet.com/datasheet-pdf/pdf/404431/PANASONIC/EEUFR1A101.html
+
+17. Analog 3.3V rail bulk capacitor
+    Qty: 1
+    MPN: UFW1A100MDD1TD
+    Description: 10uF, 10V, radial electrolytic
+    Product page: https://www.mouser.com/ProductDetail/Nichicon/UFW1A100MDD1TD
+    Datasheet (series): https://www.nichicon.co.jp/english/products/pdfs/e-ufw.pdf
+
+================================================================================
+4) Protection and Power
+================================================================================
+
+18. Input fuse
+    Qty: 1
+    MPN: 0215.500MXP
+    Description: 500mA, 5x20mm, slow-blow ceramic fuse
+    Product page: https://littelfusesales.com/Products/Single/0215.500MXP
+    Datasheet: https://www.littelfuse.com/~/media/electronics/datasheets/fuses/littelfuse_fuse_215_datasheet.pdf
+
+19. 5V external wall adapter
+    Qty: 1
+    MPN: GS06E-1P1J (or equivalent 5V, >=1A regulated adapter)
+    Description: 5V DC adapter, barrel output
+    Product page: https://www.meanwell-web.com/en-gb/ac-dc-wall-mount-adaptor-output-5vdc-at-1a-input-gs06e--1p1j
+    Datasheet: https://www.meanwell-web.com/content/files/pdfs/productPdfs/MW/GS06E/GS06E-spec.pdf
+
+================================================================================
+5) Mechanical and Integration Materials
+================================================================================
+
+20. Elastic headband (2cm width)
+    Qty: 1
+    MPN: Generic non-conductive elastic headband, 20mm width
+    Product page: https://www.mcmaster.com/elastic-straps/
+    Datasheet: N/A (consumer/mechanical textile item)
+
+21. Black EVA foam block/sheet
+    Qty: 1
+    MPN: Generic black EVA foam (cut to probe dimensions)
+    Product page: https://www.mcmaster.com/foam/
+    Datasheet: N/A (consumer/mechanical foam item)
+
+22. Shielded cable for photodiode lead
+    Qty: 1 length (<= 5cm in final assembly)
+    MPN: 30 AWG shielded cable, single-pair or miniature coax
+    Product page: https://www.mcmaster.com/shielded-cable/
+    Datasheet: vendor-specific (depends on selected cable)
+
+23. Opaque adhesive/tape for optical isolation
+    Qty: 1 roll
+    MPN: 3M Super 33+ (or equivalent opaque electrical tape)
+    Product page: https://www.3m.com/3M/en_US/p/d/v000057514/
+    Datasheet: https://multimedia.3m.com/mws/media/104629O/scotch-super-33-vinyl-electrical-tape.pdf
+
+24. Breadboard/perfboard + hookup wire
+    Qty: 1 set
+    MPN: Standard 2.54mm prototyping supplies
+    Product page: https://www.adafruit.com/category/84
+    Datasheet: N/A (tooling/materials set)
+
+25. USB cable (for Nano 33 IoT to host)
+    Qty: 1
+    MPN: USB data cable compatible with Nano 33 IoT connector
+    Product page: https://www.adafruit.com/category/139
+    Datasheet: N/A (cable accessory)
+
+26. Black Rubber Washers (Optical Baffle)
+    Qty: 1 small pack (only 2-3 needed per build)
+    MPN: Generic #4 or M3 flat black rubber washer (~1/8" ID)
+    Product page: Any hardware store or generic supply
+    Datasheet: N/A (mechanical item)
+
+================================================================================
+BOM Summary (1 build)
+================================================================================
+
+- Core electronics and passives: typically ~USD 65-100 depending LED sourcing.
+- Availability note: 850nm channel uses widely stocked ams OSRAM SFH4253B; 730nm channel uses New-Energy Star Board from Mouser.
+- Before ordering, run one final check against local stock and lead times.

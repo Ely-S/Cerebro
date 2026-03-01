@@ -1,0 +1,114 @@
+Optics Source Register
+======================
+
+Date: 2026-03-01
+Scope: Source provenance for optics-related verification claims in:
+- hardware-validation.txt
+- validation.txt
+- datasheets/optics_validation.txt
+
+Legend:
+- PRIMARY: Manufacturer-hosted datasheet or official manufacturer product page
+- SECONDARY: Distributor or mirror source (not authoritative over manufacturer data)
+- LOCAL COPY: Downloaded snapshot stored in repo for traceability
+
+--------------------------------------------------------------------------------
+S1) SFH4253B Manufacturer Datasheet (PRIMARY, AUTHORITATIVE)
+--------------------------------------------------------------------------------
+URL:
+- https://look.ams-osram.com/m/631defe919332729/original/SFH-4253B.pdf
+
+Local copy:
+- datasheets/online-check/SFH-4253B.pdf
+
+Used for claims:
+- 850nm centroid/peak wavelength (850nm/860nm)
+- Half angle 60deg (full beam 120deg)
+- IF max 100mA continuous
+- VF values (1.15/1.55/1.90V at 70mA; 1.60V typ at 100mA)
+- Total radiant flux (55mW at 70mA; 80mW at 100mA)
+- Radiant intensity typ 25mW/sr at 100mA
+
+Note:
+- No explicit IEC 62471 risk-group statement was confirmed in extracted PDF text.
+
+--------------------------------------------------------------------------------
+S2) SFH4253B Product Page (PRIMARY, SUMMARY LEVEL)
+--------------------------------------------------------------------------------
+URL:
+- https://ams-osram.com/products/leds/ir-leds/osram-topled-sfh-4253b
+
+Used for claims:
+- Product identity and public-facing parameter summary
+- Datasheet access path confirmation
+
+--------------------------------------------------------------------------------
+S3) BPW34 Manufacturer Datasheet (PRIMARY, AUTHORITATIVE)
+--------------------------------------------------------------------------------
+URL:
+- https://www.vishay.com/docs/81521/bpw34.pdf
+
+Local copy:
+- datasheets/online-check/bpw34.pdf
+
+Used for claims:
+- Spectral range 430-1100nm
+- Peak sensitivity near 900nm
+- Suitability for 730/850nm detection region
+
+--------------------------------------------------------------------------------
+S4) BPW34 Manufacturer Product Page (PRIMARY, INDEX)
+--------------------------------------------------------------------------------
+URL:
+- https://www.vishay.com/en/product/81521/
+
+Used for claims:
+- Product-to-datasheet linkage and page-level metadata
+
+--------------------------------------------------------------------------------
+S5) New-Energy Starboard PDF (PRIMARY FOR FAMILY, PARTIAL FOR EXACT MPN)
+--------------------------------------------------------------------------------
+URL:
+- https://new-energyllc.com/wp-content/uploads/NewEnergy_StarBoard_Lumileds_Luxeon-C_DataSheet.pdf
+
+Local copy:
+- datasheets/online-check/NewEnergy_StarBoard_Lumileds_Luxeon-C_DataSheet.pdf
+
+Used for claims:
+- Family-level starboard characteristics and mechanical context
+
+Limitations:
+- Current fetched revision does not explicitly list exact MPN LST1-01G01-FRD1-00.
+- Therefore exact-MPN evidence is PARTIAL, not fully VERIFIED.
+
+--------------------------------------------------------------------------------
+S6) LST1-01G01-FRD1-00 Mirror Page (SECONDARY)
+--------------------------------------------------------------------------------
+URL:
+- https://pdf.datasheet.support/c3cb8a1a/opulent_americas/LST1-01G01-FRD1-00.html
+
+Used for claims:
+- Supplemental values for exact MPN context (730nm, 130deg, Vf typ, flux typ)
+
+Limitations:
+- Non-manufacturer mirror; treated as secondary corroboration only.
+
+--------------------------------------------------------------------------------
+S7) SFH4253 Legacy Family Datasheet (SUPPLEMENTAL)
+--------------------------------------------------------------------------------
+URL:
+- https://look.ams-osram.com/m/112b2fbfa9e71b58/original/SFH-4253.pdf
+
+Local copy:
+- datasheets/online-check/SFH-4253.pdf
+
+Used for claims:
+- Cross-check only; not used to override SFH4253B v1.2 values.
+
+--------------------------------------------------------------------------------
+Usage Rule for Optics Verification
+--------------------------------------------------------------------------------
+1) Prefer S1/S3 manufacturer datasheets for numeric decisions.
+2) Use S2/S4 for product-page context and links.
+3) Use S5/S6 only as supplemental evidence where exact-MPN primary coverage is incomplete.
+4) Record any claim with missing primary citation as unverified until resolved.

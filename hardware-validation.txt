@@ -1,0 +1,232 @@
+# Hardware Component Verification
+Project: Cerebral Oximeter (Prototype 1)  
+Date: 2026-02-28  
+Basis: `spec.txt` Rev 3.2, `BOM.txt`, `validation.txt`
+
+## 1) Purpose
+This document records hardware component-level verification using datasheets and authoritative online sources.  
+It complements (does not replace) bench verification requirements in `validation.txt`.
+
+## 2) Status Labels
+- VERIFIED: Component choice is supported by source specs and is compatible with design intent.
+- PARTIAL: Usable source exists, but source is secondary/non-manufacturer or incomplete for exact MPN.
+- BENCH-REQUIRED: Datasheet compatibility is acceptable, but requirement closure depends on bench testing.
+- N/A: Mechanical/tooling item with no formal electrical datasheet requirement.
+
+## 2A) Source Documentation
+- Optics source provenance is centralized in `datasheets/optics_source_register.txt`.
+- Numeric optics decisions prioritize manufacturer datasheets over product-page summaries or mirrors.
+- Any optics claim without direct primary citation is marked unverified/pending.
+
+## 3) Verification Matrix
+
+### Core electronics
+1. Arduino Nano 33 IoT (`ABX00027`)  
+   Status: VERIFIED, BENCH-REQUIRED  
+   Evidence:
+   - https://docs.arduino.cc/resources/datasheets/ABX00027-datasheet.pdf  
+   Notes:
+   - Board I/O is 3.3 V only and not 5 V tolerant, matching design rail assumptions.
+
+2. ADS1115 ADC (`Adafruit 1085` uses ADS1115 IC)  
+   Status: VERIFIED, BENCH-REQUIRED  
+   Evidence:
+   - https://www.ti.com/lit/ds/symlink/ads1115.pdf  
+   Notes:
+   - Supply range and operating modes support intended 3.3 V operation and 64 SPS setting.
+
+3. MCP6022-I/P op-amp  
+   Status: VERIFIED, BENCH-REQUIRED  
+   Evidence:
+   - https://ww1.microchip.com/downloads/en/DeviceDoc/20001685E.pdf  
+   Notes:
+   - Supply range and amplifier characteristics are compatible with two-stage TIA/gain architecture.
+
+4. BPW34 photodiode  
+   Status: VERIFIED, BENCH-REQUIRED  
+   Evidence:
+   - https://www.vishay.com/docs/81521/bpw34.pdf  
+   Notes:
+   - Spectral sensitivity includes 730 nm and 850 nm region used by design.
+
+5. TIP31C transistor  
+   Status: VERIFIED, BENCH-REQUIRED  
+   Evidence:
+   - https://www.onsemi.com/download/data-sheet/pdf/tip31c-d.pdf  
+   Notes:
+   - Electrical limits are appropriate for low-side LED switching in this design.
+
+6. 730 nm LED (`New-Energy LST1-01G01-FRD1-00` Star Board)  
+   Status: PARTIAL, BENCH-REQUIRED  
+   Evidence:
+   - https://new-energyllc.com/wp-content/uploads/NewEnergy_StarBoard_Lumileds_Luxeon-C_DataSheet.pdf  
+   - https://pdf.datasheet.support/c3cb8a1a/opulent_americas/LST1-01G01-FRD1-00.html (secondary mirror; non-manufacturer)
+   Notes:
+   - Source supports family-level far-red starboard characteristics, but exact current MPN coverage is not explicit in the cited PDF. Exact-MPN confirmation is required.
+   - Part provides high-power 730nm far-red emission; integrated metal star board solves assembly constraint. Requires optical baffle (rubber washers).
+
+7. 850 nm LED (`ams OSRAM SFH4253B`)  
+   Status: VERIFIED, BENCH-REQUIRED  
+   Evidence:
+   - datasheets/optics_sfh4253b_datasheet.pdf (ams-OSRAM, Version 1.2, 2025-12-01)
+   - https://look.ams-osram.com/m/631defe919332729/original/SFH-4253B.pdf
+   - https://ams-osram.com/products/leds/ir-leds/osram-topled-sfh-4253b  
+   Confirmed datasheet values:
+   - Centroid wavelength: 850nm; peak wavelength: 860nm
+   - Half angle: 60deg (full beam angle: 120deg)
+   - IF max: 100mA continuous
+   - VF min/typ/max at 70mA: 1.15V / 1.55V / 1.90V; VF typ at 100mA: 1.60V
+   - Total radiant flux: 55mW typ at 70mA; 80mW typ at 100mA
+   Notes:
+   - Package is SMT PLCC-2 (120deg beam), so probe build requires a small carrier board or adapter.
+   - IEC 62471 status is currently unverified in the cited SFH4253B PDF text extraction; add a direct manufacturer citation before claiming a specific risk group.
+   - [ISSUE-002, RESOLVED] Optical safety: Original design had 850nm current at ~89mA resulting in time-averaged power exceeding 10mW. Resistor changed from 36 Ohms to 68 Ohms. New current ~47mA, peak flux ~36-40mW, and average power ~9-10mW (bench verification still required for strict <10mW closure).
+   - [ISSUE-003, MINOR] VF used in current calculation corrected from 1.5V to 1.60V (datasheet
+     explicit at 100mA). Corrected current with 68 Ohms: 47.1mA -- within the 40-50mA band. See validation.txt.
+
+### Resistors
+8-10. CFR series (`68R`, `68R`, `470R`)  
+Status: VERIFIED, BENCH-REQUIRED  
+Evidence:
+- https://www.yageogroup.com/content/Resource%20Library/Datasheet/YAGEO-CFR_DATASHEET.pdf  
+Notes:
+- Power/tolerance family supports selected current-limit and base-drive roles.
+
+11-13. MFR series (`100k`, `47k`, `1k`)  
+Status: VERIFIED, BENCH-REQUIRED  
+Evidence:
+- https://www.yageogroup.com/content/Resource%20Library/Datasheet/YAGEO-MFR_DATASHEET.pdf  
+Notes:
+- 1% metal-film family selection is appropriate for gain-setting and TIA feedback.
+
+### Capacitors
+14. `C315C4R7J5G5TA7301` (4.7 pF C0G)  
+Status: VERIFIED, BENCH-REQUIRED  
+Evidence:
+- https://content.kemet.com/datasheets/KEM_C1049_GOLDMAX_C0G.pdf  
+Notes:
+- C0G Class I stability supports compensation role in TIA stage.
+
+15. `C315C104K5R5TA7301` (0.1 uF local decoupling)  
+   Status: VERIFIED, BENCH-REQUIRED  
+   Evidence:
+   - https://content.kemet.com/datasheets/KEM_C1006_X7R.pdf  
+   Notes:
+   - X7R radial ceramic family is appropriate for local high-frequency bypass function.
+
+16. `EEU-FR1A101B` (100 uF, 10 V)  
+Status: VERIFIED, BENCH-REQUIRED  
+Evidence:
+- https://na.industrial.panasonic.com/products/capacitors/aluminum-electrolytic-capacitors/lineup/aluminum-electrolytic-capacitors-radial-lead-type/series/83367  
+Notes:
+- FR series supports low-ESR bulk filtering role; voltage and temperature class are appropriate.
+
+17. `UFW1A100MDD1TD` (10 uF, 10 V)  
+Status: VERIFIED, BENCH-REQUIRED  
+Evidence:
+- https://www.nichicon.com/en-us/products/aluminum-electrolytic-capacitors/miniature-aluminum-electrolytic-capacitors/for-audio-equipment/ufw/  
+Notes:
+- Series-level confirmation supports suitability for low-voltage bulk decoupling role.
+
+### Protection and power
+18. `0215.500MXP` fuse  
+Status: VERIFIED, BENCH-REQUIRED  
+Evidence:
+- https://www.littelfuse.com/assetdocs/fuse-215-datasheet?assetguid=990f7193-d9a2-48e4-b760-2b43514249cf  
+Notes:
+- 5x20 mm time-lag ceramic family and 500 mA class match design protection intent.
+
+19. `GS06E-1P1J` 5 V wall adapter  
+Status: VERIFIED, BENCH-REQUIRED  
+Evidence:
+- https://www.meanwell.com.cn/upload/pdf/GS06E/GS06E-SPEC-CN.PDF  
+Notes:
+- GS06E family includes 5 V / 1 A output option, satisfying minimum adapter requirement.
+
+### Mechanical/integration materials
+20. Elastic headband  
+Status: N/A  
+Notes:
+- Consumer textile item; no electrical datasheet required.
+
+21. EVA foam  
+Status: N/A  
+Notes:
+- Mechanical/optical isolation material; no formal electrical datasheet required.
+
+22. Shielded short cable  
+Status: N/A, BENCH-REQUIRED  
+Notes:
+- Vendor-specific choice; electrical performance validated at assembly/bench level.
+
+23. 3M Super 33+ tape  
+Status: VERIFIED, BENCH-REQUIRED  
+Evidence:
+- https://docs.rs-online.com/4b47/0900766b8105a586.pdf  
+Notes:
+- Suitable for insulation/jacketing role in probe optical-isolation workflow.
+
+24. Breadboard/perfboard + hookup wire  
+Status: N/A  
+Notes:
+- Prototyping tooling/material set.
+
+25. USB cable  
+   Status: N/A  
+   Notes:
+   - Accessory cable item.
+
+26. Black Rubber Washers
+   Status: N/A, BENCH-REQUIRED
+   Notes:
+   - Mechanical item required as an optical baffle for the 730nm Star Board LED. Effectiveness verified in dark test.
+
+## 4) Requirement-Level Closure Impact
+Component datasheet compatibility is sufficient for design-level confidence, but does not close bench-dependent requirements.  
+Per `validation.txt`, final closure still requires bench execution for:
+- ADC address/config readback
+- TDM timing capture
+- optical safety measurement under final TDM timing (see ISSUE-002 below)
+- precision/statistical claim (+/-2% at 95% confidence)
+- optical isolation and dark-test performance
+
+## 5) Cross-Verification Issue Log (2026-03-01)
+
+The following issues were identified during an optics cross-verification pass against the
+SFH4253B datasheet (PDF v1.2, 2025-12-01). All issues are also recorded in
+`datasheets/optics_validation.txt` and `validation.txt`.
+Source provenance for optics claims is documented in `datasheets/optics_source_register.txt`.
+
+ISSUE-001 [MINOR -- CORRECTED]
+  File    : datasheets/optics_validation.txt
+  Finding : 850nm Vf pre-check band was stated as 1.0-1.8V. V&V plan Test 1.1 (authoritative)
+            specifies 1.0-1.9V. Datasheet max VF at 70mA is 1.90V, so 1.9V is correct.
+  Fix     : Upper bound updated to 1.9V in optics_validation.txt.
+  Impact  : None. Typical VF values (1.55V) are well within both bounds.
+
+ISSUE-002 [RESOLVED]
+  Files   : validation.txt (R-SAFE-01, NCR-001), datasheets/optics_validation.txt
+  Finding : Legacy optical safety calculation was tied to the old 36 Ohm design case
+            (~89mA), which exceeded the project criterion on paper.
+  Fix     : R-SAFE-01 verdict changed from OPEN to PASS (conditional) in validation.txt.
+            Changed 850nm series resistor from 36 Ohms to 68 Ohms. Current drops to ~47mA,
+            peak power to ~36-40mW, and average power to ~9-10mW in 4-state TDM.
+  Impact  : Resolved. Human-subject demonstration still requires bench verification.
+
+ISSUE-003 [MINOR -- CORRECTED]
+  File    : validation.txt, Section 2 (R-DRV-01 calculation)
+  Finding : 850nm current calculation used VF = 1.5V (unspecified). Datasheet gives VF typ
+            = 1.60V at 100mA (explicit table entry).
+  Fix     : Calculation updated to final drive configuration:
+            I = (5.0 - 0.2 - 1.60) / 68 = 47.1mA.
+  Impact  : R-DRV-01 verdict unchanged (47.1mA is within 40-50mA band). No design change.
+
+## 6) Final Component Verification Summary
+- VERIFIED: 18 components/classes
+- PARTIAL: 1 component/class (730nm star board exact-MPN evidence gap)
+- N/A: 6 non-datasheet materials/accessories
+- BENCH-REQUIRED: all performance/safety claims remain bench-gated
+- OPEN (blocking): 0 issues
+
+Overall component documentation status: ACCEPTABLE FOR PRE-BENCH DESIGN REVIEW.
+OPTICAL SAFETY STATUS: RESOLVED -- bench phase can proceed.

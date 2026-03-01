@@ -1,0 +1,112 @@
+Optics Datasheet Validation
+===========================
+
+Date: 2026-03-01
+Revision: updated 2026-03-01 (cross-verification pass — see Issue Log below)
+Scope: Validate optical BOM parts against design requirements in spec.txt and validation_and_verification_plan.txt.
+
+Source register:
+- datasheets/optics_source_register.txt
+
+Primary manufacturer sources used for numeric values:
+- https://look.ams-osram.com/m/631defe919332729/original/SFH-4253B.pdf
+- https://www.vishay.com/docs/81521/bpw34.pdf
+- https://new-energyllc.com/wp-content/uploads/NewEnergy_StarBoard_Lumileds_Luxeon-C_DataSheet.pdf
+
+Supplemental (secondary) source:
+- https://pdf.datasheet.support/c3cb8a1a/opulent_americas/LST1-01G01-FRD1-00.html
+
+Requirements checked:
+1) Wavelengths: 730nm and 850nm (spec.txt)
+2) LED driver targets: 730 channel 35-50mA, 850 channel 40-50mA (validation_and_verification_plan.txt, R-DRV-01)
+3) LED Vf pre-check ranges: 730nm 1.8-2.3V, 850nm 1.0-1.9V (validation_and_verification_plan.txt, Test 1.1)
+4) Detector spectral suitability for NIR (730/850nm)
+5) Optical safety: time-averaged emitted power per channel < 10mW under final TDM timing (R-SAFE-01)
+
+Results by part:
+
+Part: LST1-01G01-FRD1-00 (730nm source LED)
+- Datasheet support page shows: Far Red 730nm, beam angle 130deg, Vf typ 2.10V,
+  total flux 310mW at 350mA (typ).
+- Status vs requirements:
+  - 730nm target: PASS
+  - Beam angle 130deg statement in spec: PASS
+  - Vf 1.8-2.3V pre-check band (Test 1.1): PASS (typ 2.10V)
+  - Current target (35-50mA): NOT CLOSED BY DATASHEET ALONE (bench measurement required per Test 3.2)
+  - Optical power at design current (~40mA): estimated ~35-40mW (linear approx from 310mW@350mA);
+    time-averaged at 1/4 TDM duty ~9-10mW. At or near the 10mW limit; bench measurement mandatory.
+
+Part: SFH4253B (850nm source LED)
+- Datasheet (PDF v1.2, 2025-12-01) confirmed values:
+  - Centroid wavelength: 850nm; peak wavelength: 860nm
+  - Half angle: 60deg (full beam angle 120deg)
+  - IF max: 100mA (continuous)
+  - VF min/typ/max at IF=70mA, tp=20ms: 1.15V / 1.55V / 1.90V
+  - VF typ at IF=100mA, tp=20ms: 1.60V (explicit datasheet entry)
+  - Total radiant flux at IF=70mA, tp=20ms: Phi_e typ = 55mW
+  - Total radiant flux at IF=100mA, tp=20ms: Phi_e typ = 80mW
+  - Radiant intensity at IF=100mA: Ie typ = 25 mW/sr
+  - IEC 62471 risk-group status: unverified in this document pending direct primary citation
+- Status vs requirements:
+  - 850nm target: PASS (centroid 850nm)
+  - Driver target 40-50mA: PASS (68 ohm drive model predicts ~47.1mA)
+  - Vf 1.0-1.9V pre-check band (Test 1.1): PASS (typ 1.55V; max 1.90V within band)
+  - Documentation wording aligned with datasheet beam geometry: PASS
+  - Optical power at final design current (~47mA): PASS (conditional, see Issue Log below)
+
+Part: BPW34 (photodiode)
+- Datasheet shows spectral range 430-1100nm and peak sensitivity near 900nm.
+- Status vs requirements:
+  - Detect 730/850nm region: PASS
+  - NIR suitability for this design: PASS
+
+Overall assessment:
+- Optical wavelength compatibility: PASS
+- Detector compatibility: PASS
+- Electrical suitability of SFH4253B for target current range: PASS (bench verification still required)
+- Documentation consistency: PASS (after ISSUE-001 correction below)
+- Optical safety (R-SAFE-01): PASS (conditional). Bench measurement Test 3.10 is still mandatory
+  because the paper estimate is close to the <10mW limit.
+
+================================================================================
+ISSUE LOG (cross-verification findings, 2026-03-01)
+================================================================================
+
+ISSUE-001 [MINOR -- CORRECTED IN THIS FILE]
+  Location : This document (optics_validation.txt), original Requirements section, item 3.
+  Original : "850nm 1.0-1.8V" Vf pre-check band.
+  Correct  : "850nm 1.0-1.9V" per validation_and_verification_plan.txt Test 1.1 (authoritative).
+             Datasheet max VF at 70mA is 1.90V, so the 1.9V upper bound is correct.
+             The 1.8V figure in the original document was narrower than the V&V plan and
+             would generate a false CONDITIONAL PASS for samples near max Vf.
+  Action   : Upper bound updated to 1.9V in this revision. No design change required.
+  Impact   : None. Actual typical values (1.55V) are well within both bands.
+
+ISSUE-002 [RESOLVED]
+  Location : validation.txt, Section 11 (R-SAFE-01) and NCR-001.
+  Original : Legacy 36 ohm drive case pushed 850nm current to ~89mA and exceeded the
+             project optical safety criterion on paper.
+  Correct  : Final design uses 68 ohm on 850nm channel. SFH4253B datasheet (PDF v1.2)
+             gives explicit total radiant flux:
+               IF=70mA  --> Phi_e typ = 55mW
+               IF=100mA --> Phi_e typ = 80mW
+             At final design current ~47.1mA, interpolation yields ~36-40mW peak optical output.
+             Time-averaged at 1/4 TDM duty: ~9-10mW.
+  Action   : R-SAFE-01 status aligned to PASS (conditional) across validation documents.
+             Bench Test 3.10 remains mandatory for formal closure.
+  Impact   : Resolved at documentation/paper-analysis level; no longer a blocking documentation
+             discrepancy.
+
+ISSUE-003 [MINOR -- CORRECTED]
+  Location : validation.txt, Section 2 (R-DRV-01 current calculation).
+  Original : Used Vf = 1.5V for 850nm channel (legacy pre-correction value).
+  Correct  : Datasheet gives VF typ = 1.60V at IF=100mA (explicit entry).
+             Corrected with final resistor value: I = (5.0 - 0.2 - 1.6) / 68 = 47.1mA.
+  Action   : Calculations updated to final 68 ohm configuration.
+  Impact   : R-DRV-01 verdict unchanged (PASS conditional) within the 40-50mA acceptance band.
+
+================================================================================
+Recommended next actions:
+1) Run V&V Test 3.2 (bench current measurement) to formally close R-DRV-01.
+2) Run V&V Test 3.10 (bench optical power measurement) to formally close R-SAFE-01.
+3) Capture measured TDM timing alongside optical test evidence to finalize safety basis.

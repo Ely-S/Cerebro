@@ -1,0 +1,448 @@
+Validation and Verification (V&V) Plan - Strict
+Cerebral Oximeter (Single-Channel NIRS) - POTS Demonstration System
+Target Audience: 3rd Year Electrical Engineering Students
+Revision: 3.2
+Document Type: Verification Planning and Acceptance Criteria
+
+================================================================================
+EXECUTIVE SUMMARY
+================================================================================
+This plan defines a strict, phase-gated V&V process with explicit pass/fail/open
+logic, required evidence artifacts, and closure rules before human-subject demo.
+
+Current closure priorities from paper verification:
+1) Optical safety closure requires measured evidence:
+   - Design criterion now defined as time-averaged emitted power per channel < 10 mW
+     under final firmware timing and drive settings.
+   - Design update: 4-state TDM, 68 ohm resistor on 850 nm channel, and added
+     bulk rail decoupling provide first-order margin versus the previous configuration.
+   - Status: design-level fix applied, bench measurement still required.
+
+2) Firmware timing closure requires measured evidence:
+   - Design now uses 4-state AmbientA/Red/AmbientB/IR sequence.
+   - Base-drive resistor is reduced to 470 ohm to improve TIP31C saturation margin.
+   - Physics: one conversion at 64 SPS is 15.625 ms, so theoretical minimum cycle is
+     62.5 ms (4 conversions).
+   - Status: requirement wording corrected; measured runtime must be captured.
+
+3) Precision claim closure gap:
+   - Claim: +/-2% relative precision at 95% confidence.
+   - No statistical validation dataset/method is currently attached.
+   - Status: OPEN until formal precision test and analysis complete.
+
+Release recommendation:
+- Human-subject demonstration is NOT authorized until all Phase 1-4 tests pass and
+  all blocking nonconformances are closed by evidence.
+
+================================================================================
+1. SCOPE, APPROACH, AND DEFINITIONS
+================================================================================
+Scope:
+- Electrical component verification
+- Wiring and integration integrity
+- Powered subsystem behavior
+- Bench-level system validation (no human subject)
+- In-vivo educational demonstration readiness and execution
+
+Out of scope:
+- Clinical efficacy claims
+- Regulatory submission activities
+- Diagnostic use validation
+
+Verification logic:
+- PASS: Requirement met with recorded evidence.
+- FAIL: Requirement not met; work stops at gate.
+- OPEN: Not enough evidence yet; cannot claim closure.
+
+Required evidence format (all tests):
+- Date/time, operator initials, firmware version, instrument used, raw values,
+  computed values, pass/fail decision, and notes.
+
+================================================================================
+2. PHASE GATES AND STOP RULES
+================================================================================
+Phase sequence:
+  Phase 1 - Component Verification (pre-assembly)
+  Phase 2 - Wiring and Integration (post-assembly, pre-power)
+  Phase 3 - Powered Subsystem Verification
+  Phase 4 - Bench System Validation (no human subject)
+  Phase 5 - In-vivo Educational Demonstration
+
+Gate rule:
+- A phase closes only when all tests in that phase are PASS.
+- Any FAIL creates a nonconformance record (NCR) and blocks the next phase.
+- OPEN items must be explicitly approved by instructor/lead before progression.
+
+Safety stop rule (all phases):
+- Stop immediately on smoke, odor, overheating, unstable supply rails, or any
+  unsafe subject symptom in Phase 5.
+
+================================================================================
+3. REQUIREMENT-TO-TEST TRACEABILITY MATRIX
+================================================================================
+ID              Requirement (from design intent/spec)                   Tests
+R-ELEC-01       3.3V logic compatibility (MCU <-> ADS1115)              2.5, 3.5, 3.6
+R-ELEC-02       5V LED power isolated from 3.3V domain, common GND      2.1, 2.2, 3.1
+R-DRV-01        LED drive current target by channel (730: 35-50mA, 850: 40-50 mA) with transistor saturation margin  3.2
+R-THERM-01      LED resistor power below 0.5 W rating                   3.2
+R-AFE-01        Stage 1 TIA nominal 100 kohm                            3.3
+R-AFE-02        Stage 2 gain nominal 48 V/V                             3.4
+R-AFE-03        No clipping/instability in expected operating range      3.3, 3.4, 4.1, 4.4
+R-ADC-01        ADS1115 address/config correct                          3.5, 3.6
+R-TIME-01       4-state TDM cycle behavior verified against ADC limits    3.7
+R-FW-01         EMA/filter behavior (N_eff=1/alpha convention) and output cadence verified  3.8, 4.5
+R-OPT-01        Probe optical isolation (dark leakage controlled)        2.6, 3.9
+R-SAFE-01       Optical safety criterion satisfied using explicit measurement basis  3.10
+R-PREC-01       +/-2% precision at 95% confidence demonstrated           4.6
+R-DEMO-01       Educational trend visualization works in healthy run     5.1, 5.2
+R-DEMO-02       Distinguishable OI/POTS-like trend contrast              5.3
+
+================================================================================
+4. PHASE 1 - COMPONENT VERIFICATION (PRE-ASSEMBLY)
+================================================================================
+Objective: Eliminate faulty parts before assembly.
+
+Test 1.1 - LED Forward Voltage and Emission
+Equipment: DMM, 9V battery or bench supply, 470 ohm resistor, phone camera
+Primary 850nm build part: ams OSRAM SFH4253B (legacy substitute: Epitex L850-05AU).
+Procedure:
+  a) Drive each LED through 470 ohm at low current.
+  b) Measure Vf and verify emission (camera check for 850 nm).
+Pass criteria:
+  - 730 nm LED Vf: 1.8V to 2.3V
+  - 850 nm LED Vf: 1.0V to 1.9V
+  - Emission present on command
+Failure action: Replace LED and repeat.
+
+Test 1.2 - BPW34 Polarity and Dark Behavior
+Equipment: DMM
+Procedure:
+  a) Check diode directionality.
+  b) Fully cover sensor and verify very low dark response.
+Pass criteria:
+  - Correct polarity response (forward/reverse discrimination)
+  - No abnormal leakage behavior in dark condition
+Failure action: Replace photodiode.
+
+Test 1.3 - TIP31C Junction Sanity
+Equipment: DMM (diode mode)
+Procedure:
+  a) Verify B-E and B-C junction drops are silicon-like.
+  b) Verify no C-E short.
+Pass criteria:
+  - Junction checks consistent with NPN transistor
+Failure action: Replace transistor.
+
+Test 1.4 - MCP6022 Basic Pin Integrity
+Equipment: DMM
+Procedure:
+  a) Check no hard short between V+ and GND pins.
+Pass criteria:
+  - V+ to GND resistance not shorted
+Failure action: Replace op-amp.
+
+Test 1.5 - ADS1115 Module Visual and Continuity Check
+Equipment: Visual inspection, DMM
+Procedure:
+  a) Inspect solder quality.
+  b) Verify ADDR strap intended for address 0x48.
+  c) Verify no VDD-GND short.
+Pass criteria:
+  - No visible defects
+  - Address strap and power pins are correct
+Failure action: Rework module or replace.
+
+Test 1.6 - Arduino Nano 33 IoT Self-Test
+Equipment: USB cable, Arduino IDE, DMM
+Procedure:
+  a) Upload Blink.
+  b) Verify board enumeration and 3.3V rail.
+Pass criteria:
+  - Board recognized, Blink runs
+  - 3.3V rail within 3.20V to 3.40V
+Failure action: Resolve USB/board fault before proceeding.
+
+================================================================================
+5. PHASE 2 - WIRING AND INTEGRATION (POST-ASSEMBLY, PRE-POWER)
+================================================================================
+Objective: Catch netlist errors before first power-on.
+
+Test 2.1 - Ground Continuity Audit
+Equipment: DMM continuity mode
+Pass criteria:
+  - Continuous GND between external supply, Arduino, ADS1115, MCP6022, TIP31C emitters
+  - Photodiode anode tied to intended reference node per schematic
+
+Test 2.2 - Rail Isolation and Short Check
+Equipment: DMM resistance mode
+Pass criteria:
+  - 5V to GND > 100 ohm
+  - 3.3V to GND > 500 ohm
+  - 5V to 3.3V > 1 kohm
+  - Bulk capacitor present at 5V entry (47-100uF, polarity verified)
+  - Bulk capacitor present near analog 3.3V rail (10uF)
+  - Local 0.1uF decouplers present at MCP6022 and ADS1115
+Failure action:
+  - Do not power system until short is removed.
+
+Test 2.3 - LED Driver Wiring Topology Check
+Equipment: DMM
+Pass criteria:
+  - 5V -> 68 ohm (730 nm) -> LED -> TIP31C collector path present
+  - 5V -> 68 ohm (850 nm) -> LED -> TIP31C collector path present
+  - Base path includes 470 ohm from GPIO
+  - Emitter to GND verified
+
+Test 2.4 - Analog Signal Chain Continuity
+Equipment: DMM
+Pass criteria:
+  - Stage 1 and Stage 2 feedback paths match schematic
+  - 4.7 pF compensation capacitor installed across Stage 1 feedback
+  - Stage 2 output reaches ADS1115 A0
+
+Test 2.5 - I2C Wiring and Power Domain Check
+Equipment: DMM
+Pass criteria:
+  - A4->SDA, A5->SCL continuity
+  - Pull-ups present (module or external)
+  - ADS1115 VDD tied to 3.3V only
+
+Test 2.6 - Probe Mechanical and Optical Build Inspection
+Equipment: Ruler, visual check, bright backlight
+Pass criteria:
+  - Source-detector spacing: 30 mm +/- 2 mm
+  - Correct component orientation
+  - Stack of 2-3 rubber washers is glued securely over the 730nm LED dome
+  - SFH4253B (SMT) is mounted on a mechanically secure carrier board with emitter face oriented toward tissue
+  - No obvious direct light path through foam or seams
+
+================================================================================
+6. PHASE 3 - POWERED SUBSYSTEM VERIFICATION
+================================================================================
+Objective: Verify each powered subsystem independently with measurable criteria.
+
+Test 3.1 - First Power-On Safety
+Equipment: Current-limited bench supply preferred, DMM
+Pass criteria:
+  - No smoke/odor/hot parts
+  - 5V rail: 4.75V to 5.25V
+  - 3.3V rail: 3.20V to 3.40V
+  - No MCU reset/brownout during repeated LED switching sequence
+Stop condition: Any thermal or rail anomaly.
+
+Test 3.2 - LED Current and Electrical Power
+Equipment: DMM (resistor drop method)
+Procedure:
+  - Measure V across 68 ohm resistor (730 nm) and 68 ohm resistor (850 nm) while LED ON.
+  - Compute I_730 = V_730/68, I_850 = V_850/68.
+  - Compute resistor power P = I^2*R for each channel.
+  - Measure V_CE for each TIP31C while LED ON.
+Pass criteria:
+  - I_f 730 nm: 35 mA to 50 mA
+  - I_f 850 nm: 40 mA to 50 mA
+  - V_CE during ON state remains in low-saturation region (target <= 0.35V)
+  - LED OFF state near zero current
+  - Resistor power < 0.5 W
+
+Test 3.3 - Stage 1 TIA Gain and Stability
+Equipment: Current injection setup, scope/DMM
+Pass criteria:
+  - Measured transimpedance: 100 kohm +/- 5%
+  - No sustained oscillation/ringing in nominal operating range
+  - Output remains inside usable linear range
+
+Test 3.4 - Stage 2 Gain and Linearity
+Equipment: Low-level voltage source, scope/DMM
+Pass criteria:
+  - Gain = 48 V/V nominal, acceptable band: +/-5%
+  - Linear response in defined input test range
+  - No sustained oscillation
+
+Test 3.5 - ADS1115 I2C Detection and Read Function
+Equipment: Arduino IDE, serial monitor
+Pass criteria:
+  - Device visible at expected address (0x48)
+  - Readings update continuously and respond to input changes
+
+Test 3.6 - ADS1115 Register Configuration Check
+Equipment: Firmware debug readback
+Pass criteria:
+  - PGA = +/-2.048V
+  - Continuous mode enabled
+  - Data rate = 64 SPS
+
+Test 3.7 - TDM Timing Verification (Strict)
+Equipment: Scope or logic analyzer on D2/D3 (+ optional SCL)
+Measured fact at 64 SPS:
+  - One conversion = 15.625 ms minimum
+  - Full AmbientA/Red/AmbientB/IR cycle theoretical minimum = 62.5 ms
+Pass criteria:
+  - Sequence order is AmbientA -> Red -> AmbientB -> IR with no Red/IR overlap
+  - Measured cycle time is physically consistent with ADC conversion timing
+  - Document measured full-cycle runtime and measured per-channel update rate
+  - Any spec text claiming "~15 ms full cycle at 64 SPS" is FAIL and requires NCR
+
+Test 3.8 - EMA and Output Cadence Unit Verification
+Equipment: Offline script or firmware logs
+Pass criteria:
+  - EMA implementation matches documented formula exactly
+  - EMA convention is explicitly N_eff = 1/alpha (alpha = 0.025 -> N_eff = 40)
+  - Step response and attenuation align with the documented convention
+  - Serial output cadence = 10 Hz +/- 1 Hz
+Open-item rule:
+  - If alpha equivalence definition is unclear, mark OPEN until documented.
+
+Test 3.9 - Optical Isolation Dark Test
+Equipment: Opaque enclosure/wrap, serial logging
+Pass criteria:
+  - Ambient-subtracted dark readings remain near zero and stable
+  - No large fixed offset indicating direct LED-to-photodiode leak
+
+Test 3.10 - Optical Safety Verification
+Equipment: Bench optical power measurement setup (required) plus datasheet estimate
+Pass criteria:
+  - Measurement basis is documented (time-averaged emitted power per channel under
+    final TDM timing and drive settings).
+  - 730 nm channel < 10 mW average.
+  - 850 nm channel < 10 mW average.
+Mandatory note:
+  - Updated paper estimate with 4-state duty and 68 ohm 850 nm resistor predicts
+    both channels below 10 mW average; bench measurement is still mandatory.
+
+================================================================================
+7. PHASE 4 - BENCH SYSTEM VALIDATION (NO HUMAN SUBJECT)
+================================================================================
+Objective: Validate end-to-end function and precision behavior without live subject.
+
+Test 4.1 - Controlled Optical Stimulus Response
+Equipment: Repeatable light source, serial logging
+Pass criteria:
+  - Signal increases with increasing optical input
+  - Returns toward baseline when blocked
+  - No ADC hard clipping in test range
+
+Test 4.2 - Finger Tissue Coupling Gate
+Equipment: Serial plotter
+Pass criteria:
+  - Both channels show expected attenuation versus open air
+  - Pulsatile component is visible under stable finger placement
+  - Filtered trace visibly smoother than raw trace
+Gate:
+  - If no pulsatility, do not proceed to Phase 5.
+
+Test 4.3 - Baseline Establishment Behavior
+Equipment: Serial monitor/logging
+Pass criteria:
+  - Baseline completion message appears within configured time window
+  - Stable condition yields near-zero percent change after baseline
+
+Test 4.4 - Noise and Drift Floor
+Equipment: Fixed fixture, serial logging
+Pass criteria:
+  - Percent-change noise band meets project threshold in no-motion condition
+  - No repeated clipping/saturation events
+  - Drift remains bounded in hold period
+
+Test 4.5 - Output Format and Plotting Readiness
+Equipment: Arduino Serial Plotter
+Pass criteria:
+  - Required channels are present and labeled
+  - Plot updates at 10 Hz +/- 1 Hz
+  - Traces are visually interpretable for classroom viewing
+
+Test 4.6 - Precision Claim Validation Protocol (+/-2% at 95% confidence)
+Equipment: Logged dataset, analysis script (Python/MATLAB)
+Procedure requirements:
+  - Define stationary test condition and acquisition duration.
+  - Collect enough samples to compute 95% confidence interval.
+  - Use documented estimator and interval method.
+Pass criteria:
+  - Relative error band and confidence interval support +/-2% claim.
+If not achieved:
+  - Mark FAIL (not OPEN), update claim or redesign filter/hardware.
+
+================================================================================
+8. READINESS GATE TO PHASE 5
+================================================================================
+All items below must be PASS before any human-subject demonstration:
+  [ ] Phase 1 complete (all PASS)
+  [ ] Phase 2 complete (all PASS)
+  [ ] Phase 3 complete (all PASS; safety and timing NCRs closed)
+  [ ] Phase 4 complete (all PASS including precision validation)
+  [ ] Optical safety criterion formally closed by measured evidence
+  [ ] Timing requirement formally closed by measured runtime evidence
+
+================================================================================
+9. PHASE 5 - IN-VIVO EDUCATIONAL DEMONSTRATION
+================================================================================
+Objective: Demonstrate educational trend behavior safely (non-diagnostic use only).
+
+Safety pre-brief (mandatory):
+  - Stop immediately if subject requests stop, feels faint, has blurred vision,
+    appears pale/sweaty/confused, HR > 150 bpm, or trend drop exceeds safety limit.
+  - Recovery posture and observer must be in place before standing phase.
+
+Test 5.1 - Healthy Subject Supine Baseline Stability
+Pass criteria:
+  - Baseline is established
+  - Stable supine trace remains within defined narrow band
+  - Reference HR in normal resting range
+
+Test 5.2 - Healthy Supine-to-Stand Pattern
+Pass criteria:
+  - Small transient oxygenation dip with prompt recovery
+  - HR increase consistent with normal orthostatic response
+  - Trend is clearly visible and interpretable on plotter
+
+Test 5.3 - OI/POTS-Contrast Demonstration (if available)
+Pass criteria:
+  - Demonstration shows larger and more sustained drop versus healthy profile
+  - Pattern contrast is visually clear for instructional use
+Note:
+  - This is educational comparison only, not diagnostic classification.
+
+Test 5.4 - Motion Artifact Recovery During Transition
+Pass criteria:
+  - No prolonged clipping during transition motion
+  - Filtered signal re-stabilizes after transition interval
+
+================================================================================
+10. NONCONFORMANCE HANDLING
+================================================================================
+For every FAIL:
+  1) Create NCR with test ID, symptom, measured value, and suspected cause.
+  2) Implement corrective action.
+  3) Re-run failed test and any affected downstream tests.
+  4) Close NCR only with objective evidence.
+
+OPEN items:
+  - Must include owner, due date, and closure test.
+  - OPEN items cannot be silently carried into human-subject phase.
+
+================================================================================
+11. REQUIRED DELIVERABLES FOR SIGN-OFF
+================================================================================
+1) Completed test log sheets for all phases.
+2) Instrument list and calibration status (where applicable).
+3) Firmware revision identifier used for each test run.
+4) Raw data files for timing, ADC, and precision analysis.
+5) NCR log with closure evidence.
+6) Final verification summary with PASS/FAIL/OPEN counts and release decision.
+
+================================================================================
+12. EQUIPMENT SUMMARY
+================================================================================
+Phase 1-4 minimum:
+  - DMM (continuity, resistance, diode, DC voltage)
+  - Computer with Arduino IDE and ADS1115 support library
+  - Scope or logic analyzer (2+ channels) for timing verification
+  - Low-level signal injection method for analog gain checks
+  - Stable light source and opaque covering materials
+
+Phase 5 additional:
+  - Assembled device with Phase 1-4 gate closed
+  - Supine surface and safe standing area
+  - Reference pulse oximeter for HR observation
+  - Observer/safety monitor
+
+End of document.

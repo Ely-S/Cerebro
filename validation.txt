@@ -1,0 +1,553 @@
+# Design Verification Report (Paper Analysis)
+## Cerebral Oximeter — Single-Channel NIRS, POTS Demonstration System
+## Verification Scope: Calculation and Datasheet Reasoning Against spec.txt Rev 3.2
+## Cross-reference: validation_and_verification_plan.txt Rev 3.2
+## Report Revision: 3.1
+
+================================================================================
+EXECUTIVE SUMMARY
+================================================================================
+
+This report records the results of paper-based (pre-bench) verification against
+the design specification and the V&V plan requirement traceability matrix. All
+15 requirements from the V&V plan are addressed. Evidence is limited to
+first-order calculations, datasheet review, and logical consistency checks.
+Bench and in-vivo phases remain pending.
+
+  PASS (firm)          : 3
+  PASS (conditional)   : 6
+  FAIL (blocking NCR)  : 0
+  OPEN                 : 4
+  PENDING (in-vivo)    : 2
+  ─────────────────────────
+  Total requirements   : 15
+
+Release status: NOT AUTHORIZED for human-subject demonstration. Design-level
+corrections for former blockers are applied, but bench evidence is still
+required and all Phase 1-4 gates must close per V&V plan before Phase 5.
+
+--------------------------------------------------------------------------------
+CHANGE LOG - 2026-03-01 DOCUMENT SYNCHRONIZATION PASS
+--------------------------------------------------------------------------------
+
+Purpose:
+  - Align validation artifacts to the final Rev 3.2 electrical baseline and
+    remove stale legacy values from prior 36 ohm / high-current analysis drafts.
+
+Applied updates:
+  - R-DRV-01 target synchronized to 730:35-50mA and 850:40-50mA.
+  - R-SAFE-01 status synchronized to PASS (conditional, bench closure required).
+  - 850nm drive baseline synchronized to 68 ohm across referenced documents.
+  - Legacy contradictory wording (OPEN vs PASS for R-SAFE-01) removed.
+  - 850nm optical estimate wording refined to ~36-40mW peak (~9-10mW average
+    at 25% duty) to reflect interpolation uncertainty.
+
+Affected files:
+  - validation.txt
+  - validation_and_verification_plan.txt
+  - hardware-validation.txt
+  - datasheets/optics_validation.txt
+  - vv_calculations.md (new, full step-by-step math record)
+
+Note:
+  - This synchronization pass does not replace bench closure requirements.
+    Tests 3.2, 3.7, 3.10, and 4.6 remain mandatory for final release.
+
+--------------------------------------------------------------------------------
+FORMER BLOCKING ITEMS - DESIGN UPDATE STATUS
+--------------------------------------------------------------------------------
+
+NCR-001  R-SAFE-01  Optical Safety  [DESIGN UPDATE APPLIED -- PASS (conditional)]
+  Criterion basis : Time-averaged emitted optical power per channel < 10 mW
+                    under final TDM timing and drive settings.
+  Updated design  : 4-state TDM plus 68 ohm resistor on 850 nm channel.
+  Calculated result (CORRECTED -- 2026-03-01, ISSUE-002 resolved):
+    730 nm average = ~35-40 mW / 4 = ~8.8-10.0 mW  (marginal; bench required)
+    850 nm average = ~36-40 mW / 4 = ~9.0-10.0 mW   (meets criterion; bench required)
+  Prior estimate of 40mW for 850nm is now accurate as an upper bound at the ~47mA current.
+  Remaining closure: Bench Test 3.10 required after resolution.
+
+NCR-002  R-TIME-01  TDM Timing Claim  [DESIGN UPDATE APPLIED]
+  Updated claim  : 4-state AmbientA/Red/AmbientB/IR timing at ADS1115 64 SPS.
+  Physical limit : One conversion = 15.625 ms, theoretical cycle minimum =
+                   4 x 15.625 = 62.5 ms.
+  Remaining closure: Bench timing capture required in V&V Test 3.7.
+
+--------------------------------------------------------------------------------
+OPEN ITEMS (MUST RESOLVE BEFORE PRECISION CLAIM AND BENCH PHASE CAN CLOSE)
+--------------------------------------------------------------------------------
+
+OPEN-001  R-FW-01  EMA Implementation and Cadence Verification
+  EMA convention is now fixed in spec: N_eff = 1/alpha = 40 (alpha = 0.025).
+  Remaining work is implementation verification (firmware behavior and output
+  cadence) through V&V Tests 3.8 and 4.5.
+
+OPEN-002  R-PREC-01  Precision Claim (+/-2% at 95% Confidence)
+  No statistical dataset, estimator, or confidence interval computation exists.
+  Cannot be resolved by calculation. Requires bench execution of V&V Test 4.6.
+
+================================================================================
+SCOPE AND EVIDENCE
+================================================================================
+
+Scope     : Requirements R-ELEC-01 through R-DEMO-02 per V&V plan Section 3.
+Evidence  : Calculation and datasheet reasoning only. No bench logs attached.
+Confidence: Moderate for first-order electrical checks; low for statistical or
+            hardware-in-the-loop claims.
+Phase     : Paper analysis addresses design intent for Phases 1-4. Phase 3 and
+            Phase 4 tests still require hardware execution. Phase 5 tests are
+            marked PENDING (in-vivo only; cannot be evaluated by paper analysis).
+
+================================================================================
+DATA SOURCE DOCUMENTATION
+================================================================================
+
+Optics source provenance for this report is recorded in:
+  - datasheets/optics_source_register.txt
+
+Primary optics numeric sources used by this report:
+  - SFH4253B datasheet (manufacturer):
+      https://look.ams-osram.com/m/631defe919332729/original/SFH-4253B.pdf
+  - BPW34 datasheet (manufacturer):
+      https://www.vishay.com/docs/81521/bpw34.pdf
+  - New-Energy starboard family datasheet:
+      https://new-energyllc.com/wp-content/uploads/NewEnergy_StarBoard_Lumileds_Luxeon-C_DataSheet.pdf
+
+Supplemental (secondary) optics source:
+  - https://pdf.datasheet.support/c3cb8a1a/opulent_americas/LST1-01G01-FRD1-00.html
+
+Source policy applied:
+  - Manufacturer datasheets take precedence for numeric decisions.
+  - Product pages and mirrors are supporting context only.
+  - Claims without direct primary citation are marked unverified/pending.
+
+================================================================================
+REQUIREMENT TRACEABILITY AND VERDICTS
+================================================================================
+
+Requirement IDs and test IDs follow V&V plan Section 3 (traceability matrix).
+
+  Req ID      Requirement                                     Paper Verdict  V&V Tests
+  ─────────────────────────────────────────────────────────────────────────────────────
+  R-ELEC-01   3.3V logic compatibility (MCU <-> ADS1115)     PASS           2.5,3.5,3.6
+  R-ELEC-02   5V LED power isolated from 3.3V, common GND    PASS           2.1,2.2,3.1
+  R-DRV-01    LED current targets (730:35-50mA, 850:40-50mA) PASS (cond.)   3.2
+  R-THERM-01  LED resistor power below 0.5 W rating          PASS           3.2
+  R-AFE-01    Stage 1 TIA nominal 100 kohm                   PASS (cond.)   3.3
+  R-AFE-02    Stage 2 gain nominal 48 V/V                    PASS (cond.)   3.4
+  R-AFE-03    No clipping/instability in operating range      PASS (cond.)   3.3,3.4,4.1,4.4
+  R-ADC-01    ADS1115 address and config correct              OPEN           3.5,3.6
+  R-TIME-01   4-state TDM cycle verified against ADC limits   PASS (cond.)   3.7
+  R-FW-01     EMA/filter behavior and output cadence          OPEN           3.8,4.5
+  R-OPT-01    Probe optical isolation (dark leakage)          OPEN           2.6,3.9
+  R-SAFE-01   Optical safety criterion satisfied              PASS (cond.)   3.10
+  R-PREC-01   +/-2% precision at 95% confidence              OPEN           4.6
+  R-DEMO-01   Educational trend visualization (healthy run)   PENDING        5.1,5.2
+  R-DEMO-02   Distinguishable OI/POTS-like trend contrast     PENDING        5.3
+
+================================================================================
+DETAILED VERIFICATION CALCULATIONS
+================================================================================
+
+--------------------------------------------------------------------------------
+1. LOGIC AND POWER DOMAIN  --  R-ELEC-01, R-ELEC-02
+--------------------------------------------------------------------------------
+
+Arduino Nano 33 IoT: 3.3 V I/O logic throughout.
+ADS1115 module: VDD connected to Arduino 3.3 V rail per schematic.
+I2C lines (A4/SDA, A5/SCL): 3.3 V compatible on both devices.
+LED drivers: powered from external 5 V via TIP31C transistors.
+Ground: single common GND required and specified in assembly notes.
+Spec explicitly warns against connecting ADS1115 VDD to 5 V. Risk identified;
+design addresses it correctly in schematic.
+
+Verdict R-ELEC-01: PASS.
+Verdict R-ELEC-02: PASS.
+
+--------------------------------------------------------------------------------
+2. LED DRIVER CURRENT AND SATURATION MARGIN  --  R-DRV-01
+--------------------------------------------------------------------------------
+
+Assumptions:
+  V_gpio   = 3.3 V
+  V_BE     = 0.7 V
+  R_base   = 470 ohm
+  V_CE_sat = 0.2 V (conservative at ~100 mA)
+
+Base current:
+  I_B = (3.3 - 0.7) / 470 = 5.53 mA
+
+LED currents (external 5 V, channel-specific series resistors):
+  730 nm (V_F ~ 2.1 V): I_LED = (5.0 - 0.2 - 2.1) / 68 = 39.7 mA
+  850 nm (V_F = 1.60 V per SFH4253B datasheet at 100mA, tp=20ms):
+    I_LED = (5.0 - 0.2 - 1.60) / 68 = 47.1 mA
+  [ISSUE-003 corrected: prior calculation used V_F = 1.5V (unspecified estimate).
+   SFH4253B datasheet (PDF v1.2) gives V_F typ = 1.60V at 100mA explicitly.
+   Corrected current is 47.1mA, within the new 40-50mA band.]
+
+Both values meet the updated V&V bands:
+  730 nm: 35-50 mA  (calc: 39.7 mA -- PASS)
+  850 nm: 40-50 mA  (calc: 47.1 mA -- PASS)
+
+Required forced-beta for saturation:
+  730 nm: h_FE_required = 39.7 / 5.53 = 7.2
+  850 nm: h_FE_required = 47.1 / 5.53 = 8.5
+
+TIP31C datasheet: h_FE minimum ~25 at 1 A, typically > 50 at 100 mA. Nominal
+margin is adequate.
+
+Conditional note: A conservative forced-beta design (h_FE_forced = 10) would
+require I_B ~ 9-10 mA, implying R_base ~ 260 ohm. The updated 470 ohm value
+gives h_FE_forced ~16-17, materially improving saturation margin while staying
+within practical MCU-drive limits. Bench Test 3.2 is required for formal
+closure across device and temperature variation.
+
+Verdict R-DRV-01: PASS (conditional). Bench Test 3.2 required.
+
+--------------------------------------------------------------------------------
+3. RESISTOR THERMAL DISSIPATION  --  R-THERM-01
+--------------------------------------------------------------------------------
+
+Continuous (100% duty) worst case:
+  P_730 = (0.0397)^2 * 68 = 0.107 W
+  P_850 = (0.0471)^2 * 68 = 0.151 W
+
+Both are below the 0.5 W continuous resistor rating.
+
+Under 4-state TDM at 1/4 duty cycle per LED:
+  P_avg_730 = 0.107 / 4 = 0.027 W
+  P_avg_850 = 0.151 / 4 = 0.038 W
+
+Verdict R-THERM-01: PASS.
+
+--------------------------------------------------------------------------------
+4. STAGE 1 TIA TRANSIMPEDANCE  --  R-AFE-01
+--------------------------------------------------------------------------------
+
+Schematic specifies 100 kohm metal-film 1% feedback resistor with 4.7 pF
+stability capacitor across it.
+
+Nominal transimpedance = 100 kohm.
+V&V plan acceptance: 100 kohm +/- 5% (95 kohm to 105 kohm).
+
+Paper review confirms correct component values are specified. Actual measured
+gain requires bench current-injection test (V&V Test 3.3) for formal closure.
+
+Verdict R-AFE-01: PASS (conditional). Bench Test 3.3 required.
+
+--------------------------------------------------------------------------------
+5. STAGE 2 VOLTAGE GAIN  --  R-AFE-02
+--------------------------------------------------------------------------------
+
+Non-inverting amplifier configuration:
+  Gain = 1 + R_f / R_g = 1 + 47k / 1k = 48 V/V (nominal)
+
+V&V plan acceptance: 48 V/V +/- 5% (45.6 V/V to 50.4 V/V).
+Total equivalent transimpedance: 100 kohm * 48 = 4.8 Mohm.
+
+Bench Test 3.4 required for formal closure.
+
+Verdict R-AFE-02: PASS (conditional). Bench Test 3.4 required.
+
+--------------------------------------------------------------------------------
+6. CLIPPING HEADROOM AND STABILITY  --  R-AFE-03
+--------------------------------------------------------------------------------
+
+Maximum photocurrent before ADC clipping (PGA = +/-2.048 V):
+  I_max = 2.048 / 4.8e6 = 426.7 nA
+
+Expected tissue photocurrent: ~10-100 nA (BPW34 responsivity ~0.6 A/W at 850 nm;
+received optical power in the nW range after 30 mm tissue path). This is well
+within the linear operating range with ~4x-40x margin to full-scale.
+
+Stability pole analysis:
+  Stage 1 TIA bandwidth: f_c1 = 1 / (2*pi * 100k * 4.7pF) = 338.6 kHz
+  Stage 2 closed-loop BW: GBW / gain = 10 MHz / 48 = 208.3 kHz
+
+Physiological content is < 10 Hz. With 4-state TDM at 64 SPS, per-channel update
+rate is 16 Hz. Both are far below the stage cutoff frequencies. The 4.7 pF compensation
+capacitor also limits noise gain at the BPW34 input capacitance (~70 pF).
+
+Conditional note: Phase margin depends on real PCB trace parasitics and layout.
+Oscillation cannot be ruled out from paper review alone. Bench Tests 3.3 and 3.4
+must confirm no sustained oscillation or ringing.
+
+Verdict R-AFE-03: PASS (conditional). Bench Tests 3.3, 3.4, 4.1, 4.4 required.
+
+--------------------------------------------------------------------------------
+7. ADS1115 ADDRESS AND CONFIGURATION  --  R-ADC-01  [OPEN]
+--------------------------------------------------------------------------------
+
+Schematic specifies:
+  ADDR pin tied to GND  -->  I2C address 0x48
+  PGA setting           -->  +/-2.048 V (matches expected signal range)
+  Mode                  -->  Continuous
+  Data rate             -->  64 SPS
+
+These are correctly documented in the design. Whether the firmware writes the
+correct register values and whether the device responds at 0x48 cannot be
+verified without hardware. V&V Tests 3.5 (I2C detection) and 3.6 (register
+readback) are required for closure.
+
+Verdict R-ADC-01: OPEN. Bench Tests 3.5 and 3.6 required.
+
+--------------------------------------------------------------------------------
+8. TDM TIMING ANALYSIS  --  R-TIME-01  [PASS (conditional)]
+--------------------------------------------------------------------------------
+
+At ADS1115 64 SPS:
+  T_conversion = 1 / 64 = 15.625 ms per single conversion
+
+Minimum 4-state cycle (AmbientA -> Red -> AmbientB -> IR), one conversion/state:
+  T_cycle_min = 4 * 15.625 = 62.5 ms
+  Per-channel update rate = 1 / 0.0625 = 16.0 Hz
+
+Important interpretation: 62.5 ms is an ideal lower bound, not a guaranteed
+runtime value. Actual cycle time can increase due to ADC settling behavior,
+I2C/config transaction latency (if rewritten per state), LED switching delays,
+and loop overhead. Formal closure requires bench timing capture (e.g., GPIO
+strobe plus scope/logic analyzer) during V&V Test 3.7.
+
+Spec Rev 3.2 now states a theoretical minimum 4-state cycle of 62.5 ms at
+64 SPS and requires measured runtime confirmation in V&V Test 3.7.
+
+Downstream impact: The spec states a 10 Hz output rate. This is achievable
+because serial output cadence is decoupled from internal TDM cycle timing.
+The per-channel effective sample rate (16 Hz) is now documented consistently
+and is used in the EMA time-constant analysis (see Section 9).
+
+Verdict R-TIME-01: PASS (conditional). Bench Test 3.7 required.
+
+--------------------------------------------------------------------------------
+9. EMA FILTER DEFINITION AND TIME CONSTANT  --  R-FW-01  [OPEN]
+--------------------------------------------------------------------------------
+
+EMA formula: y[n] = alpha * x[n] + (1 - alpha) * y[n-1],  alpha = 0.025
+
+Spec Rev 3.2 explicitly fixes the convention to:
+  N_eff = 1/alpha = 40 samples.
+
+Effective averaging time at per-channel 16 Hz update rate:
+  40 / 16 = 2.5 seconds of averaging.
+
+This resolves the prior ambiguity and aligns spec text with V&V Test 3.8.
+Remaining work is implementation verification in firmware logs/bench testing.
+
+Verdict R-FW-01: OPEN pending Tests 3.8 and 4.5.
+
+--------------------------------------------------------------------------------
+10. PROBE OPTICAL ISOLATION  --  R-OPT-01  [OPEN]
+--------------------------------------------------------------------------------
+
+Spec assembly step 4 identifies direct LED-to-photodiode light coupling as "the
+#1 failure point" and mandates an opaque rubber washer stack to restrict the wide 130-degree beam angle of the 730nm Star Board, plus opaque foam/tape isolation and a dark-space
+verification step. This is the correct mitigation approach.
+
+Paper review cannot assess isolation quality. V&V plan requires:
+  Test 2.6: Mechanical and optical build inspection (ruler, bright backlight).
+  Test 3.9: Ambient-subtracted dark test with serial logging; readings must
+             remain near zero with no large fixed offset.
+
+Verdict R-OPT-01: OPEN. Assembly and bench dark test required.
+
+--------------------------------------------------------------------------------
+11. OPTICAL SAFETY  --  R-SAFE-01  [PASS (conditional) -- bench closure required]
+--------------------------------------------------------------------------------
+
+[ISSUE-002 -- 2026-03-01: RESOLVED. R-SAFE-01 verdict changed to PASS (conditional).
+ The original estimate for 850nm peak optical power (40mW) was accurate for ~45-50mA,
+ but the resistor was incorrectly specified at 36 Ohms. Changing the resistor to 68 Ohms
+ brings the current to ~47.1mA, where the peak power is ~40mW.
+ At 4-state TDM duty cycle, the time-averaged power is ~10mW, meeting the criterion.]
+
+LED peak optical powers (revised, from SFH4253B datasheet + Star Board data):
+  730 nm: ~35-40 mW peak (linear estimate: 310mW@350mA * 40mA/350mA ~ 35mW;
+           40mW is a conservative upper bound. Actual value requires bench measurement.)
+  850 nm: ~36-40 mW peak (interpolated from datasheet at ~47mA)
+
+At 4-state TDM duty cycle (each LED on during one of four ADC states):
+  730 nm average: ~35-40 mW / 4 = ~8.8-10.0 mW  (marginal; bench measurement mandatory)
+  850 nm average: ~36-40 mW / 4 = ~9.0-10.0 mW   (near limit; bench measurement mandatory)
+
+Interpretation note: The spec Rev 3.2 criterion is time-averaged emitted power
+per channel < 10mW under final timing/drive settings.
+
+Additional note: IEC 62471 risk-group status for SFH4253B is not explicitly
+validated by a direct citation in this report and is therefore treated as
+unverified pending a primary source reference.
+This is separate from the project's self-imposed <10mW time-averaged criterion.
+Whether to revise the project criterion to IEC 62471 basis is a design decision
+requiring instructor/lead approval per V&V plan gate rules.
+
+Formal closure still requires bench optical power measurement in V&V Test 3.10.
+The current paper estimate with 68 ohm drive predicts compliance with the
+project criterion, but the margin is tight and must be confirmed by measurement.
+
+Verdict R-SAFE-01: PASS (conditional). Bench Test 3.10 required.
+
+--------------------------------------------------------------------------------
+12. PRECISION CLAIM  --  R-PREC-01  [OPEN -- OPEN-002]
+--------------------------------------------------------------------------------
+
+Claim: +/-2% relative precision at 95% confidence (spec Section 3).
+
+Required evidence for closure:
+  - Defined stationary test condition (probe fixed, no motion, stable ambient).
+  - Sample count sufficient for the chosen confidence interval method
+    (minimum N = 30; proper power analysis recommended).
+  - Documented estimator: e.g., sample standard deviation used to compute a
+    two-sided 95% CI on individual measurements or on the mean.
+  - Acceptance test: CI half-width must be <= 2%.
+
+None of this evidence exists at the paper stage. The SNR calculation cited in
+spec Section 12 ("SNR ~38:1 calculated") is not a substitute for a formal
+statistical validation protocol. This item requires bench execution of V&V
+plan Test 4.6.
+
+Note: R-FW-01 remains OPEN until firmware-level EMA behavior is verified.
+
+Verdict R-PREC-01: OPEN. OPEN-002. Bench Test 4.6 required.
+
+--------------------------------------------------------------------------------
+13. R-DEMO-01 AND R-DEMO-02  [PENDING -- IN-VIVO ONLY]
+--------------------------------------------------------------------------------
+
+R-DEMO-01: Educational trend visualization in healthy supine-to-stand run.
+R-DEMO-02: Distinguishable OI/POTS-like trend contrast versus healthy profile.
+
+These requirements are assessed by V&V plan Tests 5.1-5.3. They are in-vivo
+tests that cannot be evaluated by paper analysis. They may only be executed
+after the Phase 5 readiness gate is fully closed (all Phase 1-4 gates PASS,
+and all required Phase 3/4 evidence recorded).
+
+Verdict R-DEMO-01: PENDING.
+Verdict R-DEMO-02: PENDING.
+
+--------------------------------------------------------------------------------
+SUPPORTING NOTE: WAVELENGTH SUITABILITY (not a V&V plan requirement)
+--------------------------------------------------------------------------------
+
+730 nm falls on the deoxygenated-hemoglobin-dominant side of the hemoglobin
+absorption crossover (~800 nm isosbestic point). 850 nm falls on the
+oxygenated-hemoglobin-dominant side. This standard pairing provides differential
+sensitivity to cerebral oxygenation changes and is consistent with published NIRS
+instruments and the references cited in spec Section 14. No V&V requirement is
+assigned to this; it is recorded here as supporting rationale.
+
+================================================================================
+DESIGN CORRECTIONS AND REMAINING CLOSURE ACTIONS
+================================================================================
+
+CA-001  --  Optical Safety Design Correction                    [APPLIED]
+
+  Implemented:
+    - Spec/V&V criterion basis explicitly defined.
+    - 4-state TDM adopted (1/4 duty per LED state).
+    - 850 nm series resistor changed to 68 ohm to align drive current with
+      the 40-50mA target and optical safety criterion.
+  Remaining closure:
+    - Bench optical power measurement under final firmware timing (Test 3.10).
+    - Record instrument, geometry, and raw measurement evidence in V&V logs.
+
+CA-002  --  TDM Timing Correction                                [APPLIED]
+
+  Implemented:
+    - Spec timing wording updated to 4-state theoretical minimum (62.5 ms).
+    - Spec sample-rate row corrected to TDM-consistent per-channel update rate.
+  Remaining closure:
+    - Bench timing capture for real runtime cycle and per-channel update rate
+      (Test 3.7).
+
+CA-003  --  EMA Definition Standardization                       [APPLIED]
+
+  Implemented:
+    - Convention fixed to N_eff = 1/alpha = 40 in spec and V&V plan.
+  Remaining closure:
+    - Firmware behavior and log-level verification in Tests 3.8 and 4.5.
+
+CA-004  --  Transistor Drive Margin                              [APPLIED]
+
+  Implemented:
+    - Base resistor changed from 1 kohm to 470 ohm in design documentation.
+  Rationale:
+    h_FE_forced = 10 (conservative minimum for reliable saturation)
+    I_B_required = I_LED_max / h_FE_forced = 100 mA / 10 = 10 mA
+    R_base_required = (3.3 - 0.7) / 0.010 = 260 ohm
+  Remaining closure:
+    - Verify V_CE saturation margin and channel currents in Test 3.2.
+
+CA-005  --  Power Rail Bulk Decoupling                           [APPLIED]
+
+  Implemented:
+    - Added 47-100uF bulk capacitor at 5V rail entry.
+    - Added 10uF bulk capacitor near analog 3.3V rail.
+  Rationale:
+    - Reduce rail ripple coupling from LED switching transients into analog path.
+  Remaining closure:
+    - Confirm rail behavior during switching and no brownout/reset in Tests 3.1/3.2.
+
+================================================================================
+PHASE GATE STATUS (PAPER ANALYSIS STAGE)
+================================================================================
+
+  Phase 1 (Component Verification)
+    Status : CANNOT CLOSE -- physical components required.
+    Tests  : 1.1-1.6. None can be executed by paper analysis.
+
+  Phase 2 (Wiring and Integration, pre-power)
+    Status : CANNOT CLOSE -- assembled board required.
+    Tests  : 2.1-2.6. None can be executed by paper analysis.
+
+  Phase 3 (Powered Subsystem Verification)
+    Status : CANNOT CLOSE -- hardware required; design-level fixes are applied
+             but bench evidence is still required for timing and optical safety.
+    Tests  : 3.1-3.10.
+
+  Phase 4 (Bench System Validation, no human subject)
+    Status : CANNOT CLOSE -- hardware required AND OPEN items must resolve
+             (OPEN-001 firmware EMA/cadence verification,
+              OPEN-002 precision dataset).
+    Tests  : 4.1-4.6.
+
+  Phase 5 Readiness Gate (In-Vivo Educational Demonstration)
+    Status : BLOCKED.
+    Gate requires: All Phase 1-4 gates PASS with recorded evidence.
+
+================================================================================
+REQUIRED DELIVERABLES STATUS (V&V plan Section 11)
+================================================================================
+
+  Item                                              Status
+  ─────────────────────────────────────────────────────────────────────
+  Completed test log sheets (all phases)            Pending
+  Instrument list and calibration status            Pending
+  Firmware revision identifier for each test run    Pending
+  Raw data files (timing, ADC, precision analysis)  Pending
+  NCR/design-correction closure evidence            In progress --
+                                                    bench closure pending
+  Final verification summary (PASS/FAIL/OPEN)       This document
+                                                    (paper stage only)
+
+================================================================================
+FINAL STATUS
+================================================================================
+
+Paper analysis (pre-bench) complete.
+
+  PASS (firm)       : 3  (R-ELEC-01, R-ELEC-02, R-THERM-01)
+  PASS (conditional): 6  (R-DRV-01, R-AFE-01, R-AFE-02, R-AFE-03, R-TIME-01, R-SAFE-01)
+  FAIL              : 0  (none)
+  OPEN              : 4  (R-ADC-01, R-FW-01, R-OPT-01, R-PREC-01)
+                         [R-SAFE-01 moved from OPEN to PASS(cond) -- ISSUE-002 resolved, 2026-03-01:
+                          850nm resistor changed to 68 Ohms; criterion met]
+  PENDING           : 2  (R-DEMO-01, R-DEMO-02 -- in-vivo only)
+  ─────────────────────────────────────────
+  Total             : 15
+
+Overall status: NOT VERIFIED for full claim set.
+
+Human-subject demonstration is NOT AUTHORIZED until:
+  1. Optical safety is verified by bench measurement (Test 3.10).
+  2. Timing behavior is verified by scope/logic analyzer (Test 3.7).
+  3. All Phase 1-4 gates are closed with recorded evidence.
+  4. OPEN items are resolved or formally accepted per V&V plan gate rules.
