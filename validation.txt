@@ -81,7 +81,8 @@ FORMER BLOCKING ITEMS - DESIGN UPDATE STATUS
 NCR-001  R-SAFE-01  Optical Safety  [DESIGN UPDATE APPLIED -- PASS (conditional)]
   Criterion basis : Time-averaged emitted optical power per channel < 10 mW
                     under final TDM timing and drive settings.
-  Updated design  : 4-state TDM plus 68 ohm resistor on 850 nm channel.
+  Updated design  : 4-state TDM, 68 ohm resistor on 850 nm channel, and DCN-001
+                    wire-pigtail emitter mounting (no carrier boards).
   Calculated result (updated -- 2026-03-02, DCN-001):
     730 nm average = ~36 mW / 4 = ~9.0 mW  (marginal; bench required)
     850 nm average = ~36-40 mW / 4 = ~9.0-10.0 mW   (meets criterion; bench required)

@@ -252,7 +252,7 @@ EXTERNAL 5V POWER SUPPLY (Wall Adapter, 1A minimum)
 
 | Stage                | Function                   | Key Components                                                             |
 | -------------------- | -------------------------- | -------------------------------------------------------------------------- |
-| **1. Emitter**       | High-power NIR LED drive   | TIP31C, 68 Ohm (730nm) + 68 Ohm (850nm), Cree JE2835AFR / ams OSRAM |
+| **1. Emitter**       | High-power NIR LED drive   | TIP31C, 68 Ohm (730nm) + 68 Ohm (850nm), Cree JE2835AFR / ams OSRAM (wire-pigtail mounting) |
 | **2. Detector**      | Photocurrent amplification | BPW34, MCP6022 (2-stage TIA)                                               |
 | **3. Digital**       | High-resolution sampling   | ADS1115 @ 64 SPS                                                           |
 | **4. Processing**    | Signal filtering & output  | Arduino Nano 33 IoT                                                        |
@@ -268,7 +268,7 @@ EXTERNAL 5V POWER SUPPLY (Wall Adapter, 1A minimum)
 
 | Component     | Part Number                   | Specifications                                        |
 | ------------- | ----------------------------- | ----------------------------------------------------- |
-| **730nm LED** | Cree JE2835AFR-N-0001A0000-N0000001   | Bare SMD 2835 package, ~121 deg beam                  |
+| **730nm LED** | Cree JE2835AFR-N-0001A0000-N0000001   | Bare SMD 2835 package, ~121 deg beam, wire-pigtail mounted |
 | **850nm LED** | ams OSRAM SFH4253B            | 850nm centroid (860nm peak), SMT PLCC-2, 120 deg beam |
 | **Alt 850nm** | Epitex L850-05AU              | Legacy option if SFH4253B unavailable                 |
 

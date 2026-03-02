@@ -24,7 +24,7 @@ Probe Assembly 2-3 Hours Including headband fabrication
 Circuit Wiring 3-4 Hours Include shielding
 Coding & Testing 4-5 Hours Enhanced signal processing
 Total Build Time 10-14 Hours Allow extra for troubleshooting
-Component Cost: $60-97 USD per station (includes carrier board pack)
+Component Cost: $55-92 USD per station (carrier boards removed per DCN-001)
 
 -- 2 of 13 --
 
@@ -218,7 +218,7 @@ Sample Rate ADS1115 64 SPS state rate 4-state TDM gives 16 Hz raw/channel (Ambie
 Safety Time-avg emitted power < 10mW per channel Bench-measured under final TDM timing and drive settings
 4. System Architecture
 Stage Function Key Components
-1. Emitter High-power NIR LED drive TIP31C, 68 Ohm (730nm) + 68 Ohm (850nm), Luminus SST-10 / ams OSRAM
+1. Emitter High-power NIR LED drive TIP31C, 68 Ohm (730nm) + 68 Ohm (850nm), Cree JE2835AFR / ams OSRAM
 2. Detector Photocurrent amplification BPW34, MCP6022 (2-stage TIA)
 3. Digital High-resolution sampling ADS1115 @ 64 SPS
 4. Processing Signal filtering & output Arduino Nano 33 IoT
@@ -226,7 +226,7 @@ Stage Function Key Components
 5. Hardware Design Details
 5.1 LED Specifications
 Component Part Number Specifications
-730nm LED Luminus SST-10-FR-B90-H730 Bare SMD 3535 package, 90 deg beam
+730nm LED Cree JE2835AFR-N-0001A0000-N0000001 Bare SMD 2835 package, ~121 deg beam
 850nm LED ams OSRAM SFH4253B 850nm centroid (860nm peak), SMT PLCC-2, 120 deg beam
 Alt 850nm Epitex L850-05AU Legacy option if SFH4253B unavailable
 5.2 LED Driver Circuit
@@ -258,9 +258,8 @@ Arduino Nano 33 IoT 1 ABX00027 $20-25
 ADS1115 ADC Module 1 Adafruit 1085 $10-15
 MCP6022-I/P Op-Amp 1 DIP-8 $1.50-2
 BPW34 Photodiode 1 Vishay $2-4
-LED 730nm 1 Luminus SST-10-FR-B90-H730 $1-3
+LED 730nm 1 JE2835AFR-N-0001A0000-N0000001 ~$0.32-2
 LED 850nm 1 ams OSRAM SFH4253B $1-4
-LED carrier boards 1 Adafruit 1762 (10-pk) ~$5
 TIP31C Transistor 2 TO-220 $1-2
 Elastic Headband 1 2cm wide $3-5
 Black EVA Foam 1 2x4x2cm $3-5
@@ -268,7 +267,7 @@ Black EVA Foam 1 2x4x2cm $3-5
 Electrolytic Capacitor 47-100uF 1 10V min $0.20-0.50
 Capacitor 10uF 1 6.3V min $0.10-0.30
 Misc (resistors, caps, wire) set - $5-10
-Estimated Total: $60-97 USD (includes carrier board pack)
+Estimated Total: $55-92 USD (carrier boards removed per DCN-001)
 7. Firmware Design for +/-2% Precision
 7.1 Key Requirements
 To achieve +/-2% precision for POTS demonstration:
@@ -302,9 +301,9 @@ float pctChangeIR = ((emaIR - baselineIR) / baselineIR) * 100.0;
 
 8. Assembly Instructions
 8.1 Optical Probe Assembly
-Step 1: Cut black EVA foam to 2cm x 4cm x 2cm. Punch one 7mm hole for the photodiode. 30mm away (center-to-center), carve two small adjacent flat pockets to seat the 730nm and 850nm SMD LED carrier boards.
-Step 2: Superglue a stack of 2-3 black rubber washers (1/8" / 3mm Inner Diameter) directly over the 730nm SMD LED dome. This acts as an essential optical baffle to guide light forward into the tissue.
-Step 3: Insert the 730nm and 850nm carrier boards (730nm with glued washers) into their foam pockets. Emitting surfaces should be flush with the foam surface facing the tissue. Secure with opaque adhesive. Label each LED wire.
+Step 1: Cut black EVA foam to 2cm x 4cm x 2cm. Punch one 7mm hole for the photodiode. 30mm away (center-to-center), carve two small adjacent LED pockets sized for bare LED bodies and pigtail routing.
+Step 2: Prepare wire-pigtail leads for both LEDs (730nm JE2835AFR and 850nm SFH4253B): pre-tin 30 AWG wires, solder one lead per pad, and add short heat-shrink for strain relief.
+Step 3: Superglue a stack of 2-3 black rubber washers (1/8" / 3mm Inner Diameter) directly over the 730nm LED dome, then insert both pigtailed LEDs into foam pockets with emitting surfaces flush to the tissue-contact side. Secure with opaque adhesive and label each LED wire.
 Step 4: Insert BPW34 photodiode into Hole 2 with lens facing tissue side (flat side = cathode, facing away). Use
 shielded wire for connection.
 Step 5 - CRITICAL: Wrap additional black foam or tape around LED and photodiode housings. The rubber washer stack on the 730nm LED MUST be perfectly seated. Light MUST

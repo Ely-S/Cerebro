@@ -195,7 +195,7 @@ Per `validation.txt`, final closure still requires bench execution for:
 
 ### DCN-001 Focused Re-closure Checklist (Required)
 - **R-DRV-01 / Test 3.2:** Measure 730nm and 850nm channel currents with final JE2835AFR install; record DMM model, capture setup, and readings.
-- **R-OPT-01 / Tests 2.6 + 3.9:** Record probe leakage inspection photos, then run ambient-subtracted dark test and store raw serial log.
+- **R-OPT-01 / Tests 2.6 + 3.9:** Verify no carrier boards are used, confirm pigtail strain relief + emitter orientation in photos, then run ambient-subtracted dark test and store raw serial log.
 - **R-SAFE-01 / Test 3.10:** Measure per-state optical power under final TDM timing; archive raw captures and time-averaged power math.
 - **Mechanical survivability (DCN-specific):** Perform gentle pigtail flex/pull check, then repeat dark test to confirm no new leak path.
 

@@ -1,7 +1,7 @@
 Optics Source Register
 ======================
 
-Date: 2026-03-01
+Date: 2026-03-02
 Scope: Source provenance for optics-related verification claims in:
 - hardware-validation.txt
 - validation.txt
@@ -66,20 +66,20 @@ Used for claims:
 - Product-to-datasheet linkage and page-level metadata
 
 --------------------------------------------------------------------------------
-S5) Luminus SST-10-FR Datasheet (PRIMARY, AUTHORITATIVE)
+S5) Cree J Series 2835 Color Datasheet (PRIMARY, AUTHORITATIVE)
 --------------------------------------------------------------------------------
 URL:
-- https://www.luminus.com/resource/download/SST-10-FR-B90-H730-Datasheet.pdf
+- https://downloads.cree-led.com/files/ds/j/JSeries-2835-Color.pdf
 
 Local copy:
-- datasheets/online-check/SST-10-FR-B90-H730-Datasheet.pdf
+- datasheets/online-check/JSeries-2835-Color.pdf
 
 Used for claims:
 - 730nm centroid wavelength
-- 90 deg beam angle
-- Vf typ 2.10V at 350mA
-- Total radiant flux 310mW at 350mA
-- 3535 bare SMD package mechanical context
+- 121deg viewing angle
+- Vf typ 2.15V at 140mA
+- Radiant flux typ 128mW at 140mA
+- 2835 bare SMD package mechanical context
 
 --------------------------------------------------------------------------------
 S7) SFH4253 Legacy Family Datasheet (SUPPLEMENTAL)
@@ -98,5 +98,5 @@ Usage Rule for Optics Verification
 --------------------------------------------------------------------------------
 1) Prefer S1/S3 manufacturer datasheets for numeric decisions.
 2) Use S2/S4 for product-page context and links.
-3) Use S5/S6 only as supplemental evidence where exact-MPN primary coverage is incomplete.
+3) Use supplemental non-primary sources only when exact-MPN primary coverage is incomplete.
 4) Record any claim with missing primary citation as unverified until resolved.

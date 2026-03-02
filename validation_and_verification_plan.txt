@@ -213,7 +213,7 @@ Pass criteria:
   - Source-detector spacing: 30 mm +/- 2 mm
   - Correct component orientation
   - Stack of 2-3 rubber washers is glued securely over the 730nm LED dome
-  - SFH4253B (SMT) is mounted on a mechanically secure carrier board with emitter face oriented toward tissue
+  - SFH4253B and 730nm LED are mounted via wire-pigtail with mechanically secure strain relief, and both emitter faces are oriented toward tissue
   - No obvious direct light path through foam or seams
 
 ================================================================================
