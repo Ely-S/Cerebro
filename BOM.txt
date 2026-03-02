@@ -2,7 +2,7 @@ Complete Bill of Materials (BOM)
 Project: Cerebral Oximeter (Prototype 1)
 Aligned documents: spec.txt Rev 3.2, validation_and_verification_plan.txt Rev 3.2
 Build quantity: 1 unit
-Date: 2026-02-28
+Date: 2026-03-02
 
 Notes:
 - Prices are indicative and vary by distributor/region.

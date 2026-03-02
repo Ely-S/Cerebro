@@ -103,92 +103,54 @@ This device measures relative changes from a baseline, not absolute values. It t
 ================================================================================
 COMPLETE WIRING DIAGRAM
 ================================================================================
-EXTERNAL 5V POWER SUPPLY (Wall Adapter, 1A minimum)
-|
-+-----[ FUSE 500mA ]-----+--------------------------+
-                         |                          |
-                      +--+--+                    +--+--+
-                      | 5V  |                    | 5V  |
-                      | Rail|                    | Rail|
-                      +--+--+                    +--+--+
-                         |                          |
-                         |                          |
-+------+--------+  +--------+-------+  +-----------+-----------+
-| 730nm LED     |  | 850nm LED      |  | Arduino Nano 33 IoT   |
-|               |  |                |  |                       |
-| Anode --+----+------| Anode --+------+------| D2 (Red LED control)    |
-|         |     |  |        |       |  | D3 (IR LED control)     |
-|     [68 Ohm]  |  |    [68 Ohm]    |  | 3.3V output -----+      |
-|         |     |  |        |       |  |                  |      |
-| Cathode-+----+------| Cathode-+------+------| GND -------------+--+    |
-|         |     |  |        |       |  | A4 (SDA) --------+  |   |
-|      +---+    |  |     +---+      |  | A5 (SCL) --------+  |   |
-|      |TIP31C |   |     |TIP31C |   |  |                  |  |   |
-|      |  C    |   |     |  C    |   |  +------------------+  |   |
-|      |B   E  |   |     |B   E  |   |                        |   |
-|      |       |   |     |       |   |                        |   |
-+------+       |   +---+------+------+                        |   |
-       |       |       |      |                               |   |
-     [470]     |     [470]    |                               |   |
-       |       |       |      |                               |   |
-+------+-+----+---+--------+-+----+---+----------------------------+-+
-|      GND   GND                           |                         |
-|                                          |                         |
-|  PHOTODIODE ASSEMBLY                     |                         |
-|                                          |                         |
-|  +------------------+                    |                         |
-|  |      BPW34       |                    |                         |
-|  |    Photodiode    | (Mounted in EVA foam probe,                  |
-|  |                  |  30mm from LEDs)                             |
-|  | Cathode ---+----+-------------------------------------------|   |
-|  |            |                                                |   |
-|  | Anode -----+----+-------------------------------------------|-+ |
-|  +------------------+ GND                                          |
-|                     |                                              |
-|                     | (Shielded cable, < 5cm length)               |
-|                     v                                              |
-|  +------------------+                                              |
-|  |     MCP6022      |                                              |
-|  |     Op-Amp       |                                              |
-|  |                  |                                              |
-|  | Pin 1: OUT1 ----+--------------------------+                    |
-|  | Pin 2: IN1- <--+---[100k]--+               |                    |
-|  | Pin 3: IN1+ <--+--- GND    |               |                    |
-|  | Pin 4: GND  <--+-----------+--------------+                     |
-|  | Pin 8: V+   <--+--- 3.3V   |                                    |
-|  |                |   [4.7pF] |                                    |
-|  | Stage 1: TIA   |           |                                    |
-|  +------------------+       +-----+                                |
-|                             |                                      |
-|                             | (5mV signal from Stage 1)            |
-|                             v                                      |
-|  +------------------+       |                                      |
-|  |     MCP6022      | Stage 2: Gain x48                            |
-|  |   (same chip)    |       |                                      |
-|  |                  |       |                                      |
-|  | Pin 5: IN2+ <--+--- Stage 1 Output                              |
-|  | Pin 6: IN2- <--+---[1k]---+                                     |
-|  | Pin 7: OUT2 ----+----------+----------> To ADC                  |
-|  |                 |  [47k]   |                                    |
-|  +------------------+         |                                    |
-|         GND                   |                                    |
-|                             |                                      |
-+-----------------------------------+--------------------------------+
-                                    |
-                                    v
-+------------------+      +------------------+
-|   ADS1115 ADC    |      |   TO COMPUTER    |
-|                  |      |                  |
-|   VDD ---- 3.3V  |      | USB cable from   |
-|   GND ---- GND   |      | Arduino          |
-|   SCL ---- A5    |      |                  |
-|   SDA ---- A4    |      | Serial Plotter   |
-|   ADDR --- GND   |      | shows real-time  |
-|   A0 ----- Signal|      | oxygenation %    |
-|            from  |      +------------------+
-|            TIA   |
-+------------------+
+5V IN (Wall Adapter, >=1A)
+   |
+ [FUSE 500mA]
+   |
+   +--> [68R] --> 730nm LED (wire-pigtail, anode->cathode) --> TIP31C Q1 collector
+   |                                                        TIP31C Q1 emitter --> GND
+   |                                                        D2 --> [470R] --> Q1 base
+   |
+   +--> [68R] --> 850nm LED (wire-pigtail, anode->cathode) --> TIP31C Q2 collector
+                                                            TIP31C Q2 emitter --> GND
+                                                            D3 --> [470R] --> Q2 base
+
+Arduino Nano 33 IoT (3.3V logic)
+  3.3V ----------------------------------------------+-------------------+
+  GND  ----------------------------------------------+-------------------+-------------------+
+  A4 (SDA) -------------------------------------------> ADS1115 SDA
+  A5 (SCL) -------------------------------------------> ADS1115 SCL
+
+ADS1115 ADC
+  VDD <-----------------------------------------------+ (3.3V)
+  GND <-------------------------------------------------------------------- GND
+  ADDR ------------------------------------------------> GND (0x48)
+  A0  <----------------------------------------------- MCP6022 OUT2 (Pin 7)
+
+Photodiode + Analog Front End (MCP6022)
+  BPW34 cathode --------------------------------------> MCP6022 IN1- (Pin 2)
+  BPW34 anode ----------------------------------------> GND
+
+  Stage 1 TIA:
+    Rf = 100k between OUT1 (Pin 1) and IN1- (Pin 2)
+    Cf = 4.7pF in parallel with Rf
+    IN1+ (Pin 3) -> GND
+    V+  (Pin 8)  -> 3.3V
+    V-  (Pin 4)  -> GND
+
+  Stage 2 Gain (same MCP6022):
+    IN2+ (Pin 5) <- Stage1 OUT (Pin 1)
+    IN2- (Pin 6) <- node between Rg=1k to GND and Rf2=47k to OUT2
+    OUT2 (Pin 7) -> ADS1115 A0
+
+Decoupling / layout notes:
+  - 0.1uF local decoupling at MCP6022 and ADS1115 power pins
+  - 47-100uF bulk cap at 5V rail entry; 10uF near analog 3.3V rail
+  - BPW34 lead to op-amp kept short (<5cm), shielded
+================================================================================
 ```
+
+**Diagram note:** Both emitters are shown as direct LED nodes. In DCN-001 builds, both the `730nm JE2835AFR` and `850nm SFH4253B` are wire-pigtail mounted (no carrier boards).
 
 #### Important Notes
 1. **DO NOT connect ADS1115 VDD to 5V** - use 3.3V only (Arduino Nano 33 IoT is 3.3V logic)

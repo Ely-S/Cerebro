@@ -13,6 +13,10 @@ Primary manufacturer sources used for numeric values:
 - https://www.vishay.com/docs/81521/bpw34.pdf
 - https://downloads.cree-led.com/files/ds/j/JSeries-2835-Color.pdf
 
+Local reproducibility artifacts:
+- datasheets/online-check/JSeries-2835-Color.pdf
+- datasheets/optics_jseries2835_datasheet.html
+
 Requirements checked:
 1) Wavelengths: 730nm and 850nm (spec.txt)
 2) LED driver targets: 730 channel 35-50mA, 850 channel 40-50mA (validation_and_verification_plan.txt, R-DRV-01)
@@ -102,7 +106,7 @@ ISSUE-003 [MINOR -- CORRECTED]
   Impact   : R-DRV-01 verdict unchanged (PASS conditional) within the 40-50mA acceptance band.
 
 ISSUE-004 [DESIGN CHANGE APPLIED -- DCN-001]
-  Location : spec.txt/spec.md/BOM/validation document set.
+  Location : spec.txt/BOM/validation document set.
   Original : 730nm optical validation text referenced SST-10 and carrier-board assumptions.
   Correct  : 730nm source is JE2835AFR with wire-pigtail mounting and no carrier board dependency.
   Action   : Updated this file's source list and 730nm numeric/assembly assumptions to JE2835AFR basis.

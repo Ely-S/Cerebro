@@ -73,6 +73,7 @@ URL:
 
 Local copy:
 - datasheets/online-check/JSeries-2835-Color.pdf
+- datasheets/optics_jseries2835_datasheet.html (offline HTML traceability snapshot)
 
 Used for claims:
 - 730nm centroid wavelength

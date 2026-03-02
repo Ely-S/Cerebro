@@ -231,7 +231,7 @@ ISSUE-003 [MINOR -- CORRECTED]
   Impact  : R-DRV-01 verdict unchanged (47.1mA is within 40-50mA band). No design change.
 
 ISSUE-004 [DESIGN CHANGE APPLIED -- DCN-001]
-  Files   : BOM.txt, BOM.csv, spec.md, README.md, validation.txt, hardware-validation.txt
+  Files   : BOM.txt, BOM.csv, spec.txt, README.md, validation.txt, hardware-validation.txt
   Finding : Original 730nm LED/carrier pairing was footprint-incompatible and mechanically fragile for probe geometry.
   Fix     : Replaced 730nm LED with JE2835AFR and removed carrier-board dependency; updated assembly to wire-pigtail method.
   Impact  : No topology change to TIP31C + 68 Ohms drive path. Bench re-closure required for R-DRV-01, R-OPT-01, R-SAFE-01.

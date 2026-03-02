@@ -29,7 +29,7 @@ Downloaded optics as HTML:
 Downloaded optics source PDFs (used for numeric validation):
 - optics_sfh4253b_datasheet.pdf
 - optics_sfh4253_datasheet.pdf
-- optics_lst1_01g01_frd1_00_datasheet.pdf (superseded; 730nm primary now Luminus SST-10-FR-B90-H730)
+- optics_lst1_01g01_frd1_00_datasheet.pdf (superseded; 730nm primary now Cree JE2835AFR-N-0001A0000-N0000001)
 
 Not publicly downloadable from the BOM links:
 - Legacy option only: Epitex L850-05AU datasheet (vendor-provided on request)
