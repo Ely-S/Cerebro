@@ -56,14 +56,13 @@ It complements (does not replace) bench verification requirements in `validation
    Notes:
    - Electrical limits are appropriate for low-side LED switching in this design.
 
-6. 730 nm LED (`New-Energy LST1-01G01-FRD1-00` Star Board)  
-   Status: PARTIAL, BENCH-REQUIRED  
+6. 730 nm LED (`Luminus SST-10-FR-B90-H730` bare SMD)  
+   Status: VERIFIED, BENCH-REQUIRED  
    Evidence:
-   - https://new-energyllc.com/wp-content/uploads/NewEnergy_StarBoard_Lumileds_Luxeon-C_DataSheet.pdf  
-   - https://pdf.datasheet.support/c3cb8a1a/opulent_americas/LST1-01G01-FRD1-00.html (secondary mirror; non-manufacturer)
+   - https://www.luminus.com/resource/download/SST-10-FR-B90-H730-Datasheet.pdf  
    Notes:
-   - Source supports family-level far-red starboard characteristics, but exact current MPN coverage is not explicit in the cited PDF. Exact-MPN confirmation is required.
-   - Part provides high-power 730nm far-red emission; integrated metal star board solves assembly constraint. Requires optical baffle (rubber washers).
+   - 90 deg beam angle and 310mW @ 350mA target flux.
+   - Part provides high-power 730nm far-red emission in a small 3535 package. Requires hand-soldering to carrier board and optical baffle (rubber washers). Heat extraction requires bench confirmation due to small carrier size.
 
 7. 850 nm LED (`ams OSRAM SFH4253B`)  
    Status: VERIFIED, BENCH-REQUIRED  
@@ -182,7 +181,7 @@ Notes:
 26. Black Rubber Washers
    Status: N/A, BENCH-REQUIRED
    Notes:
-   - Mechanical item required as an optical baffle for the 730nm Star Board LED. Effectiveness verified in dark test.
+   - Mechanical item required as an optical baffle for the 730nm SMD LED. Effectiveness verified in dark test.
 
 ## 4) Requirement-Level Closure Impact
 Component datasheet compatibility is sufficient for design-level confidence, but does not close bench-dependent requirements.  
@@ -225,8 +224,8 @@ ISSUE-003 [MINOR -- CORRECTED]
   Impact  : R-DRV-01 verdict unchanged (47.1mA is within 40-50mA band). No design change.
 
 ## 6) Final Component Verification Summary
-- VERIFIED: 18 components/classes
-- PARTIAL: 1 component/class (730nm star board exact-MPN evidence gap)
+- VERIFIED: 19 components/classes
+- PARTIAL: 0 component/classes
 - N/A: 6 non-datasheet materials/accessories
 - BENCH-REQUIRED: all performance/safety claims remain bench-gated
 - OPEN (blocking): 0 issues

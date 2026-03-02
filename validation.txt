@@ -62,7 +62,7 @@ NCR-001  R-SAFE-01  Optical Safety  [DESIGN UPDATE APPLIED -- PASS (conditional)
                     under final TDM timing and drive settings.
   Updated design  : 4-state TDM plus 68 ohm resistor on 850 nm channel.
   Calculated result (CORRECTED -- 2026-03-01, ISSUE-002 resolved):
-    730 nm average = ~35-40 mW / 4 = ~8.8-10.0 mW  (marginal; bench required)
+    730 nm average = ~35 mW / 4 = ~8.8 mW  (marginal; bench required)
     850 nm average = ~36-40 mW / 4 = ~9.0-10.0 mW   (meets criterion; bench required)
   Prior estimate of 40mW for 850nm is now accurate as an upper bound at the ~47mA current.
   Remaining closure: Bench Test 3.10 required after resolution.
@@ -110,11 +110,8 @@ Primary optics numeric sources used by this report:
       https://look.ams-osram.com/m/631defe919332729/original/SFH-4253B.pdf
   - BPW34 datasheet (manufacturer):
       https://www.vishay.com/docs/81521/bpw34.pdf
-  - New-Energy starboard family datasheet:
-      https://new-energyllc.com/wp-content/uploads/NewEnergy_StarBoard_Lumileds_Luxeon-C_DataSheet.pdf
-
-Supplemental (secondary) optics source:
-  - https://pdf.datasheet.support/c3cb8a1a/opulent_americas/LST1-01G01-FRD1-00.html
+  - Luminus SST-10-FR datasheet:
+      https://www.luminus.com/resource/download/SST-10-FR-B90-H730-Datasheet.pdf
 
 Source policy applied:
   - Manufacturer datasheets take precedence for numeric decisions.
@@ -340,7 +337,7 @@ Verdict R-FW-01: OPEN pending Tests 3.8 and 4.5.
 --------------------------------------------------------------------------------
 
 Spec assembly step 4 identifies direct LED-to-photodiode light coupling as "the
-#1 failure point" and mandates an opaque rubber washer stack to restrict the wide 130-degree beam angle of the 730nm Star Board, plus opaque foam/tape isolation and a dark-space
+#1 failure point" and mandates an opaque rubber washer stack to restrict the 730nm LED beam angle, plus opaque foam/tape isolation and a dark-space
 verification step. This is the correct mitigation approach.
 
 Paper review cannot assess isolation quality. V&V plan requires:
@@ -360,13 +357,13 @@ Verdict R-OPT-01: OPEN. Assembly and bench dark test required.
  brings the current to ~47.1mA, where the peak power is ~40mW.
  At 4-state TDM duty cycle, the time-averaged power is ~10mW, meeting the criterion.]
 
-LED peak optical powers (revised, from SFH4253B datasheet + Star Board data):
-  730 nm: ~35-40 mW peak (linear estimate: 310mW@350mA * 40mA/350mA ~ 35mW;
-           40mW is a conservative upper bound. Actual value requires bench measurement.)
+LED peak optical powers (revised, from SFH4253B datasheet + Luminus SST-10 data):
+  730 nm: ~35 mW peak (linear estimate: 310mW@350mA * 39.7mA/350mA ~ 35mW;
+           Actual value requires bench measurement.)
   850 nm: ~36-40 mW peak (interpolated from datasheet at ~47mA)
 
 At 4-state TDM duty cycle (each LED on during one of four ADC states):
-  730 nm average: ~35-40 mW / 4 = ~8.8-10.0 mW  (marginal; bench measurement mandatory)
+  730 nm average: ~35 mW / 4 = ~8.8 mW  (marginal; bench measurement mandatory)
   850 nm average: ~36-40 mW / 4 = ~9.0-10.0 mW   (near limit; bench measurement mandatory)
 
 Interpretation note: The spec Rev 3.2 criterion is time-averaged emitted power

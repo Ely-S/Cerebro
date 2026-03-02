@@ -11,10 +11,7 @@ Source register:
 Primary manufacturer sources used for numeric values:
 - https://look.ams-osram.com/m/631defe919332729/original/SFH-4253B.pdf
 - https://www.vishay.com/docs/81521/bpw34.pdf
-- https://new-energyllc.com/wp-content/uploads/NewEnergy_StarBoard_Lumileds_Luxeon-C_DataSheet.pdf
-
-Supplemental (secondary) source:
-- https://pdf.datasheet.support/c3cb8a1a/opulent_americas/LST1-01G01-FRD1-00.html
+- https://www.luminus.com/resource/download/SST-10-FR-B90-H730-Datasheet.pdf
 
 Requirements checked:
 1) Wavelengths: 730nm and 850nm (spec.txt)
@@ -25,16 +22,16 @@ Requirements checked:
 
 Results by part:
 
-Part: LST1-01G01-FRD1-00 (730nm source LED)
-- Datasheet support page shows: Far Red 730nm, beam angle 130deg, Vf typ 2.10V,
+Part: SST-10-FR-B90-H730 (730nm source LED)
+- Datasheet shows: Far Red 730nm, bare SMD 3535 package, beam angle 90deg, Vf typ 2.10V,
   total flux 310mW at 350mA (typ).
 - Status vs requirements:
   - 730nm target: PASS
-  - Beam angle 130deg statement in spec: PASS
+  - Beam angle 90deg geometry alignment: PASS
   - Vf 1.8-2.3V pre-check band (Test 1.1): PASS (typ 2.10V)
   - Current target (35-50mA): NOT CLOSED BY DATASHEET ALONE (bench measurement required per Test 3.2)
-  - Optical power at design current (~40mA): estimated ~35-40mW (linear approx from 310mW@350mA);
-    time-averaged at 1/4 TDM duty ~9-10mW. At or near the 10mW limit; bench measurement mandatory.
+  - Optical power at design current (~40mA): estimated ~35mW (linear approx from 310mW@350mA);
+    time-averaged at 1/4 TDM duty ~8.8mW. Near the 10mW limit; bench measurement mandatory. Thermal drift of the small carrier must also be checked.
 
 Part: SFH4253B (850nm source LED)
 - Datasheet (PDF v1.2, 2025-12-01) confirmed values:

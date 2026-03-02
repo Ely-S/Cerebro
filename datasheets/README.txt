@@ -24,12 +24,12 @@ Downloaded as HTML fallback pages (source sites blocked direct PDF):
 Downloaded optics as HTML:
 - optics_bpw34_datasheet.html
 - optics_sfh4253b_datasheet.html
-- optics_lst1_01g01_frd1_00_datasheet.html
+- optics_lst1_01g01_frd1_00_datasheet.html (superseded by SST-10-FR-B90-H730; archive)
 
 Downloaded optics source PDFs (used for numeric validation):
 - optics_sfh4253b_datasheet.pdf
 - optics_sfh4253_datasheet.pdf
-- optics_lst1_01g01_frd1_00_datasheet.pdf
+- optics_lst1_01g01_frd1_00_datasheet.pdf (superseded; 730nm primary now Luminus SST-10-FR-B90-H730)
 
 Not publicly downloadable from the BOM links:
 - Legacy option only: Epitex L850-05AU datasheet (vendor-provided on request)

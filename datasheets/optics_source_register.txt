@@ -66,32 +66,20 @@ Used for claims:
 - Product-to-datasheet linkage and page-level metadata
 
 --------------------------------------------------------------------------------
-S5) New-Energy Starboard PDF (PRIMARY FOR FAMILY, PARTIAL FOR EXACT MPN)
+S5) Luminus SST-10-FR Datasheet (PRIMARY, AUTHORITATIVE)
 --------------------------------------------------------------------------------
 URL:
-- https://new-energyllc.com/wp-content/uploads/NewEnergy_StarBoard_Lumileds_Luxeon-C_DataSheet.pdf
+- https://www.luminus.com/resource/download/SST-10-FR-B90-H730-Datasheet.pdf
 
 Local copy:
-- datasheets/online-check/NewEnergy_StarBoard_Lumileds_Luxeon-C_DataSheet.pdf
+- datasheets/online-check/SST-10-FR-B90-H730-Datasheet.pdf
 
 Used for claims:
-- Family-level starboard characteristics and mechanical context
-
-Limitations:
-- Current fetched revision does not explicitly list exact MPN LST1-01G01-FRD1-00.
-- Therefore exact-MPN evidence is PARTIAL, not fully VERIFIED.
-
---------------------------------------------------------------------------------
-S6) LST1-01G01-FRD1-00 Mirror Page (SECONDARY)
---------------------------------------------------------------------------------
-URL:
-- https://pdf.datasheet.support/c3cb8a1a/opulent_americas/LST1-01G01-FRD1-00.html
-
-Used for claims:
-- Supplemental values for exact MPN context (730nm, 130deg, Vf typ, flux typ)
-
-Limitations:
-- Non-manufacturer mirror; treated as secondary corroboration only.
+- 730nm centroid wavelength
+- 90 deg beam angle
+- Vf typ 2.10V at 350mA
+- Total radiant flux 310mW at 350mA
+- 3535 bare SMD package mechanical context
 
 --------------------------------------------------------------------------------
 S7) SFH4253 Legacy Family Datasheet (SUPPLEMENTAL)
