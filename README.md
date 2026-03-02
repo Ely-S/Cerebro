@@ -290,6 +290,8 @@ This keeps both channels in the target electrical range while adding optical-saf
 
 **Estimated Total: $60-96 USD**
 
+Note: `BOM.csv` is a procurement-focused list and assumes the following common lab/prototyping items are already available: breadboard/perfboard + hookup wire, USB data cable for Nano 33 IoT, and opaque electrical tape.
+
 ---
 
 ## 7. Firmware Design for +/-2% Precision
