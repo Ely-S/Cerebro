@@ -45,8 +45,8 @@ Notes:
    Qty: 2
    MPN: TIP31C
    Description: NPN power transistor, TO-220
-   Product page: https://www.onsemi.com/products/discrete-power-modules/general-purpose-and-low-vcesat-transistors/tip31c-legacy-fairchild
-   Datasheet: https://www.onsemi.com/download/data-sheet/pdf/tip31c-d.pdf
+   Product page: https://www.st.com/en/power-transistors/tip31c.html
+   Datasheet: https://www.st.com/resource/en/datasheet/tip31c.pdf
 
 6. 730nm Source LED (per spec primary)
    Qty: 1
@@ -114,10 +114,10 @@ Notes:
 
 14. TIA compensation capacitor
     Qty: 1
-    MPN: C315C4R7J5G5TA7301
-    Description: 4.7pF, C0G/NP0, radial ceramic
-    Product page: https://www.mouser.com/ProductDetail/KEMET/C315C4R7J5G5TA7301
-    Datasheet (series): https://content.kemet.com/datasheets/KEM_C1000_C0G.pdf
+    MPN: FG18C0G1H4R7CNT00
+    Description: 4.7pF, C0G/NP0, radial ceramic, 50V
+    Product page: https://www.mouser.com/ProductDetail/TDK/FG18C0G1H4R7CNT00
+    Datasheet (series): https://product.tdk.com/system/files/dam/doc/product/capacitor/ceramic/lead-mlcc/catalog/fg_e.pdf
 
 15. Local high-frequency decoupling capacitors
     Qty: 2
@@ -131,14 +131,14 @@ Notes:
     MPN: EEU-FR1A101B
     Description: 100uF, 10V, low-ESR electrolytic (use 47uF-100uF range)
     Product page: https://www.mouser.com/ProductDetail/Panasonic/EEU-FR1A101B
-    Datasheet (series): https://www.alldatasheet.com/datasheet-pdf/pdf/404431/PANASONIC/EEUFR1A101.html
+    Datasheet (series): https://na.industrial.panasonic.com/products/capacitors/aluminum-electrolytic-capacitors/lineup/aluminum-electrolytic-capacitors-radial-lead-type/series/83367
 
 17. Analog 3.3V rail bulk capacitor
     Qty: 1
-    MPN: UFW1A100MDD1TD
-    Description: 10uF, 10V, radial electrolytic
-    Product page: https://www.mouser.com/ProductDetail/Nichicon/UFW1A100MDD1TD
-    Datasheet (series): https://www.nichicon.co.jp/english/products/pdfs/e-ufw.pdf
+    MPN: ECE-A1VKS100B
+    Description: 10uF, 35V, radial electrolytic (KS Series)
+    Product page: https://www.mouser.com/ProductDetail/Panasonic/ECE-A1VKS100B
+    Datasheet (series): https://na.industrial.panasonic.com/products/capacitors/aluminum-electrolytic-capacitors/series/83982
 
 ================================================================================
 4) Protection and Power

@@ -52,7 +52,7 @@ It complements (does not replace) bench verification requirements in `validation
 5. TIP31C transistor  
    Status: VERIFIED, BENCH-REQUIRED  
    Evidence:
-   - https://www.onsemi.com/download/data-sheet/pdf/tip31c-d.pdf  
+   - https://www.st.com/resource/en/datasheet/tip31c.pdf  
    Notes:
    - Electrical limits are appropriate for low-side LED switching in this design.
 
@@ -100,12 +100,14 @@ Notes:
 - 1% metal-film family selection is appropriate for gain-setting and TIA feedback.
 
 ### Capacitors
-14. `C315C4R7J5G5TA7301` (4.7 pF C0G)  
+14. `FG18C0G1H4R7CNT00` (4.7 pF C0G)  
 Status: VERIFIED, BENCH-REQUIRED  
 Evidence:
-- https://content.kemet.com/datasheets/KEM_C1049_GOLDMAX_C0G.pdf  
+- https://product.tdk.com/system/files/dam/doc/product/capacitor/ceramic/lead-mlcc/catalog/fg_e.pdf  
+- https://octopart.com/part/tdk/FG18C0G1H4R7CNT00  
 Notes:
 - C0G Class I stability supports compensation role in TIA stage.
+- Exact electrical match is confirmed, but lifecycle is flagged NRND on major aggregator listings; keep an alternate qualified for procurement resilience.
 
 15. `C315C104K5R5TA7301` (0.1 uF local decoupling)  
    Status: VERIFIED, BENCH-REQUIRED  
@@ -121,10 +123,11 @@ Evidence:
 Notes:
 - FR series supports low-ESR bulk filtering role; voltage and temperature class are appropriate.
 
-17. `UFW1A100MDD1TD` (10 uF, 10 V)  
+17. `ECE-A1VKS100B` (10 uF, 35 V)  
 Status: VERIFIED, BENCH-REQUIRED  
 Evidence:
-- https://www.nichicon.com/en-us/products/aluminum-electrolytic-capacitors/miniature-aluminum-electrolytic-capacitors/for-audio-equipment/ufw/  
+- https://octopart.com/part/panasonic/ECE-A1VKS100B  
+- https://na.industrial.panasonic.com/products/capacitors/aluminum-electrolytic-capacitors/series/83982  
 Notes:
 - Series-level confirmation supports suitability for low-voltage bulk decoupling role.
 

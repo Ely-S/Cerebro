@@ -8,7 +8,7 @@ Downloaded as PDF:
 - 02_ti_ads1115_datasheet.pdf
 - 03_microchip_mcp6022_datasheet.pdf
 - 04_vishay_bpw34_datasheet.pdf
-- 05_onsemi_tip31c_datasheet.pdf
+- 05_stmicroelectronics_tip31c_datasheet_view.html
 - 06_yageo_cfr_series_datasheet.pdf
 - 07_yageo_mfr_series_datasheet.pdf
 - 08_kemet_goldmax_c0g_datasheet.pdf
