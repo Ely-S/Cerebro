@@ -1,6 +1,6 @@
 # Hardware Component Verification
 Project: Cerebral Oximeter (Prototype 1)  
-Date: 2026-02-28  
+Date: 2026-03-02  
 Basis: `spec.txt` Rev 3.2, `BOM.txt`, `validation.txt`
 
 ## 1) Purpose
@@ -56,14 +56,14 @@ It complements (does not replace) bench verification requirements in `validation
    Notes:
    - Electrical limits are appropriate for low-side LED switching in this design.
 
-6. 730 nm LED (`New-Energy LST1-01G01-FRD1-00` Star Board)  
-   Status: PARTIAL, BENCH-REQUIRED  
+6. 730 nm LED (`Cree JE2835AFR-N-0001A0000-N0000001` bare SMD)  
+   Status: VERIFIED, BENCH-REQUIRED  
    Evidence:
-   - https://new-energyllc.com/wp-content/uploads/NewEnergy_StarBoard_Lumileds_Luxeon-C_DataSheet.pdf  
-   - https://pdf.datasheet.support/c3cb8a1a/opulent_americas/LST1-01G01-FRD1-00.html (secondary mirror; non-manufacturer)
+   - https://downloads.cree-led.com/files/ds/j/JSeries-2835-Color.pdf  
    Notes:
-   - Source supports family-level far-red starboard characteristics, but exact current MPN coverage is not explicit in the cited PDF. Exact-MPN confirmation is required.
-   - Part provides high-power 730nm far-red emission; integrated metal star board solves assembly constraint. Requires optical baffle (rubber washers).
+   - Test-current electrical point: V_F typ 2.15V at 140mA.
+   - Optical estimate reference: 128mW typ radiant flux at 140mA.
+   - Part uses 2-pad 2835 package and supports wire-pigtail mounting with washer baffle for optical isolation.
 
 7. 850 nm LED (`ams OSRAM SFH4253B`)  
    Status: VERIFIED, BENCH-REQUIRED  
@@ -78,7 +78,7 @@ It complements (does not replace) bench verification requirements in `validation
    - VF min/typ/max at 70mA: 1.15V / 1.55V / 1.90V; VF typ at 100mA: 1.60V
    - Total radiant flux: 55mW typ at 70mA; 80mW typ at 100mA
    Notes:
-   - Package is SMT PLCC-2 (120deg beam), so probe build requires a small carrier board or adapter.
+   - Package is SMT PLCC-2 (120deg beam); probe build uses wire-pigtail mounting in DCN-001.
    - IEC 62471 status is currently unverified in the cited SFH4253B PDF text extraction; add a direct manufacturer citation before claiming a specific risk group.
    - [ISSUE-002, RESOLVED] Optical safety: Original design had 850nm current at ~89mA resulting in time-averaged power exceeding 10mW. Resistor changed from 36 Ohms to 68 Ohms. New current ~47mA, peak flux ~36-40mW, and average power ~9-10mW (bench verification still required for strict <10mW closure).
    - [ISSUE-003, MINOR] VF used in current calculation corrected from 1.5V to 1.60V (datasheet
@@ -182,7 +182,7 @@ Notes:
 26. Black Rubber Washers
    Status: N/A, BENCH-REQUIRED
    Notes:
-   - Mechanical item required as an optical baffle for the 730nm Star Board LED. Effectiveness verified in dark test.
+   - Mechanical item required as an optical baffle for the 730nm SMD LED. Effectiveness verified in dark test.
 
 ## 4) Requirement-Level Closure Impact
 Component datasheet compatibility is sufficient for design-level confidence, but does not close bench-dependent requirements.  
@@ -193,7 +193,13 @@ Per `validation.txt`, final closure still requires bench execution for:
 - precision/statistical claim (+/-2% at 95% confidence)
 - optical isolation and dark-test performance
 
-## 5) Cross-Verification Issue Log (2026-03-01)
+### DCN-001 Focused Re-closure Checklist (Required)
+- **R-DRV-01 / Test 3.2:** Measure 730nm and 850nm channel currents with final JE2835AFR install; record DMM model, capture setup, and readings.
+- **R-OPT-01 / Tests 2.6 + 3.9:** Verify no carrier boards are used, confirm pigtail strain relief + emitter orientation in photos, then run ambient-subtracted dark test and store raw serial log.
+- **R-SAFE-01 / Test 3.10:** Measure per-state optical power under final TDM timing; archive raw captures and time-averaged power math.
+- **Mechanical survivability (DCN-specific):** Perform gentle pigtail flex/pull check, then repeat dark test to confirm no new leak path.
+
+## 5) Cross-Verification Issue Log (2026-03-02)
 
 The following issues were identified during an optics cross-verification pass against the
 SFH4253B datasheet (PDF v1.2, 2025-12-01). All issues are also recorded in
@@ -224,9 +230,15 @@ ISSUE-003 [MINOR -- CORRECTED]
             I = (5.0 - 0.2 - 1.60) / 68 = 47.1mA.
   Impact  : R-DRV-01 verdict unchanged (47.1mA is within 40-50mA band). No design change.
 
+ISSUE-004 [DESIGN CHANGE APPLIED -- DCN-001]
+  Files   : BOM.txt, BOM.csv, spec.txt, README.md, validation.txt, hardware-validation.txt
+  Finding : Original 730nm LED/carrier pairing was footprint-incompatible and mechanically fragile for probe geometry.
+  Fix     : Replaced 730nm LED with JE2835AFR and removed carrier-board dependency; updated assembly to wire-pigtail method.
+  Impact  : No topology change to TIP31C + 68 Ohms drive path. Bench re-closure required for R-DRV-01, R-OPT-01, R-SAFE-01.
+
 ## 6) Final Component Verification Summary
-- VERIFIED: 18 components/classes
-- PARTIAL: 1 component/class (730nm star board exact-MPN evidence gap)
+- VERIFIED: 19 components/classes
+- PARTIAL: 0 component/classes
 - N/A: 6 non-datasheet materials/accessories
 - BENCH-REQUIRED: all performance/safety claims remain bench-gated
 - OPEN (blocking): 0 issues

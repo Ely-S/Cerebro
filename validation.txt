@@ -2,7 +2,7 @@
 ## Cerebral Oximeter — Single-Channel NIRS, POTS Demonstration System
 ## Verification Scope: Calculation and Datasheet Reasoning Against spec.txt Rev 3.2
 ## Cross-reference: validation_and_verification_plan.txt Rev 3.2
-## Report Revision: 3.1
+## Report Revision: 3.2
 
 ================================================================================
 EXECUTIVE SUMMARY
@@ -54,15 +54,37 @@ Note:
     Tests 3.2, 3.7, 3.10, and 4.6 remain mandatory for final release.
 
 --------------------------------------------------------------------------------
+CHANGE LOG - 2026-03-02 DCN-001 (730nm LED SUBSTITUTION)
+--------------------------------------------------------------------------------
+
+Purpose:
+  - Adopt JE2835AFR 730nm emitter and remove carrier-board dependency from the
+    optical probe assembly while preserving existing driver topology.
+
+Applied updates:
+  - 730nm source changed from Luminus SST-10-FR-B90-H730 to Cree
+    JE2835AFR-N-0001A0000-N0000001.
+  - 730nm current assumption updated to V_F = 2.15V at the project operating
+    point model.
+  - 730nm optical estimate updated to JE2835-based interpolation.
+  - R-DRV-01, R-OPT-01, and R-SAFE-01 closure criteria explicitly tied to
+    DCN-001 bench evidence artifacts.
+
+Residual risk:
+  - 730nm package/beam change alters mechanical-optical coupling, so probe
+    leakage and safety margins remain bench-gated.
+
+--------------------------------------------------------------------------------
 FORMER BLOCKING ITEMS - DESIGN UPDATE STATUS
 --------------------------------------------------------------------------------
 
 NCR-001  R-SAFE-01  Optical Safety  [DESIGN UPDATE APPLIED -- PASS (conditional)]
   Criterion basis : Time-averaged emitted optical power per channel < 10 mW
                     under final TDM timing and drive settings.
-  Updated design  : 4-state TDM plus 68 ohm resistor on 850 nm channel.
-  Calculated result (CORRECTED -- 2026-03-01, ISSUE-002 resolved):
-    730 nm average = ~35-40 mW / 4 = ~8.8-10.0 mW  (marginal; bench required)
+  Updated design  : 4-state TDM, 68 ohm resistor on 850 nm channel, and DCN-001
+                    wire-pigtail emitter mounting (no carrier boards).
+  Calculated result (updated -- 2026-03-02, DCN-001):
+    730 nm average = ~36 mW / 4 = ~9.0 mW  (marginal; bench required)
     850 nm average = ~36-40 mW / 4 = ~9.0-10.0 mW   (meets criterion; bench required)
   Prior estimate of 40mW for 850nm is now accurate as an upper bound at the ~47mA current.
   Remaining closure: Bench Test 3.10 required after resolution.
@@ -110,11 +132,8 @@ Primary optics numeric sources used by this report:
       https://look.ams-osram.com/m/631defe919332729/original/SFH-4253B.pdf
   - BPW34 datasheet (manufacturer):
       https://www.vishay.com/docs/81521/bpw34.pdf
-  - New-Energy starboard family datasheet:
-      https://new-energyllc.com/wp-content/uploads/NewEnergy_StarBoard_Lumileds_Luxeon-C_DataSheet.pdf
-
-Supplemental (secondary) optics source:
-  - https://pdf.datasheet.support/c3cb8a1a/opulent_americas/LST1-01G01-FRD1-00.html
+  - Cree LED J Series 2835 Color datasheet:
+      https://downloads.cree-led.com/files/ds/j/JSeries-2835-Color.pdf
 
 Source policy applied:
   - Manufacturer datasheets take precedence for numeric decisions.
@@ -178,7 +197,8 @@ Base current:
   I_B = (3.3 - 0.7) / 470 = 5.53 mA
 
 LED currents (external 5 V, channel-specific series resistors):
-  730 nm (V_F ~ 2.1 V): I_LED = (5.0 - 0.2 - 2.1) / 68 = 39.7 mA
+  730 nm (V_F = 2.15 V per JE2835AFR datasheet test point): 
+    I_LED = (5.0 - 0.2 - 2.15) / 68 = 39.0 mA
   850 nm (V_F = 1.60 V per SFH4253B datasheet at 100mA, tp=20ms):
     I_LED = (5.0 - 0.2 - 1.60) / 68 = 47.1 mA
   [ISSUE-003 corrected: prior calculation used V_F = 1.5V (unspecified estimate).
@@ -186,11 +206,11 @@ LED currents (external 5 V, channel-specific series resistors):
    Corrected current is 47.1mA, within the new 40-50mA band.]
 
 Both values meet the updated V&V bands:
-  730 nm: 35-50 mA  (calc: 39.7 mA -- PASS)
+  730 nm: 35-50 mA  (calc: 39.0 mA -- PASS)
   850 nm: 40-50 mA  (calc: 47.1 mA -- PASS)
 
 Required forced-beta for saturation:
-  730 nm: h_FE_required = 39.7 / 5.53 = 7.2
+  730 nm: h_FE_required = 39.0 / 5.53 = 7.1
   850 nm: h_FE_required = 47.1 / 5.53 = 8.5
 
 TIP31C datasheet: h_FE minimum ~25 at 1 A, typically > 50 at 100 mA. Nominal
@@ -209,13 +229,13 @@ Verdict R-DRV-01: PASS (conditional). Bench Test 3.2 required.
 --------------------------------------------------------------------------------
 
 Continuous (100% duty) worst case:
-  P_730 = (0.0397)^2 * 68 = 0.107 W
+  P_730 = (0.0390)^2 * 68 = 0.103 W
   P_850 = (0.0471)^2 * 68 = 0.151 W
 
 Both are below the 0.5 W continuous resistor rating.
 
 Under 4-state TDM at 1/4 duty cycle per LED:
-  P_avg_730 = 0.107 / 4 = 0.027 W
+  P_avg_730 = 0.103 / 4 = 0.026 W
   P_avg_850 = 0.151 / 4 = 0.038 W
 
 Verdict R-THERM-01: PASS.
@@ -339,14 +359,19 @@ Verdict R-FW-01: OPEN pending Tests 3.8 and 4.5.
 10. PROBE OPTICAL ISOLATION  --  R-OPT-01  [OPEN]
 --------------------------------------------------------------------------------
 
-Spec assembly step 4 identifies direct LED-to-photodiode light coupling as "the
-#1 failure point" and mandates an opaque rubber washer stack to restrict the wide 130-degree beam angle of the 730nm Star Board, plus opaque foam/tape isolation and a dark-space
+Spec assembly identifies direct LED-to-photodiode light coupling as "the
+#1 failure point" and mandates an opaque rubber washer stack on the 730nm LED, plus opaque foam/tape isolation and a dark-space
 verification step. This is the correct mitigation approach.
 
 Paper review cannot assess isolation quality. V&V plan requires:
   Test 2.6: Mechanical and optical build inspection (ruler, bright backlight).
   Test 3.9: Ambient-subtracted dark test with serial logging; readings must
              remain near zero with no large fixed offset.
+
+DCN-001 closure artifacts required (R-OPT-01):
+  - Build photos showing emitter seating depth and washer stack placement.
+  - Dark-test log (Test 3.9) with ambient-subtracted values near zero.
+  - Backlight leakage inspection photo set (Test 2.6).
 
 Verdict R-OPT-01: OPEN. Assembly and bench dark test required.
 
@@ -360,13 +385,13 @@ Verdict R-OPT-01: OPEN. Assembly and bench dark test required.
  brings the current to ~47.1mA, where the peak power is ~40mW.
  At 4-state TDM duty cycle, the time-averaged power is ~10mW, meeting the criterion.]
 
-LED peak optical powers (revised, from SFH4253B datasheet + Star Board data):
-  730 nm: ~35-40 mW peak (linear estimate: 310mW@350mA * 40mA/350mA ~ 35mW;
-           40mW is a conservative upper bound. Actual value requires bench measurement.)
+LED peak optical powers (revised, from SFH4253B + JE2835AFR datasheets):
+  730 nm: ~36 mW peak (linear estimate: 128mW@140mA * 39.0mA/140mA ~ 35.7mW;
+           actual value requires bench measurement.)
   850 nm: ~36-40 mW peak (interpolated from datasheet at ~47mA)
 
 At 4-state TDM duty cycle (each LED on during one of four ADC states):
-  730 nm average: ~35-40 mW / 4 = ~8.8-10.0 mW  (marginal; bench measurement mandatory)
+  730 nm average: ~36 mW / 4 = ~9.0 mW  (marginal; bench measurement mandatory)
   850 nm average: ~36-40 mW / 4 = ~9.0-10.0 mW   (near limit; bench measurement mandatory)
 
 Interpretation note: The spec Rev 3.2 criterion is time-averaged emitted power
@@ -382,6 +407,12 @@ requiring instructor/lead approval per V&V plan gate rules.
 Formal closure still requires bench optical power measurement in V&V Test 3.10.
 The current paper estimate with 68 ohm drive predicts compliance with the
 project criterion, but the margin is tight and must be confirmed by measurement.
+
+DCN-001 closure artifacts required (R-SAFE-01):
+  - Optical power meter model and calibration date logged.
+  - Raw power captures for each LED state under final firmware timing.
+  - Calculated time-averaged power per channel showing <10mW criterion.
+  - Measurement geometry note (probe contact setup and detector distance).
 
 Verdict R-SAFE-01: PASS (conditional). Bench Test 3.10 required.
 
@@ -485,6 +516,16 @@ CA-005  --  Power Rail Bulk Decoupling                           [APPLIED]
     - Reduce rail ripple coupling from LED switching transients into analog path.
   Remaining closure:
     - Confirm rail behavior during switching and no brownout/reset in Tests 3.1/3.2.
+
+CA-006  --  DCN-001 730nm LED Substitution                       [APPLIED]
+
+  Implemented:
+    - 730nm source updated to Cree JE2835AFR (2835 package).
+    - Carrier-board dependency removed from probe design documents.
+  Remaining closure:
+    - Re-run Test 3.2 channel current capture with JE2835AFR installed.
+    - Re-run Test 3.9 dark/leakage validation for updated emitter geometry.
+    - Re-run Test 3.10 optical safety under final 4-state TDM timing.
 
 ================================================================================
 PHASE GATE STATUS (PAPER ANALYSIS STAGE)

@@ -2,12 +2,13 @@ Complete Bill of Materials (BOM)
 Project: Cerebral Oximeter (Prototype 1)
 Aligned documents: spec.txt Rev 3.2, validation_and_verification_plan.txt Rev 3.2
 Build quantity: 1 unit
-Date: 2026-02-28
+Date: 2026-03-02
 
 Notes:
 - Prices are indicative and vary by distributor/region.
 - For components with no public per-part datasheet page, vendor request links are provided.
 - Qty includes only assembly parts (not lab instruments/tools).
+- DCN-001 (2026-03-02): Item #6 updated to Cree JE2835AFR and LED carrier boards removed from the build.
 
 ================================================================================
 1) Core Electronics
@@ -25,6 +26,8 @@ Notes:
    MPN: Adafruit 1085 (ADS1115 breakout)
    Description: 16-bit I2C ADC board
    Product page: https://www.adafruit.com/product/1085
+   Distributor search (Digi-Key): https://www.digikey.com/en/products/result?s=adafruit%201085
+   Distributor search (Mouser): https://www.mouser.com/c/?q=Adafruit%201085
    Datasheet (ADC IC): https://www.ti.com/lit/ds/symlink/ads1115.pdf
 
 3. Dual Op-Amp
@@ -48,12 +51,13 @@ Notes:
    Product page: https://www.st.com/en/power-transistors/tip31c.html
    Datasheet: https://www.st.com/resource/en/datasheet/tip31c.pdf
 
-6. 730nm Source LED (per spec primary)
+6. 730nm Source LED (per DCN-001 primary)
    Qty: 1
-   MPN: LST1-01G01-FRD1-00
-   Description: 730nm far-red emitter, Luminus SST-10 on New-Energy Star Board, 130 deg
-   Product page: https://www.mouser.com/ProductDetail/New-Energy/LST1-01G01-FRD1-00?qs=wd5RIQLrsJi1z5h%252BFO29xg%3D%3D
-   Datasheet: https://new-energyllc.com/wp-content/uploads/NewEnergy_StarBoard_Lumileds_Luxeon-C_DataSheet.pdf
+   MPN: JE2835AFR-N-0001A0000-N0000001
+   Description: 730nm far-red emitter, Cree LED J Series 2835, 2-pad bottom-contact SMD
+   Product page: https://www.digikey.com/en/products/detail/cree-led/JE2835AFR-N-0001A0000-N0000001/16678464
+   DigiKey Part Number: 2138-JE2835AFR-N-0001A0000-N0000001CT-ND
+   Datasheet: https://downloads.cree-led.com/files/ds/j/JSeries-2835-Color.pdf
 
 7. 850nm Source LED (per spec primary)
    Qty: 1
@@ -208,6 +212,6 @@ Notes:
 BOM Summary (1 build)
 ================================================================================
 
-- Core electronics and passives: typically ~USD 65-100 depending LED sourcing.
-- Availability note: 850nm channel uses widely stocked ams OSRAM SFH4253B; 730nm channel uses New-Energy Star Board from Mouser.
+- Core electronics and passives: typically ~USD 55-92 depending LED sourcing (carrier boards removed per DCN-001).
+- Availability note: 730nm (Cree JE2835AFR-N-0001A0000-N0000001) and 850nm (ams OSRAM SFH4253B) emitters remain widely available from major distributors.
 - Before ordering, run one final check against local stock and lead times.

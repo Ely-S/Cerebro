@@ -26,7 +26,9 @@ POTS is characterized by an excessive heart rate increase (30+ bpm) within 10 mi
 | Coding & Testing | 4-5 Hours | Enhanced signal processing |
 | **Total Build Time** | **10-14 Hours** | Allow extra for troubleshooting |
 
-**Component Cost:** $80-110 USD per station
+**Component Cost:** $55-92 USD per station (carrier boards removed per DCN-001)
+
+**DCN-001 (2026-03-02):** 730nm emitter updated to Cree JE2835AFR and LED carrier boards removed; both LEDs now use wire-pigtail mounting.
 
 ---
 
@@ -101,92 +103,54 @@ This device measures relative changes from a baseline, not absolute values. It t
 ================================================================================
 COMPLETE WIRING DIAGRAM
 ================================================================================
-EXTERNAL 5V POWER SUPPLY (Wall Adapter, 1A minimum)
-|
-+-----[ FUSE 500mA ]-----+--------------------------+
-                         |                          |
-                      +--+--+                    +--+--+
-                      | 5V  |                    | 5V  |
-                      | Rail|                    | Rail|
-                      +--+--+                    +--+--+
-                         |                          |
-                         |                          |
-+------+--------+  +--------+-------+  +-----------+-----------+
-| 730nm LED     |  | 850nm LED      |  | Arduino Nano 33 IoT   |
-|               |  |                |  |                       |
-| Anode --+----+------| Anode --+------+------| D2 (Red LED control)    |
-|         |     |  |        |       |  | D3 (IR LED control)     |
-|     [68 Ohm]  |  |    [68 Ohm]    |  | 3.3V output -----+      |
-|         |     |  |        |       |  |                  |      |
-| Cathode-+----+------| Cathode-+------+------| GND -------------+--+    |
-|         |     |  |        |       |  | A4 (SDA) --------+  |   |
-|      +---+    |  |     +---+      |  | A5 (SCL) --------+  |   |
-|      |TIP31C |   |     |TIP31C |   |  |                  |  |   |
-|      |  C    |   |     |  C    |   |  +------------------+  |   |
-|      |B   E  |   |     |B   E  |   |                        |   |
-|      |       |   |     |       |   |                        |   |
-+------+       |   +---+------+------+                        |   |
-       |       |       |      |                               |   |
-     [470]     |     [470]    |                               |   |
-       |       |       |      |                               |   |
-+------+-+----+---+--------+-+----+---+----------------------------+-+
-|      GND   GND                           |                         |
-|                                          |                         |
-|  PHOTODIODE ASSEMBLY                     |                         |
-|                                          |                         |
-|  +------------------+                    |                         |
-|  |      BPW34       |                    |                         |
-|  |    Photodiode    | (Mounted in EVA foam probe,                  |
-|  |                  |  30mm from LEDs)                             |
-|  | Cathode ---+----+-------------------------------------------|   |
-|  |            |                                                |   |
-|  | Anode -----+----+-------------------------------------------|-+ |
-|  +------------------+ GND                                          |
-|                     |                                              |
-|                     | (Shielded cable, < 5cm length)               |
-|                     v                                              |
-|  +------------------+                                              |
-|  |     MCP6022      |                                              |
-|  |     Op-Amp       |                                              |
-|  |                  |                                              |
-|  | Pin 1: OUT1 ----+--------------------------+                    |
-|  | Pin 2: IN1- <--+---[100k]--+               |                    |
-|  | Pin 3: IN1+ <--+--- GND    |               |                    |
-|  | Pin 4: GND  <--+-----------+--------------+                     |
-|  | Pin 8: V+   <--+--- 3.3V   |                                    |
-|  |                |   [4.7pF] |                                    |
-|  | Stage 1: TIA   |           |                                    |
-|  +------------------+       +-----+                                |
-|                             |                                      |
-|                             | (5mV signal from Stage 1)            |
-|                             v                                      |
-|  +------------------+       |                                      |
-|  |     MCP6022      | Stage 2: Gain x48                            |
-|  |   (same chip)    |       |                                      |
-|  |                  |       |                                      |
-|  | Pin 5: IN2+ <--+--- Stage 1 Output                              |
-|  | Pin 6: IN2- <--+---[1k]---+                                     |
-|  | Pin 7: OUT2 ----+----------+----------> To ADC                  |
-|  |                 |  [47k]   |                                    |
-|  +------------------+         |                                    |
-|         GND                   |                                    |
-|                             |                                      |
-+-----------------------------------+--------------------------------+
-                                    |
-                                    v
-+------------------+      +------------------+
-|   ADS1115 ADC    |      |   TO COMPUTER    |
-|                  |      |                  |
-|   VDD ---- 3.3V  |      | USB cable from   |
-|   GND ---- GND   |      | Arduino          |
-|   SCL ---- A5    |      |                  |
-|   SDA ---- A4    |      | Serial Plotter   |
-|   ADDR --- GND   |      | shows real-time  |
-|   A0 ----- Signal|      | oxygenation %    |
-|            from  |      +------------------+
-|            TIA   |
-+------------------+
+5V IN (Wall Adapter, >=1A)
+   |
+ [FUSE 500mA]
+   |
+   +--> [68R] --> 730nm LED (wire-pigtail, anode->cathode) --> TIP31C Q1 collector
+   |                                                        TIP31C Q1 emitter --> GND
+   |                                                        D2 --> [470R] --> Q1 base
+   |
+   +--> [68R] --> 850nm LED (wire-pigtail, anode->cathode) --> TIP31C Q2 collector
+                                                            TIP31C Q2 emitter --> GND
+                                                            D3 --> [470R] --> Q2 base
+
+Arduino Nano 33 IoT (3.3V logic)
+  3.3V ----------------------------------------------+-------------------+
+  GND  ----------------------------------------------+-------------------+-------------------+
+  A4 (SDA) -------------------------------------------> ADS1115 SDA
+  A5 (SCL) -------------------------------------------> ADS1115 SCL
+
+ADS1115 ADC
+  VDD <-----------------------------------------------+ (3.3V)
+  GND <-------------------------------------------------------------------- GND
+  ADDR ------------------------------------------------> GND (0x48)
+  A0  <----------------------------------------------- MCP6022 OUT2 (Pin 7)
+
+Photodiode + Analog Front End (MCP6022)
+  BPW34 cathode --------------------------------------> MCP6022 IN1- (Pin 2)
+  BPW34 anode ----------------------------------------> GND
+
+  Stage 1 TIA:
+    Rf = 100k between OUT1 (Pin 1) and IN1- (Pin 2)
+    Cf = 4.7pF in parallel with Rf
+    IN1+ (Pin 3) -> GND
+    V+  (Pin 8)  -> 3.3V
+    V-  (Pin 4)  -> GND
+
+  Stage 2 Gain (same MCP6022):
+    IN2+ (Pin 5) <- Stage1 OUT (Pin 1)
+    IN2- (Pin 6) <- node between Rg=1k to GND and Rf2=47k to OUT2
+    OUT2 (Pin 7) -> ADS1115 A0
+
+Decoupling / layout notes:
+  - 0.1uF local decoupling at MCP6022 and ADS1115 power pins
+  - 47-100uF bulk cap at 5V rail entry; 10uF near analog 3.3V rail
+  - BPW34 lead to op-amp kept short (<5cm), shielded
+================================================================================
 ```
+
+**Diagram note:** Both emitters are shown as direct LED nodes. In DCN-001 builds, both the `730nm JE2835AFR` and `850nm SFH4253B` are wire-pigtail mounted (no carrier boards).
 
 #### Important Notes
 1. **DO NOT connect ADS1115 VDD to 5V** - use 3.3V only (Arduino Nano 33 IoT is 3.3V logic)
@@ -230,7 +194,7 @@ EXTERNAL 5V POWER SUPPLY (Wall Adapter, 1A minimum)
 
 | Stage | Function | Key Components |
 | :--- | :--- | :--- |
-| **1. Emitter** | High-power NIR LED drive | TIP31C, 68 Ohm (730nm) + 68 Ohm (850nm), New-Energy Star Board / ams OSRAM |
+| **1. Emitter** | High-power NIR LED drive | TIP31C, 68 Ohm (730nm) + 68 Ohm (850nm), Cree JE2835AFR / ams OSRAM |
 | **2. Detector** | Photocurrent amplification | BPW34, MCP6022 (2-stage TIA) |
 | **3. Digital** | High-resolution sampling | ADS1115 @ 64 SPS |
 | **4. Processing** | Signal filtering & output | Arduino Nano 33 IoT |
@@ -243,7 +207,7 @@ EXTERNAL 5V POWER SUPPLY (Wall Adapter, 1A minimum)
 ### 5.1 LED Specifications
 | Component | Part Number | Specifications |
 | :--- | :--- | :--- |
-| **730nm LED** | New-Energy LST1-01G01-FRD1-00 | Star Board (Luminus SST-10), 130 deg angle |
+| **730nm LED** | Cree JE2835AFR-N-0001A0000-N0000001 | Bare SMD 2835 package, ~121 deg beam |
 | **850nm LED** | ams OSRAM SFH4253B | 850nm centroid (860nm peak), SMT PLCC-2, 120 deg beam |
 | **Alt 850nm** | Epitex L850-05AU | Legacy option if SFH4253B unavailable |
 
@@ -278,7 +242,7 @@ This keeps both channels in the target electrical range while adding optical-saf
 | ADS1115 ADC Module | 1 | Adafruit 1085 | $10-15 |
 | MCP6022-I/P Op-Amp | 1 | DIP-8 | $1.50-2 |
 | BPW34 Photodiode | 1 | Vishay | $2-4 |
-| LED 730nm Star Board | 1 | New-Energy LST1-01G01 | $5-7 |
+| LED 730nm | 1 | JE2835AFR-N-0001A0000-N0000001 | ~$0.32-2 |
 | LED 850nm | 1 | ams OSRAM SFH4253B | $1-4 |
 | TIP31C Transistor | 2 | TO-220 | $1-2 |
 | Elastic Headband | 1 | 2cm wide | $3-5 |
@@ -288,7 +252,7 @@ This keeps both channels in the target electrical range while adding optical-saf
 | Capacitor 10uF | 1 | 6.3V min | $0.10-0.30 |
 | Misc (resistors, caps, wire) | set | - | $5-10 |
 
-**Estimated Total: $60-96 USD**
+**Estimated Total: $55-92 USD** (carrier boards removed per DCN-001)
 
 Note: `BOM.csv` is a procurement-focused list and assumes the following common lab/prototyping items are already available: breadboard/perfboard + hookup wire, USB data cable for Nano 33 IoT, and opaque electrical tape.
 
@@ -340,8 +304,8 @@ The optical probe is the most critical component of the system. Proper mechanica
 
 #### Required Materials
 - Black EVA foam block (approx. 2cm x 4cm x 2cm)
-- 730nm Star Board LED
-- 850nm SMT LED on carrier board
+- Bare 730nm SMD LED (Cree JE2835AFR-N-0001A0000-N0000001)
+- Bare 850nm SMD LED (ams OSRAM SFH4253B)
 - BPW34 Photodiode
 - Black rubber washers (1/8" / 3mm Inner Diameter) x 2-3
 - Superglue and opaque adhesive (or opaque electrical tape)
@@ -350,37 +314,42 @@ The optical probe is the most critical component of the system. Proper mechanica
 
 #### Step-by-Step Instructions
 
-1. **Prepare the Foam Base**
+1. **LED Lead Preparation (wire-pigtail)**
+   - Pre-tin two 30 AWG stranded wires (8-10cm, ~2mm stripped) for each LED channel.
+   - Flux and tin the LED pads, then solder one wire to anode and one wire to cathode for both 730nm and 850nm LEDs.
+   - Add short heat-shrink at each joint for strain relief and label polarity before mounting.
+
+2. **Prepare the Foam Base**
    - Cut the black EVA foam block to `2cm (height) x 4cm (length) x 2cm (width)`.
    - Punch a `7mm` hole cleanly through one side for the BPW34 photodiode.
-   - Measure exactly `30mm` (center-to-center) from the photodiode hole and carve a `20mm` wide flat recess to seat the 730nm Star Board.
-   - Carve a small flat pocket immediately next to the 730nm recess for the 850nm SMT LED carrier board.
+   - Measure exactly `30mm` (center-to-center) from the photodiode hole.
+   - Carve **two small, adjacent LED pockets** at the 30mm mark sized to the bare LED bodies and pigtail routing path.
 
-2. **Prepare the 730nm Baffle**
-   - Superglue a stack of 2-3 black rubber washers directly over the 730nm Star Board LED dome. 
-   - *Purpose:* This acts as an essential optical baffle to restrict the wide 130-degree beam angle and guide the light forward into the tissue.
+3. **Prepare the 730nm Baffle**
+   - The 730nm LED beam must be restricted with a washer stack to improve optical isolation.
+   - Apply superglue to a stack of 2-3 black rubber washers (1/8" / 3mm Inner Diameter) and affix them directly over the dome of the 730nm SMD LED.
+   - *Purpose:* This acts as an essential optical baffle to guide the light forward into the tissue. The 850nm LED does not require this modification.
 
-3. **Mount the Emitters**
-   - Insert the 730nm Star Board (with glued washers) into its carved recess.
-   - Mount the 850nm SFH4253B (already soldered to a small SMT carrier/perf adapter) in its pocket.
-   - Ensure the emitting surfaces (top of washers / top of 850nm LED) are perfectly flush with the foam surface that will touch the skin.
-   - Secure the boards with opaque adhesive. Label the wires extending from the back to avoid crossing the channels later.
+4. **Mount the Emitters**
+   - Insert the 730nm and 850nm pigtailed LEDs into their respective custom pockets.
+   - Ensure the emitting surfaces (top of washers / top of 850nm LED dome) are perfectly flush with the foam surface that will touch the skin.
+   - Secure with opaque adhesive and route pigtail leads out the rear. Keep polarity labels visible to avoid channel crossing.
 
-4. **Mount the Detector**
+5. **Mount the Detector**
    - Insert the BPW34 photodiode into the 7mm hole. 
    - The convex lens must face outward toward the tissue. (The flat side is the cathode and faces the back).
    - Solder the short, shielded wire to the photodiode leads. Keep this connection under 5cm to minimize electrical noise.
 
-5. **Optical Isolation (CRITICAL STEP)**
+6. **Optical Isolation (CRITICAL STEP)**
    - Wrap additional black foam or opaque electrical tape around the back and sides of the LED and photodiode housings.
    - Ensure the rubber washer stack on the 730nm LED is perfectly seated with no gaps around its base.
    > ⚠️ **CRITICAL WARNING:** Light MUST NOT pass directly from the LEDs to the photodiode through the foam body or across the surface gap. Direct LED-to-photodiode light paths will completely overwhelm the faint tissue signal. This is the #1 failure point in construction. Take extra time to ensure perfect light blocking.
 
-6. **Headband Integration**
+7. **Headband Integration**
    - Attach the completed foam block to the center of the elastic headband.
-   - Add soft padding (like medical gauze or soft fabric) around the hard edges of the foam/boards for patient comfort.
+   - Add soft padding (like medical gauze or soft fabric) around the hard edges of the foam/probe body for patient comfort.
 
-7. **Verify Assembly (Dark Test)**
+8. **Verify Assembly (Dark Test)**
    - Point the probe into a dark space (or cover it completely with thick, opaque material).
    - Power the circuit. The signal reading should be near zero.
    - *Any significant reading indicates a light leak that must be patched before proceeding.*

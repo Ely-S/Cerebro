@@ -1,8 +1,8 @@
 Optics Datasheet Validation
 ===========================
 
-Date: 2026-03-01
-Revision: updated 2026-03-01 (cross-verification pass — see Issue Log below)
+Date: 2026-03-02
+Revision: updated 2026-03-02 (DCN-001 alignment pass — see Issue Log below)
 Scope: Validate optical BOM parts against design requirements in spec.txt and validation_and_verification_plan.txt.
 
 Source register:
@@ -11,10 +11,11 @@ Source register:
 Primary manufacturer sources used for numeric values:
 - https://look.ams-osram.com/m/631defe919332729/original/SFH-4253B.pdf
 - https://www.vishay.com/docs/81521/bpw34.pdf
-- https://new-energyllc.com/wp-content/uploads/NewEnergy_StarBoard_Lumileds_Luxeon-C_DataSheet.pdf
+- https://downloads.cree-led.com/files/ds/j/JSeries-2835-Color.pdf
 
-Supplemental (secondary) source:
-- https://pdf.datasheet.support/c3cb8a1a/opulent_americas/LST1-01G01-FRD1-00.html
+Local reproducibility artifacts:
+- datasheets/online-check/JSeries-2835-Color.pdf
+- datasheets/optics_jseries2835_datasheet.html
 
 Requirements checked:
 1) Wavelengths: 730nm and 850nm (spec.txt)
@@ -25,16 +26,15 @@ Requirements checked:
 
 Results by part:
 
-Part: LST1-01G01-FRD1-00 (730nm source LED)
-- Datasheet support page shows: Far Red 730nm, beam angle 130deg, Vf typ 2.10V,
-  total flux 310mW at 350mA (typ).
+Part: JE2835AFR-N-0001A0000-N0000001 (730nm source LED)
+- Datasheet shows: Far Red 730nm class, bare SMD 2835 package, viewing angle 121deg,
+  Vf typ 2.15V at 140mA, radiant flux 128mW at 140mA (typ).
 - Status vs requirements:
   - 730nm target: PASS
-  - Beam angle 130deg statement in spec: PASS
-  - Vf 1.8-2.3V pre-check band (Test 1.1): PASS (typ 2.10V)
+  - Vf 1.8-2.3V pre-check band (Test 1.1): PASS (typ 2.15V)
   - Current target (35-50mA): NOT CLOSED BY DATASHEET ALONE (bench measurement required per Test 3.2)
-  - Optical power at design current (~40mA): estimated ~35-40mW (linear approx from 310mW@350mA);
-    time-averaged at 1/4 TDM duty ~9-10mW. At or near the 10mW limit; bench measurement mandatory.
+  - Optical power at design current (~39-40mA): estimated ~36mW (linear approx from 128mW@140mA);
+    time-averaged at 1/4 TDM duty ~9.0mW. Near the 10mW limit; bench measurement mandatory.
 
 Part: SFH4253B (850nm source LED)
 - Datasheet (PDF v1.2, 2025-12-01) confirmed values:
@@ -69,7 +69,7 @@ Overall assessment:
   because the paper estimate is close to the <10mW limit.
 
 ================================================================================
-ISSUE LOG (cross-verification findings, 2026-03-01)
+ISSUE LOG (cross-verification findings, 2026-03-02)
 ================================================================================
 
 ISSUE-001 [MINOR -- CORRECTED IN THIS FILE]
@@ -104,6 +104,13 @@ ISSUE-003 [MINOR -- CORRECTED]
              Corrected with final resistor value: I = (5.0 - 0.2 - 1.6) / 68 = 47.1mA.
   Action   : Calculations updated to final 68 ohm configuration.
   Impact   : R-DRV-01 verdict unchanged (PASS conditional) within the 40-50mA acceptance band.
+
+ISSUE-004 [DESIGN CHANGE APPLIED -- DCN-001]
+  Location : spec.txt/BOM/validation document set.
+  Original : 730nm optical validation text referenced SST-10 and carrier-board assumptions.
+  Correct  : 730nm source is JE2835AFR with wire-pigtail mounting and no carrier board dependency.
+  Action   : Updated this file's source list and 730nm numeric/assembly assumptions to JE2835AFR basis.
+  Impact   : Optical compatibility remains PASS (conditional), with the same bench-closure requirement for Test 3.10.
 
 ================================================================================
 Recommended next actions:
