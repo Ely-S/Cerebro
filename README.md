@@ -26,7 +26,9 @@ POTS is characterized by an excessive heart rate increase (30+ bpm) within 10 mi
 | Coding & Testing | 4-5 Hours | Enhanced signal processing |
 | **Total Build Time** | **10-14 Hours** | Allow extra for troubleshooting |
 
-**Component Cost:** $60-97 USD per station (includes carrier board pack)
+**Component Cost:** $55-92 USD per station (carrier boards removed per DCN-001)
+
+**DCN-001 (2026-03-02):** 730nm emitter updated to Cree JE2835AFR and LED carrier boards removed; both LEDs now use wire-pigtail mounting.
 
 ---
 
@@ -230,7 +232,7 @@ EXTERNAL 5V POWER SUPPLY (Wall Adapter, 1A minimum)
 
 | Stage | Function | Key Components |
 | :--- | :--- | :--- |
-| **1. Emitter** | High-power NIR LED drive | TIP31C, 68 Ohm (730nm) + 68 Ohm (850nm), Luminus SST-10 / ams OSRAM |
+| **1. Emitter** | High-power NIR LED drive | TIP31C, 68 Ohm (730nm) + 68 Ohm (850nm), Cree JE2835AFR / ams OSRAM |
 | **2. Detector** | Photocurrent amplification | BPW34, MCP6022 (2-stage TIA) |
 | **3. Digital** | High-resolution sampling | ADS1115 @ 64 SPS |
 | **4. Processing** | Signal filtering & output | Arduino Nano 33 IoT |
@@ -243,7 +245,7 @@ EXTERNAL 5V POWER SUPPLY (Wall Adapter, 1A minimum)
 ### 5.1 LED Specifications
 | Component | Part Number | Specifications |
 | :--- | :--- | :--- |
-| **730nm LED** | Luminus SST-10-FR-B90-H730 | Bare SMD 3535 package, 90 deg beam |
+| **730nm LED** | Cree JE2835AFR-N-0001A0000-N0000001 | Bare SMD 2835 package, ~121 deg beam |
 | **850nm LED** | ams OSRAM SFH4253B | 850nm centroid (860nm peak), SMT PLCC-2, 120 deg beam |
 | **Alt 850nm** | Epitex L850-05AU | Legacy option if SFH4253B unavailable |
 
@@ -278,9 +280,8 @@ This keeps both channels in the target electrical range while adding optical-saf
 | ADS1115 ADC Module | 1 | Adafruit 1085 | $10-15 |
 | MCP6022-I/P Op-Amp | 1 | DIP-8 | $1.50-2 |
 | BPW34 Photodiode | 1 | Vishay | $2-4 |
-| LED 730nm | 1 | SST-10-FR-B90-H730 | $1-3 |
+| LED 730nm | 1 | JE2835AFR-N-0001A0000-N0000001 | ~$0.32-2 |
 | LED 850nm | 1 | ams OSRAM SFH4253B | $1-4 |
-| LED carrier boards | 1 pack | Adafruit 1762 (10-pack) | ~$5 |
 | TIP31C Transistor | 2 | TO-220 | $1-2 |
 | Elastic Headband | 1 | 2cm wide | $3-5 |
 | Black EVA Foam | 1 | 2x4x2cm | $3-5 |
@@ -289,7 +290,7 @@ This keeps both channels in the target electrical range while adding optical-saf
 | Capacitor 10uF | 1 | 6.3V min | $0.10-0.30 |
 | Misc (resistors, caps, wire) | set | - | $5-10 |
 
-**Estimated Total: $60-97 USD** (includes carrier board pack)
+**Estimated Total: $55-92 USD** (carrier boards removed per DCN-001)
 
 Note: `BOM.csv` is a procurement-focused list and assumes the following common lab/prototyping items are already available: breadboard/perfboard + hookup wire, USB data cable for Nano 33 IoT, and opaque electrical tape.
 
@@ -341,9 +342,8 @@ The optical probe is the most critical component of the system. Proper mechanica
 
 #### Required Materials
 - Black EVA foam block (approx. 2cm x 4cm x 2cm)
-- Bare 730nm SMD LED (Luminus SST-10-FR-B90-H730)
+- Bare 730nm SMD LED (Cree JE2835AFR-N-0001A0000-N0000001)
 - Bare 850nm SMD LED (ams OSRAM SFH4253B)
-- 2x Small SMT carrier boards (Adafruit 1762 5050 breakout, 2 from 10-pack per BOM)
 - BPW34 Photodiode
 - Black rubber washers (1/8" / 3mm Inner Diameter) x 2-3
 - Superglue and opaque adhesive (or opaque electrical tape)
@@ -352,25 +352,26 @@ The optical probe is the most critical component of the system. Proper mechanica
 
 #### Step-by-Step Instructions
 
-1. **Board Preparation**
-   - Solder the bare 730nm SMD LED and the bare 850nm SMD LED onto their respective small SMT carrier boards.
-   - Ensure both boards have pre-soldered, color-coded lead wires attached to their anodes and cathodes before mounting them into the foam.
+1. **LED Lead Preparation (wire-pigtail)**
+   - Pre-tin two 30 AWG stranded wires (8-10cm, ~2mm stripped) for each LED channel.
+   - Flux and tin the LED pads, then solder one wire to anode and one wire to cathode for both 730nm and 850nm LEDs.
+   - Add short heat-shrink at each joint for strain relief and label polarity before mounting.
 
 2. **Prepare the Foam Base**
    - Cut the black EVA foam block to `2cm (height) x 4cm (length) x 2cm (width)`.
    - Punch a `7mm` hole cleanly through one side for the BPW34 photodiode.
    - Measure exactly `30mm` (center-to-center) from the photodiode hole.
-   - Carve **two small, adjacent flat pockets** at the 30mm mark. These should be tightly sized to the dimensions of your newly standardized carrier boards.
+   - Carve **two small, adjacent LED pockets** at the 30mm mark sized to the bare LED bodies and pigtail routing path.
 
 3. **Prepare the 730nm Baffle**
-   - The 730nm LED possesses a 90-degree beam angle that must be restricted.
+   - The 730nm LED beam must be restricted with a washer stack to improve optical isolation.
    - Apply superglue to a stack of 2-3 black rubber washers (1/8" / 3mm Inner Diameter) and affix them directly over the dome of the 730nm SMD LED.
    - *Purpose:* This acts as an essential optical baffle to guide the light forward into the tissue. The 850nm LED does not require this modification.
 
 4. **Mount the Emitters**
-   - Insert the 730nm and 850nm carrier boards into their respective custom pockets.
-   - Ensure the emitting surfaces (top of washers / top of 850nm LED) are perfectly flush with the foam surface that will touch the skin.
-   - Secure the boards with opaque adhesive. Label the wires extending from the back to avoid crossing the channels later.
+   - Insert the 730nm and 850nm pigtailed LEDs into their respective custom pockets.
+   - Ensure the emitting surfaces (top of washers / top of 850nm LED dome) are perfectly flush with the foam surface that will touch the skin.
+   - Secure with opaque adhesive and route pigtail leads out the rear. Keep polarity labels visible to avoid channel crossing.
 
 5. **Mount the Detector**
    - Insert the BPW34 photodiode into the 7mm hole. 
@@ -384,7 +385,7 @@ The optical probe is the most critical component of the system. Proper mechanica
 
 7. **Headband Integration**
    - Attach the completed foam block to the center of the elastic headband.
-   - Add soft padding (like medical gauze or soft fabric) around the hard edges of the foam/boards for patient comfort.
+   - Add soft padding (like medical gauze or soft fabric) around the hard edges of the foam/probe body for patient comfort.
 
 8. **Verify Assembly (Dark Test)**
    - Point the probe into a dark space (or cover it completely with thick, opaque material).

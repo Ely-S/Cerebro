@@ -8,6 +8,7 @@ Notes:
 - Prices are indicative and vary by distributor/region.
 - For components with no public per-part datasheet page, vendor request links are provided.
 - Qty includes only assembly parts (not lab instruments/tools).
+- DCN-001 (2026-03-02): Item #6 updated to Cree JE2835AFR and LED carrier boards removed from the build.
 
 ================================================================================
 1) Core Electronics
@@ -50,12 +51,13 @@ Notes:
    Product page: https://www.st.com/en/power-transistors/tip31c.html
    Datasheet: https://www.st.com/resource/en/datasheet/tip31c.pdf
 
-6. 730nm Source LED (per spec primary)
+6. 730nm Source LED (per DCN-001 primary)
    Qty: 1
-   MPN: SST-10-FR-B90-H730
-   Description: 730nm far-red emitter, Luminus bare SMD 3535 package, 90 deg beam
-   Product page: https://www.mouser.com/ProductDetail/Luminus-Devices/SST-10-FR-B90-H730
-   Datasheet: https://www.luminus.com/resource/download/SST-10-FR-B90-H730-Datasheet.pdf
+   MPN: JE2835AFR-N-0001A0000-N0000001
+   Description: 730nm far-red emitter, Cree LED J Series 2835, 2-pad bottom-contact SMD
+   Product page: https://www.digikey.com/en/products/detail/cree-led/JE2835AFR-N-0001A0000-N0000001/16678464
+   DigiKey Part Number: 2138-JE2835AFR-N-0001A0000-N0000001CT-ND
+   Datasheet: https://downloads.cree-led.com/files/ds/j/JSeries-2835-Color.pdf
 
 7. 850nm Source LED (per spec primary)
    Qty: 1
@@ -188,27 +190,19 @@ Notes:
     Product page: https://www.3m.com/3M/en_US/p/d/v000057514/
     Datasheet: https://multimedia.3m.com/mws/media/104629O/scotch-super-33-vinyl-electrical-tape.pdf
 
-24. LED carrier boards (for 730nm and 850nm SMD LEDs)
-    Qty: 1 pack (2 boards used per build; 10-pack yields 5 builds)
-    MPN: 1762
-    Description: Adafruit 5050 LED Breakout PCB, 10-pack
-    Product page: https://eu.mouser.com/ProductDetail/Adafruit/1762
-    Mouser: 485-1762
-    Datasheet: N/A (breakout board for SMD LED mounting)
-
-25. Breadboard/perfboard + hookup wire
+24. Breadboard/perfboard + hookup wire
     Qty: 1 set
     MPN: Standard 2.54mm prototyping supplies
     Product page: https://www.adafruit.com/category/84
     Datasheet: N/A (tooling/materials set)
 
-26. USB cable (for Nano 33 IoT to host)
+25. USB cable (for Nano 33 IoT to host)
     Qty: 1
     MPN: USB data cable compatible with Nano 33 IoT connector
     Product page: https://www.adafruit.com/category/139
     Datasheet: N/A (cable accessory)
 
-27. Black Rubber Washers (Optical Baffle)
+26. Black Rubber Washers (Optical Baffle)
     Qty: 1 small pack (only 2-3 needed per build)
     MPN: Generic #4 or M3 flat black rubber washer (~1/8" ID)
     Product page: Any hardware store or generic supply
@@ -218,6 +212,6 @@ Notes:
 BOM Summary (1 build)
 ================================================================================
 
-- Core electronics and passives: typically ~USD 60-97 depending LED sourcing (includes Adafruit 1762 carrier board pack).
-- Availability note: Both 730nm (Luminus SST-10-FR-B90-H730) and 850nm (ams OSRAM SFH4253B) emitters are widely stocked at Mouser; both require small SMT carrier boards.
+- Core electronics and passives: typically ~USD 55-92 depending LED sourcing (carrier boards removed per DCN-001).
+- Availability note: 730nm (Cree JE2835AFR-N-0001A0000-N0000001) and 850nm (ams OSRAM SFH4253B) emitters remain widely available from major distributors.
 - Before ordering, run one final check against local stock and lead times.
