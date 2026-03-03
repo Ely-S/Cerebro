@@ -1,11 +1,12 @@
 # Hardware Component Verification
 Project: Cerebral Oximeter (Prototype 1)  
-Date: 2026-03-02  
+Date: 2026-03-03  
 Basis: `spec.txt` Rev 3.2, `BOM.txt`, `validation.txt`, `validation_and_verification_plan.txt` Rev 3.2
 DCN-002 (2026-03-03): Item #14 updated from FG18C0G1H4R7CNT00 (4.7pF) to
 FG18C0G1H100CNT00 (10pF). Robustness update: estimated TIA phase margin
 increases from ~47deg to ~60deg against breadboard stray capacitance; not a
 functional failure correction.
+Affected files: `hardware-validation.txt`, `BOM.txt`, `vv_calculations.md`.
 
 ## 1) Purpose
 This document records hardware component-level verification using datasheets and authoritative online sources.  

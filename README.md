@@ -192,7 +192,7 @@ Decoupling / layout notes:
 | **Precision (Relative)** | Target +/- 2% @ 95% conf | Requires bench closure per V&V Test 4.6 |
 | **Channels** | 1 (Deep Tissue) | 30mm source-detector separation |
 | **Wavelengths** | 730nm & 850nm | Industry-standard NIRS wavelengths |
-| **Sample Rate** | ADS1115 64 SPS state rate | 4-state TDM gives 16 Hz raw/channel (AmbientA/Red/AmbientB/IR) |
+| **Sample Rate** | ADS1115 64 SPS state rate | Conversion-only 4-state TDM gives 16 Hz raw/channel; implemented effective rate is ~15 Hz with required 1ms/state settling delay |
 | **Safety** | Time-avg emitted power < 10mW per channel | Bench-measured under final TDM timing and drive settings |
 
 ---
@@ -277,20 +277,24 @@ To achieve +/-2% precision for POTS demonstration:
 3. Percent change calculation from baseline
 4. 4-state TDM sequence (AmbientA -> Red -> AmbientB -> IR) for ambient rejection and optical-duty control
 5. 10 Hz output rate for Serial Plotter visualization (decoupled from TDM cycle timing)
+6. Enforce 1ms settling delay after each LED GPIO state change before ADC sample acquisition
 
 ### 7.2 TDM Measurement Sequence
-Each full TDM cycle has a theoretical minimum of 62.5ms at ADS1115 64 SPS:
-1. All LEDs OFF -> Read ADC -> Store as AmbientA
-2. Red LED ON -> Read ADC -> Subtract AmbientA -> Store as Red signal
-3. All LEDs OFF -> Read ADC -> Store as AmbientB
-4. IR LED ON -> Read ADC -> Subtract AmbientB -> Store as IR signal
+Conversion-limited minimum for one full TDM cycle is 62.5ms at ADS1115 64 SPS.
+With required 1ms settling delay per state, implemented firmware minimum is 66.5ms:
+1. All LEDs OFF -> wait 1ms settling -> Read ADC -> Store as AmbientA
+2. Red LED ON -> wait 1ms settling -> Read ADC -> Subtract AmbientA -> Store as Red signal
+3. All LEDs OFF -> wait 1ms settling -> Read ADC -> Store as AmbientB
+4. IR LED ON -> wait 1ms settling -> Read ADC -> Subtract AmbientB -> Store as IR signal
 5. Apply EMA filter to both channels
 6. Calculate percent change from baseline
 7. Output to Serial every 100ms (10 Hz display rate)
 
 **Notes:**
-- 62.5ms is a theoretical minimum (4 conversions x 15.625ms). Actual runtime cycle is measured in V&V Test 3.7.
-- Per-channel raw update rate is 16 Hz at 64 SPS with 4-state TDM.
+- 62.5ms is the conversion-only lower bound (4 conversions x 15.625ms).
+- With 1ms settling delay per state, expected firmware lower bound is 66.5ms.
+- Per-channel effective update rate with required settling delay is approximately 15.0 Hz (1 / 0.0665s).
+- Actual runtime cycle is measured in V&V Test 3.7.
 
 ### 7.3 Core Algorithm
 ```cpp

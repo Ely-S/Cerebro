@@ -121,7 +121,7 @@ Notes:
     Qty: 1
     MPN: FG18C0G1H100CNT00
     Description: 10pF, C0G/NP0, radial ceramic, 50V
-    Product page: https://www.mouser.com/c/?q=FG18C0G1H100CNT00
+    Product page: https://www.mouser.com/ProductDetail/TDK/FG18C0G1H100CNT00
     Datasheet (series): https://product.tdk.com/system/files/dam/doc/product/capacitor/ceramic/lead-mlcc/catalog/fg_e.pdf
 
 15. Local high-frequency decoupling capacitors

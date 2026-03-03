@@ -123,9 +123,12 @@ NCR-001  R-SAFE-01  Optical Safety  [DESIGN UPDATE APPLIED -- PASS (conditional)
   Remaining closure: Bench Test 3.10 required after resolution.
 
 NCR-002  R-TIME-01  TDM Timing Claim  [DESIGN UPDATE APPLIED]
-  Updated claim  : 4-state AmbientA/Red/AmbientB/IR timing at ADS1115 64 SPS.
-  Physical limit : One conversion = 15.625 ms, theoretical cycle minimum =
+  Updated claim  : 4-state AmbientA/Red/AmbientB/IR timing at ADS1115 64 SPS
+                   with 1ms settling guard after each LED GPIO state change.
+  Physical limit : One conversion = 15.625 ms, conversion-only cycle minimum =
                    4 x 15.625 = 62.5 ms.
+  Implemented floor with settling guard:
+                   62.5 ms + (4 x 1.0 ms) = 66.5 ms.
   Remaining closure: Bench timing capture required in V&V Test 3.7.
 
 --------------------------------------------------------------------------------
@@ -330,8 +333,9 @@ Stability pole analysis:
   Stage 1 TIA bandwidth: f_c1 = 1 / (2*pi * 100k * 10pF) = 159.2 kHz
   Stage 2 closed-loop BW: GBW / gain = 10 MHz / 48 = 208.3 kHz
 
-Physiological content is < 10 Hz. With 4-state TDM at 64 SPS, per-channel update
-rate is 16 Hz. Both are far below the stage cutoff frequencies. The 10 pF compensation
+Physiological content is < 10 Hz. With required 1ms settling guard per state,
+per-channel effective update rate is ~15 Hz. Both are far below the stage cutoff
+frequencies. The 10 pF compensation
 capacitor limits noise gain at the BPW34 input capacitance (~70 pF), providing
 approximately 60deg phase margin with better tolerance to breadboard stray capacitance
 (DCN-002).
@@ -366,23 +370,34 @@ Verdict R-ADC-01: OPEN. Bench Tests 3.5 and 3.6 required.
 At ADS1115 64 SPS:
   T_conversion = 1 / 64 = 15.625 ms per single conversion
 
-Minimum 4-state cycle (AmbientA -> Red -> AmbientB -> IR), one conversion/state:
-  T_cycle_min = 4 * 15.625 = 62.5 ms
-  Per-channel update rate = 1 / 0.0625 = 16.0 Hz
+Conversion-only minimum 4-state cycle (AmbientA -> Red -> AmbientB -> IR), one conversion/state:
+  T_cycle_conv_only = 4 * 15.625 = 62.5 ms
 
-Important interpretation: 62.5 ms is an ideal lower bound, not a guaranteed
-runtime value. Actual cycle time can increase due to ADC settling behavior,
-I2C/config transaction latency (if rewritten per state), LED switching delays,
-and loop overhead. Formal closure requires bench timing capture (e.g., GPIO
-strobe plus scope/logic analyzer) during V&V Test 3.7.
+Required firmware implementation adds settling guard after each state change:
+  T_settle_total = 4 * 1.0 = 4.0 ms
+  T_cycle_min_impl = 62.5 + 4.0 = 66.5 ms
+  Per-channel effective update rate = 1 / 0.0665 = 15.0 Hz (approx)
 
-Spec Rev 3.2 now states a theoretical minimum 4-state cycle of 62.5 ms at
-64 SPS and requires measured runtime confirmation in V&V Test 3.7.
+Important interpretation: 62.5 ms is the conversion-only lower bound. The
+required 1ms settling guard intentionally increases the implemented lower bound
+to 66.5 ms. Actual cycle time can still increase due to I2C/config transaction
+latency (if rewritten per state) and loop overhead. Formal closure requires bench
+timing capture (e.g., GPIO strobe plus scope/logic analyzer) during V&V Test 3.7.
+
+Timing integrity sub-check for V&V Test 3.7:
+  - Verify >=1.0 ms from each LED GPIO transition to ADC sample-acquisition point
+    (read event or single-shot trigger, per implementation).
+  - Preferred evidence is scope/logic capture. If impractical at prototype stage,
+    code review evidence is acceptable if the delay is explicit and unambiguous.
+
+Spec Rev 3.2 now states conversion-only minimum of 62.5 ms and implemented
+minimum of 66.5 ms at 64 SPS, with measured runtime confirmation required in
+V&V Test 3.7.
 
 Downstream impact: The spec states a 10 Hz output rate. This is achievable
 because serial output cadence is decoupled from internal TDM cycle timing.
-The per-channel effective sample rate (16 Hz) is now documented consistently
-and is used in the EMA time-constant analysis (see Section 9).
+The per-channel effective sample rate with required settling delay is
+approximately 15 Hz and is used in the EMA time-constant analysis (see Section 9).
 
 Verdict R-TIME-01: PASS (conditional). Bench Test 3.7 required.
 
@@ -395,8 +410,8 @@ EMA formula: y[n] = alpha * x[n] + (1 - alpha) * y[n-1],  alpha = 0.025
 Spec Rev 3.2 explicitly fixes the convention to:
   N_eff = 1/alpha = 40 samples.
 
-Effective averaging time at per-channel 16 Hz update rate:
-  40 / 16 = 2.5 seconds of averaging.
+Effective averaging time at per-channel ~15 Hz update rate:
+  40 / 15.0 = 2.67 seconds of averaging (approx).
 
 This resolves the prior ambiguity and aligns spec text with V&V Test 3.8.
 Remaining work is implementation verification in firmware logs/bench testing.
@@ -531,8 +546,10 @@ CA-001  --  Optical Safety Design Correction                    [APPLIED]
 CA-002  --  TDM Timing Correction                                [APPLIED]
 
   Implemented:
-    - Spec timing wording updated to 4-state theoretical minimum (62.5 ms).
-    - Spec sample-rate row corrected to TDM-consistent per-channel update rate.
+    - Spec timing wording updated to include both conversion-only minimum
+      (62.5 ms) and implemented minimum with settling guard (66.5 ms).
+    - Spec sample-rate language now distinguishes conversion-limited raw state
+      rate from effective per-channel timing with required settling delay.
   Remaining closure:
     - Bench timing capture for real runtime cycle and per-channel update rate
       (Test 3.7).
