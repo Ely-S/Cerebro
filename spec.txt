@@ -180,7 +180,7 @@ Measurement Type Relative Trend Changes from baseline, not absolute
 Precision (Relative) Target +/- 2% @ 95% conf Requires bench closure per V&V Test 4.6
 Channels 1 (Deep Tissue) 30mm source-detector separation
 Wavelengths 730nm & 850nm Industry-standard NIRS wavelengths
-Sample Rate ADS1115 64 SPS state rate Conversion-only 4-state TDM gives 16 Hz raw/channel; implemented effective rate is ~15 Hz with required 1ms/state settling delay
+Sample Rate ADS1115 64 SPS state rate Conversion-only 4-state TDM gives 16 Hz raw/channel; design-target effective rate is ~15 Hz with required 1ms/state settling delay (bench timing closure required)
 Safety Time-avg emitted power < 10mW per channel Bench-measured under final TDM timing and drive settings
 4. System Architecture
 Stage Function Key Components
@@ -248,7 +248,7 @@ To achieve +/-2% precision for POTS demonstration:
 6. Enforce 1ms settling delay after each LED GPIO state change before ADC sample acquisition
 7.2 TDM Measurement Sequence
 Conversion-limited minimum for one full TDM cycle is 62.5ms at ADS1115 64 SPS.
-With required 1ms settling delay per state, implemented firmware minimum is 66.5ms:
+With required 1ms settling delay per state, design-target cycle minimum is 66.5ms:
 1. All LEDs OFF - wait 1ms settling - Read ADC - Store as AmbientA
 2. Red LED ON - wait 1ms settling - Read ADC - Subtract AmbientA - Store as Red signal
 3. All LEDs OFF - wait 1ms settling - Read ADC - Store as AmbientB
@@ -260,7 +260,7 @@ Notes:
 - 62.5ms is the conversion-only lower bound (4 conversions x 15.625ms).
 - With 1ms settling delay per state, expected firmware lower bound is 66.5ms.
 - Per-channel effective update rate with required settling delay is approximately 15.0 Hz (1 / 0.0665s).
-- Actual runtime cycle is measured in V&V Test 3.7.
+- Actual runtime cycle remains bench-closure dependent and is measured in V&V Test 3.7.
 7.3 Core Algorithm
 // EMA Filter (alpha=0.025, convention N_eff = 1/alpha = 40)
 const float ALPHA = 0.025;

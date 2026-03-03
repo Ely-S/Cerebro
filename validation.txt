@@ -385,10 +385,11 @@ latency (if rewritten per state) and loop overhead. Formal closure requires benc
 timing capture (e.g., GPIO strobe plus scope/logic analyzer) during V&V Test 3.7.
 
 Timing integrity sub-check for V&V Test 3.7:
-  - Verify >=1.0 ms from each LED GPIO transition to ADC sample-acquisition point
-    (read event or single-shot trigger, per implementation).
+  - Verify in ADS1115 continuous mode that >=1.0 ms elapses from each LED GPIO
+    transition before the ADC sample used for that state is accepted.
   - Preferred evidence is scope/logic capture. If impractical at prototype stage,
-    code review evidence is acceptable if the delay is explicit and unambiguous.
+    code review evidence is acceptable only if 1ms guard logic is explicit and
+    pre-guard ADC reads/samples are not used in state calculations.
 
 Spec Rev 3.2 now states conversion-only minimum of 62.5 ms and implemented
 minimum of 66.5 ms at 64 SPS, with measured runtime confirmation required in

@@ -271,7 +271,7 @@ ISSUE-005 [DESIGN CHANGE APPLIED -- DCN-002]
   Files   : BOM.txt, BOM.csv, spec.txt, README.md, validation.txt, hardware-validation.txt, validation_and_verification_plan.txt
   Finding : Stage 1 TIA compensation capacitor (4.7pF) was mathematically stable but offered limited margin to breadboard parasitics.
   Fix     : Updated compensation value to 10pF and procurement MPN to FG18C0G1H100CNT00.
-  Impact  : Estimated phase margin improves from ~47deg to ~60deg with no functional-bandwidth conflict for 16 Hz channel update rate.
+  Impact  : Estimated phase margin improves from ~47deg to ~60deg with no functional-bandwidth conflict for the design-target ~15 Hz effective per-channel update rate (66.5 ms cycle with required 1ms/state settling delay; 16 Hz remains the conversion-only limit pending bench timing closure).
 
 ## 6) Final Component Verification Summary
 - VERIFIED: 19 components/classes

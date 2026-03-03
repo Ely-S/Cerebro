@@ -291,11 +291,11 @@ Measured fact at 64 SPS:
 Pass criteria:
   - Sequence order is AmbientA -> Red -> AmbientB -> IR with no Red/IR overlap
   - Measured cycle time is physically consistent with ADC conversion timing and required settling delays
-  - Settling guard is present: >=1.0 ms from each LED GPIO transition to ADC sample-acquisition point (read event or single-shot trigger, per implementation)
+  - Settling guard is present in ADS1115 continuous mode: firmware enforces >=1.0 ms from each LED GPIO transition before accepting the ADC sample used for that state's calculation.
   - Document measured full-cycle runtime and measured per-channel update rate
   - Any spec text claiming "~15 ms full cycle at 64 SPS" is FAIL and requires NCR
 Fallback evidence rule (prototype stage):
-  - If scope/logic capture of ADC sample-acquisition timing is impractical, code review evidence is acceptable if it clearly shows a 1ms minimum guard before each state's ADC acquisition path.
+  - If scope/logic capture is impractical, code review evidence is acceptable only if it clearly shows a 1ms minimum guard and that pre-guard ADC reads/samples are not used for state calculations.
 
 Test 3.8 - EMA and Output Cadence Unit Verification
 Equipment: Offline script or firmware logs
