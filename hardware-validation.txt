@@ -1,7 +1,7 @@
 # Hardware Component Verification
 Project: Cerebral Oximeter (Prototype 1)  
 Date: 2026-03-02  
-Basis: `spec.txt` Rev 3.2, `BOM.txt`, `validation.txt`
+Basis: `spec.txt` Rev 3.2, `BOM.txt`, `validation.txt`, `validation_and_verification_plan.txt` Rev 3.2
 
 ## 1) Purpose
 This document records hardware component-level verification using datasheets and authoritative online sources.  
@@ -139,47 +139,66 @@ Evidence:
 Notes:
 - 5x20 mm time-lag ceramic family and 500 mA class match design protection intent.
 
-19. `GS06E-1P1J` 5 V wall adapter  
-Status: VERIFIED, BENCH-REQUIRED  
+19. USB battery pack (student-provided, always-on capable)  
+Status: PARTIAL, BENCH-REQUIRED  
 Evidence:
-- https://www.meanwell.com.cn/upload/pdf/GS06E/GS06E-SPEC-CN.PDF  
+- `BOM.txt` item 19 (project procurement baseline)  
 Notes:
-- GS06E family includes 5 V / 1 A output option, satisfying minimum adapter requirement.
+- No single manufacturer datasheet is enforced because this is student-provided.
+- Selection requirement is functional: 5V USB output, >=1A capability, and low-current/always-on behavior compatible with idle windows.
+- Requirement closure is bench-only via Test 3.12 (auto-shutoff resilience).
+
+20. Power-on indicator LED (green, generic 5mm)  
+Status: PARTIAL, BENCH-REQUIRED  
+Evidence:
+- `BOM.txt` item 20 (generic indicator part class)  
+Notes:
+- Generic indicator LED class is acceptable because this branch is not part of the optical sensing path.
+- Final closure depends on measured branch current and always-on behavior support in Test 3.13.
+
+21. Power-on indicator resistor (150 Ohm, 1/4W, generic)  
+Status: PARTIAL, BENCH-REQUIRED  
+Evidence:
+- `BOM.txt` item 21 (generic passive class)  
+Notes:
+- Electrical intent is straightforward and design-targeted to approximately 15-25mA branch current at 5V with a green LED.
+- Bench closure required in Test 3.13 with measured current.
 
 ### Mechanical/integration materials
-20. Elastic headband  
+22. Elastic headband  
 Status: N/A  
 Notes:
 - Consumer textile item; no electrical datasheet required.
 
-21. EVA foam  
+23. EVA foam  
 Status: N/A  
 Notes:
 - Mechanical/optical isolation material; no formal electrical datasheet required.
 
-22. Shielded short cable  
+24. Shielded short cable  
 Status: N/A, BENCH-REQUIRED  
 Notes:
 - Vendor-specific choice; electrical performance validated at assembly/bench level.
 
-23. 3M Super 33+ tape  
-Status: VERIFIED, BENCH-REQUIRED  
+25. Opaque adhesive/tape for optical isolation (student-provided class)  
+Status: PARTIAL, BENCH-REQUIRED  
 Evidence:
-- https://docs.rs-online.com/4b47/0900766b8105a586.pdf  
+- `BOM.txt` item 25 (project procurement baseline)  
 Notes:
-- Suitable for insulation/jacketing role in probe optical-isolation workflow.
+- Student-provided class item (opaque electrical tape or equivalent); no single mandatory manufacturer datasheet is enforced.
+- Closure is bench/assembly-level via leakage controls and dark-test outcomes.
 
-24. Breadboard/perfboard + hookup wire  
+26. Breadboard/perfboard + hookup wire  
 Status: N/A  
 Notes:
 - Prototyping tooling/material set.
 
-25. USB cable  
+27. USB cable  
    Status: N/A  
    Notes:
    - Accessory cable item.
 
-26. Black Rubber Washers
+28. Black Rubber Washers
    Status: N/A, BENCH-REQUIRED
    Notes:
    - Mechanical item required as an optical baffle for the 730nm SMD LED. Effectiveness verified in dark test.
@@ -192,11 +211,15 @@ Per `validation.txt`, final closure still requires bench execution for:
 - optical safety measurement under final TDM timing (see ISSUE-002 below)
 - precision/statistical claim (+/-2% at 95% confidence)
 - optical isolation and dark-test performance
+- USB battery auto-shutoff resilience on the target power pack
+- power-on indicator branch wiring/current verification
 
 ### DCN-001 Focused Re-closure Checklist (Required)
 - **R-DRV-01 / Test 3.2:** Measure 730nm and 850nm channel currents with final JE2835AFR install; record DMM model, capture setup, and readings.
 - **R-OPT-01 / Tests 2.6 + 3.9:** Verify no carrier boards are used, confirm pigtail strain relief + emitter orientation in photos, then run ambient-subtracted dark test and store raw serial log.
 - **R-SAFE-01 / Test 3.10:** Measure per-state optical power under final TDM timing; archive raw captures and time-averaged power math.
+- **R-PWR-01 / Test 3.12:** Validate no unexpected power cycling during representative idle and active windows on the target USB battery pack.
+- **R-PWR-02 / Tests 2.3 + 3.13:** Confirm indicator branch topology at 5V entry node and measure branch current within expected range.
 - **Mechanical survivability (DCN-specific):** Perform gentle pigtail flex/pull check, then repeat dark test to confirm no new leak path.
 
 ## 5) Cross-Verification Issue Log (2026-03-02)
@@ -238,7 +261,7 @@ ISSUE-004 [DESIGN CHANGE APPLIED -- DCN-001]
 
 ## 6) Final Component Verification Summary
 - VERIFIED: 19 components/classes
-- PARTIAL: 0 component/classes
+- PARTIAL: 3 component/classes
 - N/A: 6 non-datasheet materials/accessories
 - BENCH-REQUIRED: all performance/safety claims remain bench-gated
 - OPEN (blocking): 0 issues

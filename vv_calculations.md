@@ -10,7 +10,7 @@ This file documents first-principles calculations for the current design baselin
 
 ## 1) Assumptions
 
-- `V_supply = 5.0V` (external LED rail)
+- `V_supply = 5.0V` (USB-derived LED rail via Arduino 5V branch)
 - `V_gpio = 3.3V` (Arduino Nano 33 IoT)
 - `V_BE = 0.7V` (TIP31C base-emitter, nominal)
 - `V_CE(sat) = 0.2V` (TIP31C low-side switch, nominal)

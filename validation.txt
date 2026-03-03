@@ -2,7 +2,7 @@
 ## Cerebral Oximeter — Single-Channel NIRS, POTS Demonstration System
 ## Verification Scope: Calculation and Datasheet Reasoning Against spec.txt Rev 3.2
 ## Cross-reference: validation_and_verification_plan.txt Rev 3.2
-## Report Revision: 3.2
+## Report Revision: 3.3
 
 ================================================================================
 EXECUTIVE SUMMARY
@@ -10,21 +10,37 @@ EXECUTIVE SUMMARY
 
 This report records the results of paper-based (pre-bench) verification against
 the design specification and the V&V plan requirement traceability matrix. All
-15 requirements from the V&V plan are addressed. Evidence is limited to
+17 requirements from the V&V plan are addressed. Evidence is limited to
 first-order calculations, datasheet review, and logical consistency checks.
 Bench and in-vivo phases remain pending.
 
   PASS (firm)          : 3
-  PASS (conditional)   : 6
+  PASS (conditional)   : 7
   FAIL (blocking NCR)  : 0
-  OPEN                 : 4
+  OPEN                 : 5
   PENDING (in-vivo)    : 2
   ─────────────────────────
-  Total requirements   : 15
+  Total requirements   : 17
 
 Release status: NOT AUTHORIZED for human-subject demonstration. Design-level
 corrections for former blockers are applied, but bench evidence is still
 required and all Phase 1-4 gates must close per V&V plan before Phase 5.
+
+--------------------------------------------------------------------------------
+CHANGE LOG - 2026-03-02 USB POWER TOPOLOGY TRACEABILITY RECHECK
+--------------------------------------------------------------------------------
+
+Purpose:
+  - Reconcile this paper verification report with the USB power-entry and
+    star-ground topology updates already captured in spec/BOM/V&V plan.
+
+Applied updates:
+  - Requirement matrix expanded from 15 to 17 items to include R-PWR-01 and
+    R-PWR-02 from V&V plan Rev 3.2.
+  - R-ELEC-02 wording synchronized to current single-rail + star-ground discipline.
+  - Added paper-stage verdicts for USB auto-shutoff resilience and power-on
+    indicator branch sizing/wiring expectations.
+  - PASS/OPEN totals and final status table updated accordingly.
 
 --------------------------------------------------------------------------------
 CHANGE LOG - 2026-03-01 DOCUMENT SYNCHRONIZATION PASS
@@ -149,7 +165,7 @@ Requirement IDs and test IDs follow V&V plan Section 3 (traceability matrix).
   Req ID      Requirement                                     Paper Verdict  V&V Tests
   ─────────────────────────────────────────────────────────────────────────────────────
   R-ELEC-01   3.3V logic compatibility (MCU <-> ADS1115)     PASS           2.5,3.5,3.6
-  R-ELEC-02   5V LED power isolated from 3.3V, common GND    PASS           2.1,2.2,3.1
+  R-ELEC-02   Single-rail architecture with star-ground return discipline PASS 2.1,2.2,3.1,3.11
   R-DRV-01    LED current targets (730:35-50mA, 850:40-50mA) PASS (cond.)   3.2
   R-THERM-01  LED resistor power below 0.5 W rating          PASS           3.2
   R-AFE-01    Stage 1 TIA nominal 100 kohm                   PASS (cond.)   3.3
@@ -160,6 +176,8 @@ Requirement IDs and test IDs follow V&V plan Section 3 (traceability matrix).
   R-FW-01     EMA/filter behavior and output cadence          OPEN           3.8,4.5
   R-OPT-01    Probe optical isolation (dark leakage)          OPEN           2.6,3.9
   R-SAFE-01   Optical safety criterion satisfied              PASS (cond.)   3.10
+  R-PWR-01    USB battery pack remains on through idle/active windows OPEN   3.12
+  R-PWR-02    Power-on indicator branch present and in expected current range PASS (cond.) 2.3,3.13
   R-PREC-01   +/-2% precision at 95% confidence              OPEN           4.6
   R-DEMO-01   Educational trend visualization (healthy run)   PENDING        5.1,5.2
   R-DEMO-02   Distinguishable OI/POTS-like trend contrast     PENDING        5.3
@@ -169,19 +187,30 @@ DETAILED VERIFICATION CALCULATIONS
 ================================================================================
 
 --------------------------------------------------------------------------------
-1. LOGIC AND POWER DOMAIN  --  R-ELEC-01, R-ELEC-02
+1. LOGIC AND POWER DOMAIN  --  R-ELEC-01, R-ELEC-02, R-PWR-01, R-PWR-02
 --------------------------------------------------------------------------------
 
 Arduino Nano 33 IoT: 3.3 V I/O logic throughout.
 ADS1115 module: VDD connected to Arduino 3.3 V rail per schematic.
 I2C lines (A4/SDA, A5/SCL): 3.3 V compatible on both devices.
-LED drivers: powered from external 5 V via TIP31C transistors.
-Ground: single common GND required and specified in assembly notes.
+LED drivers: powered from USB-derived 5 V via TIP31C transistors.
+Ground: star-ground return discipline is required and specified in assembly notes.
 Spec explicitly warns against connecting ADS1115 VDD to 5 V. Risk identified;
 design addresses it correctly in schematic.
 
+USB-power topology checks from paper review:
+  - Power-entry path and indicator branch are documented as:
+      Arduino 5V node -> 150 ohm -> green LED -> STAR_GND
+  - First-order indicator current estimate with green LED Vf ~2.0-2.3V:
+      I_indicator = (5.0 - Vf)/150 ohm = ~18 mA to ~20 mA
+    This is consistent with the V&V expected 15-25 mA range.
+  - USB battery auto-shutoff resilience cannot be closed by paper analysis and
+    requires direct run-time test under representative idle/active behavior.
+
 Verdict R-ELEC-01: PASS.
 Verdict R-ELEC-02: PASS.
+Verdict R-PWR-01: OPEN. Bench Test 3.12 required.
+Verdict R-PWR-02: PASS (conditional). Bench Test 3.13 required.
 
 --------------------------------------------------------------------------------
 2. LED DRIVER CURRENT AND SATURATION MARGIN  --  R-DRV-01
@@ -196,7 +225,7 @@ Assumptions:
 Base current:
   I_B = (3.3 - 0.7) / 470 = 5.53 mA
 
-LED currents (external 5 V, channel-specific series resistors):
+LED currents (USB-derived 5 V via Arduino 5V branch, channel-specific series resistors):
   730 nm (V_F = 2.15 V per JE2835AFR datasheet test point): 
     I_LED = (5.0 - 0.2 - 2.15) / 68 = 39.0 mA
   850 nm (V_F = 1.60 V per SFH4253B datasheet at 100mA, tp=20ms):
@@ -576,19 +605,20 @@ FINAL STATUS
 Paper analysis (pre-bench) complete.
 
   PASS (firm)       : 3  (R-ELEC-01, R-ELEC-02, R-THERM-01)
-  PASS (conditional): 6  (R-DRV-01, R-AFE-01, R-AFE-02, R-AFE-03, R-TIME-01, R-SAFE-01)
+  PASS (conditional): 7  (R-DRV-01, R-AFE-01, R-AFE-02, R-AFE-03, R-TIME-01, R-SAFE-01, R-PWR-02)
   FAIL              : 0  (none)
-  OPEN              : 4  (R-ADC-01, R-FW-01, R-OPT-01, R-PREC-01)
+  OPEN              : 5  (R-ADC-01, R-FW-01, R-OPT-01, R-PWR-01, R-PREC-01)
                          [R-SAFE-01 moved from OPEN to PASS(cond) -- ISSUE-002 resolved, 2026-03-01:
                           850nm resistor changed to 68 Ohms; criterion met]
   PENDING           : 2  (R-DEMO-01, R-DEMO-02 -- in-vivo only)
   ─────────────────────────────────────────
-  Total             : 15
+  Total             : 17
 
 Overall status: NOT VERIFIED for full claim set.
 
 Human-subject demonstration is NOT AUTHORIZED until:
   1. Optical safety is verified by bench measurement (Test 3.10).
   2. Timing behavior is verified by scope/logic analyzer (Test 3.7).
-  3. All Phase 1-4 gates are closed with recorded evidence.
-  4. OPEN items are resolved or formally accepted per V&V plan gate rules.
+  3. USB battery auto-shutoff resilience is verified on the target pack (Test 3.12).
+  4. All Phase 1-4 gates are closed with recorded evidence.
+  5. OPEN items are resolved or formally accepted per V&V plan gate rules.
