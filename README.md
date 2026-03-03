@@ -377,6 +377,12 @@ The optical probe is the most critical component of the system. Proper mechanica
 - **Bulk Decoupling:** Add a 100uF electrolytic capacitor at the Arduino 5V entry node (same node as the fuse and indicator LED), and a 10uF capacitor near the analog 3.3V rail. Pay attention to capacitor polarity.
 - **Power-On Indicator:** Add `150 Ohm + green LED` from Arduino 5V to star ground at the 5V entry node to provide visible power status and prevent battery auto-shutoff.
 
+**First Power-On Safety (Important):**
+- For initial hardware bring-up, use a **current-limited bench power supply** instead of a USB battery pack.
+- Start with a low current limit (for example, **30-50mA**) to safely detect shorts or major wiring faults.
+- A USB battery pack can source high fault current into a wiring error and may damage the Arduino or analog ICs.
+- After initial safe power-on is confirmed, switch to the USB battery pack for battery-specific validation tests (for example, V&V Test 3.12).
+
 ---
 
 ## 9. Calibration and Validation

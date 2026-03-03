@@ -228,6 +228,11 @@ Objective: Verify each powered subsystem independently with measurable criteria.
 
 Test 3.1 - First Power-On Safety
 Equipment: USB battery pack (>=1A, always-on capable), DMM
+Safety note (strong recommendation):
+  - For initial hardware bring-up, use a current-limited bench power supply instead of the USB battery pack.
+  - Set a low current limit (for example, 30-50mA) to safely detect shorts or major wiring faults without damaging components.
+  - A USB battery pack can source high fault current, which may damage the Arduino or other ICs if a wiring error exists.
+  - After initial safe power-on is confirmed, switch to the target USB battery pack for battery-specific tests (for example, Test 3.12).
 Pass criteria:
   - No smoke/odor/hot parts
   - 5V rail: 4.75V to 5.25V
