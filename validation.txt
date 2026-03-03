@@ -225,7 +225,7 @@ Assumptions:
 Base current:
   I_B = (3.3 - 0.7) / 470 = 5.53 mA
 
-LED currents (external 5 V, channel-specific series resistors):
+LED currents (USB-derived 5 V via Arduino 5V branch, channel-specific series resistors):
   730 nm (V_F = 2.15 V per JE2835AFR datasheet test point): 
     I_LED = (5.0 - 0.2 - 2.15) / 68 = 39.0 mA
   850 nm (V_F = 1.60 V per SFH4253B datasheet at 100mA, tp=20ms):

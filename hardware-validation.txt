@@ -180,12 +180,13 @@ Status: N/A, BENCH-REQUIRED
 Notes:
 - Vendor-specific choice; electrical performance validated at assembly/bench level.
 
-25. 3M Super 33+ tape  
-Status: VERIFIED, BENCH-REQUIRED  
+25. Opaque adhesive/tape for optical isolation (student-provided class)  
+Status: PARTIAL, BENCH-REQUIRED  
 Evidence:
-- https://docs.rs-online.com/4b47/0900766b8105a586.pdf  
+- `BOM.txt` item 25 (project procurement baseline)  
 Notes:
-- Suitable for insulation/jacketing role in probe optical-isolation workflow.
+- Student-provided class item (opaque electrical tape or equivalent); no single mandatory manufacturer datasheet is enforced.
+- Closure is bench/assembly-level via leakage controls and dark-test outcomes.
 
 26. Breadboard/perfboard + hookup wire  
 Status: N/A  

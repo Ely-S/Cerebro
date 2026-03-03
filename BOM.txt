@@ -148,7 +148,7 @@ Notes:
 4) Protection and Power
 ================================================================================
 
-18. Input fuse
+18. LED rail fuse (Arduino 5V branch)
     Qty: 1
     MPN: 0215.500MXP
     Description: 500mA, 5x20mm, slow-blow ceramic fuse
