@@ -103,40 +103,42 @@ This device measures relative changes from a baseline, not absolute values. It t
 ================================================================================
 COMPLETE WIRING DIAGRAM
 ================================================================================
-5V IN (Wall Adapter, >=1A)
+USB Battery Pack (>=1A, always-on capable)
    |
- [FUSE 500mA]
+Arduino USB port (Nano 33 IoT)
    |
-   +--> [68R] --> 730nm LED (wire-pigtail, anode->cathode) --> TIP31C Q1 collector
-   |                                                        TIP31C Q1 emitter --> GND
-   |                                                        D2 --> [470R] --> Q1 base
+  Arduino 5V pin ----> [FUSE 500mA] ----+--> [68R] --> 730nm LED (wire-pigtail, anode->cathode) --> TIP31C Q1 collector
+   |                                     |                                                        TIP31C Q1 emitter --> LED_GND_RETURN --> STAR_GND
+   |                                     |                                                        D2 --> [470R] --> Q1 base
+   |                                     |
+   |                                     +--> [68R] --> 850nm LED (wire-pigtail, anode->cathode) --> TIP31C Q2 collector
+   |                                                                                                 TIP31C Q2 emitter --> LED_GND_RETURN --> STAR_GND
+   |                                                                                                 D3 --> [470R] --> Q2 base
    |
-   +--> [68R] --> 850nm LED (wire-pigtail, anode->cathode) --> TIP31C Q2 collector
-                                                            TIP31C Q2 emitter --> GND
-                                                            D3 --> [470R] --> Q2 base
+   +--> [150R] --> Green LED --> STAR_GND  (power-on indicator, ~20mA hold load)
 
 Arduino Nano 33 IoT (3.3V logic)
   3.3V ----------------------------------------------+-------------------+
-  GND  ----------------------------------------------+-------------------+-------------------+
+  GND  ---------------------------------------------------------------> STAR_GND
   A4 (SDA) -------------------------------------------> ADS1115 SDA
   A5 (SCL) -------------------------------------------> ADS1115 SCL
 
 ADS1115 ADC
   VDD <-----------------------------------------------+ (3.3V)
-  GND <-------------------------------------------------------------------- GND
+  GND <---------------------------------------------------------------- STAR_GND (star node location)
   ADDR ------------------------------------------------> GND (0x48)
   A0  <----------------------------------------------- MCP6022 OUT2 (Pin 7)
 
 Photodiode + Analog Front End (MCP6022)
   BPW34 cathode --------------------------------------> MCP6022 IN1- (Pin 2)
-  BPW34 anode ----------------------------------------> GND
+  BPW34 anode ----------------------------------------> STAR_GND
 
   Stage 1 TIA:
     Rf = 100k between OUT1 (Pin 1) and IN1- (Pin 2)
     Cf = 4.7pF in parallel with Rf
-    IN1+ (Pin 3) -> GND
+    IN1+ (Pin 3) -> STAR_GND
     V+  (Pin 8)  -> 3.3V
-    V-  (Pin 4)  -> GND
+    V-  (Pin 4)  -> STAR_GND
 
   Stage 2 Gain (same MCP6022):
     IN2+ (Pin 5) <- Stage1 OUT (Pin 1)
@@ -145,8 +147,10 @@ Photodiode + Analog Front End (MCP6022)
 
 Decoupling / layout notes:
   - 0.1uF local decoupling at MCP6022 and ADS1115 power pins
-  - 47-100uF bulk cap at 5V rail entry; 10uF near analog 3.3V rail
+  - 100uF bulk cap at Arduino 5V entry node (same node as indicator LED and LED driver fuse)
+  - 10uF near analog 3.3V rail
   - BPW34 lead to op-amp kept short (<5cm), shielded
+  - Star ground mandatory: LED return uses dedicated LED_GND_RETURN trace; analog grounds return directly to STAR_GND
 ================================================================================
 ```
 
@@ -154,12 +158,14 @@ Decoupling / layout notes:
 
 #### Important Notes
 1. **DO NOT connect ADS1115 VDD to 5V** - use 3.3V only (Arduino Nano 33 IoT is 3.3V logic)
-2. LED power comes from EXTERNAL 5V supply, NOT Arduino 5V pin
-3. All grounds (GND) must be connected together
-4. Photodiode to op-amp wire must be SHORT (< 5cm) and preferably shielded
-5. Place 0.1uF decoupling capacitors near MCP6022 and ADS1115 power pins
-6. Add bulk rail capacitors: 47-100uF at 5V entry and 10uF near analog 3.3V rail
-7. The 4.7pF capacitor across 100k feedback is CRITICAL for stability
+2. LED power rail comes from Arduino 5V pin through a 500mA fuse.
+3. Star ground is mandatory: all grounds meet only at STAR_GND near ADS1115 GND.
+4. LED return current must use a dedicated return trace to STAR_GND (never share analog return path).
+5. Photodiode to op-amp wire must be SHORT (< 5cm) and preferably shielded.
+6. Place 0.1uF decoupling capacitors near MCP6022 and ADS1115 power pins.
+7. Add bulk rail capacitors: 100uF at Arduino 5V entry and 10uF near analog 3.3V rail.
+8. Add power-on indicator: Arduino 5V -> 150 Ohm -> Green LED -> STAR_GND.
+9. The 4.7pF capacitor across 100k feedback is CRITICAL for stability.
 
 **RESISTOR VALUES:**
 - LED current limit (730nm): 68 Ohm, 0.5W
@@ -245,16 +251,19 @@ This keeps both channels in the target electrical range while adding optical-saf
 | LED 730nm | 1 | JE2835AFR-N-0001A0000-N0000001 | ~$0.32-2 |
 | LED 850nm | 1 | ams OSRAM SFH4253B | $1-4 |
 | TIP31C Transistor | 2 | TO-220 | $1-2 |
+| Power-On Indicator LED (Green) | 1 | 5mm through-hole | ~$0.10 |
+| Power-On Indicator Resistor | 1 | 150 Ohm, 1/4W | ~$0.05 |
 | Elastic Headband | 1 | 2cm wide | $3-5 |
 | Black EVA Foam | 1 | 2x4x2cm | $3-5 |
-| 5V Wall Adapter | 1 | 1A min | $5-8 |
-| Electrolytic Capacitor 47-100uF | 1 | 10V min | $0.20-0.50 |
+| USB Battery Pack >=1A, always-on capable | 1 | Student-provided | Excluded from BOM cost |
+| USB Cable for Nano 33 IoT | 1 | Student-provided | Excluded from BOM cost |
+| Electrolytic Capacitor 100uF | 1 | 10V min | $0.20-0.50 |
 | Capacitor 10uF | 1 | 6.3V min | $0.10-0.30 |
 | Misc (resistors, caps, wire) | set | - | $5-10 |
 
-**Estimated Total: $55-92 USD** (carrier boards removed per DCN-001)
+**Estimated Total (costed items only): $50-85 USD** (student-provided USB power pack + USB cable excluded)
 
-Note: `BOM.csv` is a procurement-focused list and assumes the following common lab/prototyping items are already available: breadboard/perfboard + hookup wire, USB data cable for Nano 33 IoT, and opaque electrical tape.
+Note: `BOM.csv` is a procurement-focused list and assumes the following common lab/prototyping items are already available: USB battery pack (>=1A, always-on capable), USB data cable for Nano 33 IoT, breadboard/perfboard + hookup wire, and opaque electrical tape.
 
 ---
 
@@ -357,15 +366,16 @@ The optical probe is the most critical component of the system. Proper mechanica
 ### 8.2 Circuit Assembly Notes
 
 **Power Rails:**
-- **5V rail** (from external wall adapter): Powers the LED driver circuit (TIP31C collectors) ONLY.
+- **5V rail** (from Arduino 5V pin, fed by USB battery pack): Powers the LED driver circuit (TIP31C collectors) and power-on indicator.
 - **3.3V rail** (from Arduino 3.3V pin): Powers the Op-amp (MCP6022 V+) and ADC (ADS1115 VDD).
-- **Common ground:** All grounds (Arduino, ADC, Op-amp, external 5V supply, LED drivers) MUST be tied together.
+- **Star ground:** Use one star node near ADS1115 GND. Arduino GND, ADS1115 GND, MCP6022 grounds, and dedicated LED return trace all terminate only at this node.
 
 **Wire Guidelines & Decoupling:**
 - **Photodiode to op-amp:** Keep this wire as short as possible (max 5cm) and use shielded cable to prevent picking up 60Hz mains noise.
 - Keep analog signal lines (photodiode, op-amp output) physically separated from digital lines (I2C, LED PWM).
 - **Local Decoupling:** Add 0.1uF ceramic capacitors directly at the power pins of the MCP6022 and ADS1115, connecting to ground.
-- **Bulk Decoupling:** Add a 47-100uF electrolytic capacitor where the 5V rail enters the board, and a 10uF capacitor near the analog 3.3V rail. Pay attention to capacitor polarity.
+- **Bulk Decoupling:** Add a 100uF electrolytic capacitor at the Arduino 5V entry node (same node as the fuse and indicator LED), and a 10uF capacitor near the analog 3.3V rail. Pay attention to capacitor polarity.
+- **Power-On Indicator:** Add `150 Ohm + green LED` from Arduino 5V to star ground at the 5V entry node to provide visible power status and prevent battery auto-shutoff.
 
 ---
 

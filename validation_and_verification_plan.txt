@@ -82,7 +82,7 @@ Safety stop rule (all phases):
 ================================================================================
 ID              Requirement (from design intent/spec)                   Tests
 R-ELEC-01       3.3V logic compatibility (MCU <-> ADS1115)              2.5, 3.5, 3.6
-R-ELEC-02       5V LED power isolated from 3.3V domain, common GND      2.1, 2.2, 3.1
+R-ELEC-02       Single-rail architecture: Arduino 5V LED rail + 3.3V analog rail, star-ground return discipline      2.1, 2.2, 3.1, 3.11
 R-DRV-01        LED drive current target by channel (730: 35-50mA, 850: 40-50 mA) with transistor saturation margin  3.2
 R-THERM-01      LED resistor power below 0.5 W rating                   3.2
 R-AFE-01        Stage 1 TIA nominal 100 kohm                            3.3
@@ -93,6 +93,8 @@ R-TIME-01       4-state TDM cycle behavior verified against ADC limits    3.7
 R-FW-01         EMA/filter behavior (N_eff=1/alpha convention) and output cadence verified  3.8, 4.5
 R-OPT-01        Probe optical isolation (dark leakage controlled)        2.6, 3.9
 R-SAFE-01       Optical safety criterion satisfied using explicit measurement basis  3.10
+R-PWR-01        USB battery pack operation is stable and does not auto-shutoff during idle/active windows            3.12
+R-PWR-02        Power-on indicator load present and wired at 5V entry node with expected current range               2.3, 3.13
 R-PREC-01       +/-2% precision at 95% confidence demonstrated           4.6
 R-DEMO-01       Educational trend visualization works in healthy run     5.1, 5.2
 R-DEMO-02       Distinguishable OI/POTS-like trend contrast              5.3
@@ -170,7 +172,9 @@ Objective: Catch netlist errors before first power-on.
 Test 2.1 - Ground Continuity Audit
 Equipment: DMM continuity mode
 Pass criteria:
-  - Continuous GND between external supply, Arduino, ADS1115, MCP6022, TIP31C emitters
+  - STAR_GND node exists at/near ADS1115 GND and is the only ground merge point
+  - Continuous GND between Arduino, ADS1115, MCP6022, TIP31C emitters, and indicator LED return
+  - LED return path uses dedicated trace/wire back to STAR_GND (not daisy-chained through analog return)
   - Photodiode anode tied to intended reference node per schematic
 
 Test 2.2 - Rail Isolation and Short Check
@@ -179,7 +183,7 @@ Pass criteria:
   - 5V to GND > 100 ohm
   - 3.3V to GND > 500 ohm
   - 5V to 3.3V > 1 kohm
-  - Bulk capacitor present at 5V entry (47-100uF, polarity verified)
+  - Bulk capacitor present at 5V entry (100uF, polarity verified)
   - Bulk capacitor present near analog 3.3V rail (10uF)
   - Local 0.1uF decouplers present at MCP6022 and ADS1115
 Failure action:
@@ -188,10 +192,11 @@ Failure action:
 Test 2.3 - LED Driver Wiring Topology Check
 Equipment: DMM
 Pass criteria:
-  - 5V -> 68 ohm (730 nm) -> LED -> TIP31C collector path present
-  - 5V -> 68 ohm (850 nm) -> LED -> TIP31C collector path present
+  - Arduino 5V pin -> fuse -> 68 ohm (730 nm) -> LED -> TIP31C collector path present
+  - Arduino 5V pin -> fuse -> 68 ohm (850 nm) -> LED -> TIP31C collector path present
   - Base path includes 470 ohm from GPIO
-  - Emitter to GND verified
+  - Emitter to dedicated LED return path verified
+  - Power-on branch present: Arduino 5V -> 150 ohm -> green LED -> STAR_GND
 
 Test 2.4 - Analog Signal Chain Continuity
 Equipment: DMM
@@ -222,7 +227,7 @@ Pass criteria:
 Objective: Verify each powered subsystem independently with measurable criteria.
 
 Test 3.1 - First Power-On Safety
-Equipment: Current-limited bench supply preferred, DMM
+Equipment: USB battery pack (>=1A, always-on capable), DMM
 Pass criteria:
   - No smoke/odor/hot parts
   - 5V rail: 4.75V to 5.25V
@@ -308,6 +313,27 @@ Pass criteria:
 Mandatory note:
   - Updated paper estimate with 4-state duty and 68 ohm 850 nm resistor predicts
     both channels below 10 mW average; bench measurement is still mandatory.
+
+Test 3.11 - Star-Ground Return Integrity Under Load
+Equipment: DMM (mV range) or oscilloscope (DC-coupled), scripted LED toggling firmware
+Pass criteria:
+  - LED return and analog return only meet at STAR_GND
+  - No shared segment between high-current LED return and MCP6022/ADS1115 return traces
+  - Measured ground offset between analog reference node and STAR_GND remains low and repeatable during LED switching
+
+Test 3.12 - USB Battery Auto-Shutoff Resilience
+Equipment: Target USB battery pack, stopwatch/timer, normal firmware build
+Pass criteria:
+  - System remains powered during at least one idle window representative of demonstration pacing
+  - System remains powered throughout active measurement window with normal LED duty cycle
+  - No unexpected power cycling attributable to pack auto-shutoff behavior
+
+Test 3.13 - Power-On Indicator Verification
+Equipment: DMM
+Pass criteria:
+  - Indicator branch is connected at Arduino 5V entry node (same node as 100uF bulk cap/fuse feed)
+  - Indicator LED is visibly on whenever system power is present
+  - Indicator branch current is in expected range for 150 ohm + green LED at 5V (approximately 15-25 mA)
 
 ================================================================================
 7. PHASE 4 - BENCH SYSTEM VALIDATION (NO HUMAN SUBJECT)

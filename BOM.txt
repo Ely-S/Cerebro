@@ -155,54 +155,68 @@ Notes:
     Product page: https://littelfusesales.com/Products/Single/0215.500MXP
     Datasheet: https://www.littelfuse.com/~/media/electronics/datasheets/fuses/littelfuse_fuse_215_datasheet.pdf
 
-19. 5V external wall adapter
+19. USB battery pack (student-provided)
     Qty: 1
-    MPN: GS06E-1P1J (or equivalent 5V, >=1A regulated adapter)
-    Description: 5V DC adapter, barrel output
-    Product page: https://www.meanwell-web.com/en-gb/ac-dc-wall-mount-adaptor-output-5vdc-at-1a-input-gs06e--1p1j
-    Datasheet: https://www.meanwell-web.com/content/files/pdfs/productPdfs/MW/GS06E/GS06E-spec.pdf
+    MPN: Generic USB battery pack, >=1A, always-on/low-current capable
+    Description: USB power bank used to power Arduino USB input
+    Product page: N/A (student-provided)
+    Datasheet: N/A (student-provided)
+
+20. Power-on indicator LED
+    Qty: 1
+    MPN: Generic 5mm green LED
+    Description: Visible power indicator and auto-shutoff mitigation load
+    Product page: Generic through-hole 5mm green LED from distributor stock
+    Datasheet: Vendor-specific (generic part acceptable)
+
+21. Power-on indicator resistor
+    Qty: 1
+    MPN: 150 Ohm, 1/4W axial resistor (generic)
+    Description: Series resistor for 5V power-on LED indicator
+    Product page: Generic 150 Ohm resistor from resistor assortment or distributor stock
+    Datasheet: Vendor-specific (generic part acceptable)
 
 ================================================================================
 5) Mechanical and Integration Materials
 ================================================================================
 
-20. Elastic headband (2cm width)
+22. Elastic headband (2cm width)
     Qty: 1
     MPN: Generic non-conductive elastic headband, 20mm width
     Product page: https://www.mcmaster.com/elastic-straps/
     Datasheet: N/A (consumer/mechanical textile item)
 
-21. Black EVA foam block/sheet
+23. Black EVA foam block/sheet
     Qty: 1
     MPN: Generic black EVA foam (cut to probe dimensions)
     Product page: https://www.mcmaster.com/foam/
     Datasheet: N/A (consumer/mechanical foam item)
 
-22. Shielded cable for photodiode lead
+24. Shielded cable for photodiode lead
     Qty: 1 length (<= 5cm in final assembly)
     MPN: 30 AWG shielded cable, single-pair or miniature coax
     Product page: https://www.mcmaster.com/shielded-cable/
     Datasheet: vendor-specific (depends on selected cable)
 
-23. Opaque adhesive/tape for optical isolation
+25. Opaque adhesive/tape for optical isolation
     Qty: 1 roll
     MPN: 3M Super 33+ (or equivalent opaque electrical tape)
-    Product page: https://www.3m.com/3M/en_US/p/d/v000057514/
-    Datasheet: https://multimedia.3m.com/mws/media/104629O/scotch-super-33-vinyl-electrical-tape.pdf
+    Product page: N/A (student-provided)
+    Datasheet: N/A (student-provided)
 
-24. Breadboard/perfboard + hookup wire
+26. Breadboard/perfboard + hookup wire
     Qty: 1 set
     MPN: Standard 2.54mm prototyping supplies
-    Product page: https://www.adafruit.com/category/84
-    Datasheet: N/A (tooling/materials set)
+    Product page: N/A (student-provided)
+    Datasheet: N/A (student-provided)
 
-25. USB cable (for Nano 33 IoT to host)
+27. USB cable (for Nano 33 IoT to host, student-provided)
     Qty: 1
     MPN: USB data cable compatible with Nano 33 IoT connector
-    Product page: https://www.adafruit.com/category/139
-    Datasheet: N/A (cable accessory)
+    Product page: N/A (student-provided)
+    Datasheet: N/A (student-provided)
 
-26. Black Rubber Washers (Optical Baffle)
+28. Black Rubber Washers (Optical Baffle)
     Qty: 1 small pack (only 2-3 needed per build)
     MPN: Generic #4 or M3 flat black rubber washer (~1/8" ID)
     Product page: Any hardware store or generic supply
@@ -212,6 +226,7 @@ Notes:
 BOM Summary (1 build)
 ================================================================================
 
-- Core electronics and passives: typically ~USD 55-92 depending LED sourcing (carrier boards removed per DCN-001).
+- Core electronics and passives: typically ~USD 50-85 depending LED sourcing (carrier boards removed per DCN-001, wall adapter removed, indicator parts added).
 - Availability note: 730nm (Cree JE2835AFR-N-0001A0000-N0000001) and 850nm (ams OSRAM SFH4253B) emitters remain widely available from major distributors.
+- Student-provided items excluded from costed BOM: USB battery pack and USB cable.
 - Before ordering, run one final check against local stock and lead times.
