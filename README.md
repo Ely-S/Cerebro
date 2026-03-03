@@ -29,6 +29,7 @@ POTS is characterized by an excessive heart rate increase (30+ bpm) within 10 mi
 **Component Cost:** $55-92 USD per station (carrier boards removed per DCN-001)
 
 **DCN-001 (2026-03-02):** 730nm emitter updated to Cree JE2835AFR and LED carrier boards removed; both LEDs now use wire-pigtail mounting.
+**DCN-002 (2026-03-03):** TIA compensation capacitor updated from 4.7pF to 10pF (`FG18C0G1H100CNT00`) to improve robustness against breadboard stray capacitance; this is not a functional failure correction.
 
 ---
 
@@ -135,7 +136,7 @@ Photodiode + Analog Front End (MCP6022)
 
   Stage 1 TIA:
     Rf = 100k between OUT1 (Pin 1) and IN1- (Pin 2)
-    Cf = 4.7pF in parallel with Rf
+    Cf = 10pF in parallel with Rf
     IN1+ (Pin 3) -> STAR_GND
     V+  (Pin 8)  -> 3.3V
     V-  (Pin 4)  -> STAR_GND
@@ -165,7 +166,7 @@ Decoupling / layout notes:
 6. Place 0.1uF decoupling capacitors near MCP6022 and ADS1115 power pins.
 7. Add bulk rail capacitors: 100uF at Arduino 5V entry and 10uF near analog 3.3V rail.
 8. Add power-on indicator: Arduino 5V -> 150 Ohm -> Green LED -> STAR_GND.
-9. The 4.7pF capacitor across 100k feedback is CRITICAL for stability.
+9. The 10pF capacitor across 100k feedback is CRITICAL for stability.
 
 **RESISTOR VALUES:**
 - LED current limit (730nm): 68 Ohm, 0.5W
@@ -176,7 +177,7 @@ Decoupling / layout notes:
 - Stage 2 ground: 1k Ohm
 
 **CAPACITOR VALUES:**
-- TIA stability: 4.7pF ceramic (NPO/COG type preferred)
+- TIA stability: 10pF ceramic (NPO/COG type preferred)
 - Power decoupling (local HF): 0.1uF ceramic (x2)
 - Bulk decoupling (5V rail entry): 47-100uF electrolytic (x1)
 - Bulk decoupling (analog 3.3V rail): 10uF electrolytic or ceramic (x1)
@@ -225,7 +226,7 @@ Each LED is controlled by a TIP31C NPN transistor acting as a switch. The Arduin
 This keeps both channels in the target electrical range while adding optical-safety margin in the 850nm path.
 
 ### 5.3 Two-Stage Transimpedance Amplifier
-- **Stage 1 (TIA):** 100k Ohm feedback resistor with 4.7pF stability capacitor. Converts photodiode current (nano-amps) to voltage. MCP6022 op-amp chosen for low input bias current and rail-to-rail output.
+- **Stage 1 (TIA):** 100k Ohm feedback resistor with 10pF stability capacitor. Converts photodiode current (nano-amps) to voltage. MCP6022 op-amp chosen for low input bias current and rail-to-rail output.
 - **Stage 2 (Gain):** Non-inverting amplifier with 47k/1k = 48x voltage gain.
 - **Total Transimpedance:** 100k x 48 = 4.8M Ohm equivalent.
 

@@ -202,7 +202,7 @@ Test 2.4 - Analog Signal Chain Continuity
 Equipment: DMM
 Pass criteria:
   - Stage 1 and Stage 2 feedback paths match schematic
-  - 4.7 pF compensation capacitor installed across Stage 1 feedback
+  - 10 pF compensation capacitor installed across Stage 1 feedback
   - Stage 2 output reaches ADS1115 A0
 
 Test 2.5 - I2C Wiring and Power Domain Check

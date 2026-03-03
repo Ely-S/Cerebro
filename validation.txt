@@ -91,6 +91,23 @@ Residual risk:
     leakage and safety margins remain bench-gated.
 
 --------------------------------------------------------------------------------
+CHANGE LOG - 2026-03-03 DCN-002 (TIA COMPENSATION ROBUSTNESS UPDATE)
+--------------------------------------------------------------------------------
+
+Purpose:
+  - Increase Stage 1 TIA compensation capacitance from 4.7pF to 10pF to
+    improve phase-margin robustness against breadboard parasitic capacitance.
+
+Applied updates:
+  - TIA compensation value updated to 10 pF in design and BOM artifacts.
+  - Stage 1 TIA pole estimate updated from 338.6 kHz to 159.2 kHz.
+  - Procurement updated to FG18C0G1H100CNT00 (C0G/NP0 radial 50V).
+
+Interpretation:
+  - This is a robustness improvement, not a functional failure correction.
+    4.7 pF is mathematically stable but offers less assembly tolerance.
+
+--------------------------------------------------------------------------------
 FORMER BLOCKING ITEMS - DESIGN UPDATE STATUS
 --------------------------------------------------------------------------------
 
@@ -273,7 +290,7 @@ Verdict R-THERM-01: PASS.
 4. STAGE 1 TIA TRANSIMPEDANCE  --  R-AFE-01
 --------------------------------------------------------------------------------
 
-Schematic specifies 100 kohm metal-film 1% feedback resistor with 4.7 pF
+Schematic specifies 100 kohm metal-film 1% feedback resistor with 10 pF
 stability capacitor across it.
 
 Nominal transimpedance = 100 kohm.
@@ -310,12 +327,14 @@ received optical power in the nW range after 30 mm tissue path). This is well
 within the linear operating range with ~4x-40x margin to full-scale.
 
 Stability pole analysis:
-  Stage 1 TIA bandwidth: f_c1 = 1 / (2*pi * 100k * 4.7pF) = 338.6 kHz
+  Stage 1 TIA bandwidth: f_c1 = 1 / (2*pi * 100k * 10pF) = 159.2 kHz
   Stage 2 closed-loop BW: GBW / gain = 10 MHz / 48 = 208.3 kHz
 
 Physiological content is < 10 Hz. With 4-state TDM at 64 SPS, per-channel update
-rate is 16 Hz. Both are far below the stage cutoff frequencies. The 4.7 pF compensation
-capacitor also limits noise gain at the BPW34 input capacitance (~70 pF).
+rate is 16 Hz. Both are far below the stage cutoff frequencies. The 10 pF compensation
+capacitor limits noise gain at the BPW34 input capacitance (~70 pF), providing
+approximately 60deg phase margin with better tolerance to breadboard stray capacitance
+(DCN-002).
 
 Conditional note: Phase margin depends on real PCB trace parasitics and layout.
 Oscillation cannot be ruled out from paper review alone. Bench Tests 3.3 and 3.4
