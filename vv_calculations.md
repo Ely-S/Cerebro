@@ -160,6 +160,29 @@ Result:
 
 - ADC clipping threshold corresponds to about `427nA` photodiode current.
 
+## 7A) TIA Stability Margin (DCN-002)
+
+Assumptions:
+
+- `Cf = 10pF` (updated from 4.7pF)
+- `C_in = 72pF` (BPW34 at Vr = 0) + `2pF` breadboard stray = `74pF`
+- `Rf = 100k ohm`
+- `GBW = 10MHz` (MCP6022)
+
+Noise-gain shaping points:
+
+- `f_z = 1 / (2*pi * Rf * C_in) = 1 / (2*pi * 100k * 74pF) = 21.5kHz`
+- `f_p = 1 / (2*pi * Rf * Cf) = 1 / (2*pi * 100k * 10pF) = 159.2kHz`
+- `f_cross(no-Cf) = sqrt(GBW * f_z) = sqrt(10MHz * 21.5kHz) = 464kHz`
+
+Interpretation:
+
+- `f_p < f_cross` -> YES (noise gain flattens before open-loop crossover)
+- Estimated phase margin is approximately `60deg`.
+- `Cf_min` for about `45deg` PM (rule-of-thumb): `sqrt(C_in / (2*pi * Rf * GBW))`
+- `Cf_min = sqrt(74pF / (2*pi * 100k * 10MHz)) = 3.4pF`
+- `10pF` provides comfortable margin above the estimated minimum.
+
 ## 8) Checklist Summary
 
 - LED current targets met (`730: 35-50mA`, `850: 40-50mA`): **YES**

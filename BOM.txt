@@ -9,6 +9,7 @@ Notes:
 - For components with no public per-part datasheet page, vendor request links are provided.
 - Qty includes only assembly parts (not lab instruments/tools).
 - DCN-001 (2026-03-02): Item #6 updated to Cree JE2835AFR and LED carrier boards removed from the build.
+- DCN-002 (2026-03-03): Item #14 updated from FG18C0G1H4R7CNT00 (4.7pF) to FG18C0G1H100DNT00 (10pF). Robustness update: estimated TIA phase margin increases from ~47deg to ~60deg against breadboard stray capacitance; not a functional failure correction.
 
 ================================================================================
 1) Core Electronics
@@ -118,9 +119,9 @@ Notes:
 
 14. TIA compensation capacitor
     Qty: 1
-    MPN: FG18C0G1H4R7CNT00
-    Description: 4.7pF, C0G/NP0, radial ceramic, 50V
-    Product page: https://www.mouser.com/ProductDetail/TDK/FG18C0G1H4R7CNT00
+    MPN: FG18C0G1H100DNT00
+    Description: 10pF, C0G/NP0, radial ceramic, 50V
+    Product page: https://www.mouser.com/ProductDetail/TDK/FG18C0G1H100DNT00
     Datasheet (series): https://product.tdk.com/system/files/dam/doc/product/capacitor/ceramic/lead-mlcc/catalog/fg_e.pdf
 
 15. Local high-frequency decoupling capacitors

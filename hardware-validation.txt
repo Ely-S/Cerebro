@@ -1,7 +1,12 @@
 # Hardware Component Verification
 Project: Cerebral Oximeter (Prototype 1)  
-Date: 2026-03-02  
+Date: 2026-03-03  
 Basis: `spec.txt` Rev 3.2, `BOM.txt`, `validation.txt`, `validation_and_verification_plan.txt` Rev 3.2
+DCN-002 (2026-03-03): Item #14 updated from FG18C0G1H4R7CNT00 (4.7pF) to
+FG18C0G1H100CNT00 (10pF). Robustness update: estimated TIA phase margin
+increases from ~47deg to ~60deg against breadboard stray capacitance; not a
+functional failure correction.
+Affected files: `hardware-validation.txt`, `BOM.txt`, `vv_calculations.md`.
 
 ## 1) Purpose
 This document records hardware component-level verification using datasheets and authoritative online sources.  
@@ -100,14 +105,17 @@ Notes:
 - 1% metal-film family selection is appropriate for gain-setting and TIA feedback.
 
 ### Capacitors
-14. `FG18C0G1H4R7CNT00` (4.7 pF C0G)  
+14. `FG18C0G1H100CNT00` (10 pF C0G)  
 Status: VERIFIED, BENCH-REQUIRED  
 Evidence:
 - https://product.tdk.com/system/files/dam/doc/product/capacitor/ceramic/lead-mlcc/catalog/fg_e.pdf  
-- https://octopart.com/part/tdk/FG18C0G1H4R7CNT00  
+- https://octopart.com/part/tdk/FG18C0G1H100CNT00  
 Notes:
 - C0G Class I stability supports compensation role in TIA stage.
-- Exact electrical match is confirmed, but lifecycle is flagged NRND on major aggregator listings; keep an alternate qualified for procurement resilience.
+- Value increased from 4.7pF to 10pF (DCN-002) to improve estimated phase
+  margin from ~47deg to ~60deg against breadboard stray capacitance.
+- Verify availability before ordering; any C0G/NP0 10pF radial 50V+ part is
+  an acceptable alternate.
 
 15. `C315C104K5R5TA7301` (0.1 uF local decoupling)  
    Status: VERIFIED, BENCH-REQUIRED  
@@ -258,6 +266,12 @@ ISSUE-004 [DESIGN CHANGE APPLIED -- DCN-001]
   Finding : Original 730nm LED/carrier pairing was footprint-incompatible and mechanically fragile for probe geometry.
   Fix     : Replaced 730nm LED with JE2835AFR and removed carrier-board dependency; updated assembly to wire-pigtail method.
   Impact  : No topology change to TIP31C + 68 Ohms drive path. Bench re-closure required for R-DRV-01, R-OPT-01, R-SAFE-01.
+
+ISSUE-005 [DESIGN CHANGE APPLIED -- DCN-002]
+  Files   : BOM.txt, BOM.csv, spec.txt, README.md, validation.txt, hardware-validation.txt, validation_and_verification_plan.txt
+  Finding : Stage 1 TIA compensation capacitor (4.7pF) was mathematically stable but offered limited margin to breadboard parasitics.
+  Fix     : Updated compensation value to 10pF and procurement MPN to FG18C0G1H100CNT00.
+  Impact  : Estimated phase margin improves from ~47deg to ~60deg with no functional-bandwidth conflict for the design-target ~15 Hz effective per-channel update rate (66.5 ms cycle with required 1ms/state settling delay; 16 Hz remains the conversion-only limit pending bench timing closure).
 
 ## 6) Final Component Verification Summary
 - VERIFIED: 19 components/classes

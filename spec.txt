@@ -25,6 +25,9 @@ Circuit Wiring 3-4 Hours Include shielding
 Coding & Testing 4-5 Hours Enhanced signal processing
 Total Build Time 10-14 Hours Allow extra for troubleshooting
 Component Cost: $55-92 USD per station (carrier boards removed per DCN-001)
+DCN-002 (2026-03-03): TIA compensation capacitor updated from 4.7pF to 10pF
+for robustness. This increases estimated phase margin from ~47deg to ~60deg
+against breadboard stray capacitance; not a functional failure correction.
 
 -- 2 of 13 --
 
@@ -127,7 +130,7 @@ Photodiode + Analog Front End (MCP6022)
 
   Stage 1 TIA:
     Rf = 100k between OUT1 (Pin 1) and IN1- (Pin 2)
-    Cf = 4.7pF in parallel with Rf
+    Cf = 10pF in parallel with Rf
     IN1+ (Pin 3) -> STAR_GND
     V+  (Pin 8)  -> 3.3V
     V-  (Pin 4)  -> STAR_GND
@@ -154,7 +157,7 @@ IMPORTANT NOTES
 6. Place 0.1uF decoupling capacitors near MCP6022 and ADS1115 power pins
 7. Add bulk rail capacitors: 100uF at Arduino 5V entry and 10uF near analog 3.3V rail
 8. Add power-on indicator: Arduino 5V -> 150 Ohm -> Green LED -> STAR_GND
-9. The 4.7pF capacitor across 100k feedback is CRITICAL for stability
+9. The 10pF capacitor across 100k feedback is CRITICAL for stability
 RESISTOR VALUES:
 - LED current limit (730nm): 68 Ohm, 0.5W
 - LED current limit (850nm): 68 Ohm, 0.5W
@@ -163,7 +166,7 @@ RESISTOR VALUES:
 - Stage 2 feedback: 47k Ohm
 - Stage 2 ground: 1k Ohm
 CAPACITOR VALUES:
-- TIA stability: 4.7pF ceramic (NPO/COG type preferred)
+- TIA stability: 10pF ceramic (NPO/COG type preferred)
 - Power decoupling (local HF): 0.1uF ceramic (x2)
 - Bulk decoupling (5V rail entry): 47-100uF electrolytic (x1)
 - Bulk decoupling (analog 3.3V rail): 10uF electrolytic or ceramic (x1)
@@ -177,7 +180,7 @@ Measurement Type Relative Trend Changes from baseline, not absolute
 Precision (Relative) Target +/- 2% @ 95% conf Requires bench closure per V&V Test 4.6
 Channels 1 (Deep Tissue) 30mm source-detector separation
 Wavelengths 730nm & 850nm Industry-standard NIRS wavelengths
-Sample Rate ADS1115 64 SPS state rate 4-state TDM gives 16 Hz raw/channel (AmbientA/Red/AmbientB/IR)
+Sample Rate ADS1115 64 SPS state rate Conversion-only 4-state TDM gives 16 Hz raw/channel; design-target effective rate is ~15 Hz with required 1ms/state settling delay (bench timing closure required)
 Safety Time-avg emitted power < 10mW per channel Bench-measured under final TDM timing and drive settings
 4. System Architecture
 Stage Function Key Components
@@ -199,7 +202,7 @@ without over-driving the MCU pin. LED current limits are intentionally asymmetri
 730nm channel uses 68 Ohm (~40mA nominal), 850nm channel uses 68 Ohm (~47mA nominal). This keeps
 both channels in the target electrical range while adding optical-safety margin in the 850nm path.
 5.3 Two-Stage Transimpedance Amplifier
-Stage 1 (TIA): 100k Ohm feedback resistor with 4.7pF stability capacitor. Converts photodiode current
+Stage 1 (TIA): 100k Ohm feedback resistor with 10pF stability capacitor. Converts photodiode current
 (nano-amps) to voltage. MCP6022 op-amp chosen for low input bias current and rail-to-rail output.
 Stage 2 (Gain): Non-inverting amplifier with 47k/1k = 48x voltage gain.
 Total Transimpedance: 100k x 48 = 4.8M Ohm equivalent.
@@ -242,18 +245,22 @@ To achieve +/-2% precision for POTS demonstration:
 3. Percent change calculation from baseline
 4. 4-state TDM sequence (AmbientA -> Red -> AmbientB -> IR) for ambient rejection and optical-duty control
 5. 10 Hz output rate for Serial Plotter visualization (decoupled from TDM cycle timing)
+6. Enforce 1ms settling delay after each LED GPIO state change before ADC sample acquisition
 7.2 TDM Measurement Sequence
-Each full TDM cycle has a theoretical minimum of 62.5ms at ADS1115 64 SPS:
-1. All LEDs OFF - Read ADC - Store as AmbientA
-2. Red LED ON - Read ADC - Subtract AmbientA - Store as Red signal
-3. All LEDs OFF - Read ADC - Store as AmbientB
-4. IR LED ON - Read ADC - Subtract AmbientB - Store as IR signal
+Conversion-limited minimum for one full TDM cycle is 62.5ms at ADS1115 64 SPS.
+With required 1ms settling delay per state, design-target cycle minimum is 66.5ms:
+1. All LEDs OFF - wait 1ms settling - Read ADC - Store as AmbientA
+2. Red LED ON - wait 1ms settling - Read ADC - Subtract AmbientA - Store as Red signal
+3. All LEDs OFF - wait 1ms settling - Read ADC - Store as AmbientB
+4. IR LED ON - wait 1ms settling - Read ADC - Subtract AmbientB - Store as IR signal
 5. Apply EMA filter to both channels
 6. Calculate percent change from baseline
 7. Output to Serial every 100ms (10 Hz display rate)
 Notes:
-- 62.5ms is a theoretical minimum (4 conversions x 15.625ms). Actual runtime cycle is measured in V&V Test 3.7.
-- Per-channel raw update rate is 16 Hz at 64 SPS with 4-state TDM.
+- 62.5ms is the conversion-only lower bound (4 conversions x 15.625ms).
+- With 1ms settling delay per state, expected firmware lower bound is 66.5ms.
+- Per-channel effective update rate with required settling delay is approximately 15.0 Hz (1 / 0.0665s).
+- Actual runtime cycle remains bench-closure dependent and is measured in V&V Test 3.7.
 7.3 Core Algorithm
 // EMA Filter (alpha=0.025, convention N_eff = 1/alpha = 40)
 const float ALPHA = 0.025;

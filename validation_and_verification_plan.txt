@@ -21,8 +21,9 @@ Current closure priorities from paper verification:
 2) Firmware timing closure requires measured evidence:
    - Design now uses 4-state AmbientA/Red/AmbientB/IR sequence.
    - Base-drive resistor is reduced to 470 ohm to improve TIP31C saturation margin.
-   - Physics: one conversion at 64 SPS is 15.625 ms, so theoretical minimum cycle is
-     62.5 ms (4 conversions).
+   - Physics: one conversion at 64 SPS is 15.625 ms, so conversion-only cycle minimum is
+     62.5 ms (4 conversions). With required 1ms settling delay per state, firmware cycle
+     minimum is 66.5 ms.
    - Status: requirement wording corrected; measured runtime must be captured.
 
 3) Precision claim closure gap:
@@ -202,7 +203,7 @@ Test 2.4 - Analog Signal Chain Continuity
 Equipment: DMM
 Pass criteria:
   - Stage 1 and Stage 2 feedback paths match schematic
-  - 4.7 pF compensation capacitor installed across Stage 1 feedback
+  - 10 pF compensation capacitor installed across Stage 1 feedback
   - Stage 2 output reaches ADS1115 A0
 
 Test 2.5 - I2C Wiring and Power Domain Check
@@ -285,12 +286,16 @@ Test 3.7 - TDM Timing Verification (Strict)
 Equipment: Scope or logic analyzer on D2/D3 (+ optional SCL)
 Measured fact at 64 SPS:
   - One conversion = 15.625 ms minimum
-  - Full AmbientA/Red/AmbientB/IR cycle theoretical minimum = 62.5 ms
+  - Conversion-only full AmbientA/Red/AmbientB/IR cycle minimum = 62.5 ms
+  - With required 1ms settling delay per state, firmware full-cycle minimum = 66.5 ms
 Pass criteria:
   - Sequence order is AmbientA -> Red -> AmbientB -> IR with no Red/IR overlap
-  - Measured cycle time is physically consistent with ADC conversion timing
+  - Measured cycle time is physically consistent with ADC conversion timing and required settling delays
+  - Settling guard is present in ADS1115 continuous mode: firmware enforces >=1.0 ms from each LED GPIO transition before accepting the ADC sample used for that state's calculation.
   - Document measured full-cycle runtime and measured per-channel update rate
   - Any spec text claiming "~15 ms full cycle at 64 SPS" is FAIL and requires NCR
+Fallback evidence rule (prototype stage):
+  - If scope/logic capture is impractical, code review evidence is acceptable only if it clearly shows a 1ms minimum guard and that pre-guard ADC reads/samples are not used for state calculations.
 
 Test 3.8 - EMA and Output Cadence Unit Verification
 Equipment: Offline script or firmware logs
