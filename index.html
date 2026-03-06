@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Cerebral Oximeter - Single-Channel NIRS</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      margin: 0;
+      background: #f8f9fa;
+      color: #1a1a2e;
+      line-height: 1.6;
+    }
+    header {
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 60%, #0f3460 100%);
+      color: #fff;
+      padding: 56px 32px 48px;
+      text-align: center;
+    }
+    header h1 {
+      margin: 0 0 8px;
+      font-size: 2.2rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+    header .subtitle {
+      font-size: 1.1rem;
+      opacity: 0.8;
+      margin: 0 0 20px;
+    }
+    header .badges {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .badge {
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.25);
+      border-radius: 20px;
+      padding: 4px 14px;
+      font-size: 0.82rem;
+      letter-spacing: 0.3px;
+    }
+    main {
+      max-width: 900px;
+      margin: 40px auto;
+      padding: 0 24px 60px;
+    }
+    .section-title {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      color: #888;
+      margin: 40px 0 14px;
+    }
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 14px;
+    }
+    .card {
+      background: #fff;
+      border: 1px solid #e2e6ea;
+      border-radius: 10px;
+      padding: 20px 22px;
+      text-decoration: none;
+      color: inherit;
+      transition: box-shadow 0.15s, border-color 0.15s, transform 0.1s;
+      display: block;
+    }
+    .card:hover {
+      box-shadow: 0 4px 18px rgba(0,0,0,0.1);
+      border-color: #b0c4de;
+      transform: translateY(-2px);
+    }
+    .card-icon {
+      font-size: 1.5rem;
+      margin-bottom: 8px;
+    }
+    .card h3 {
+      margin: 0 0 6px;
+      font-size: 1rem;
+      font-weight: 600;
+    }
+    .card p {
+      margin: 0;
+      font-size: 0.875rem;
+      color: #555;
+    }
+    .overview {
+      background: #fff;
+      border: 1px solid #e2e6ea;
+      border-radius: 10px;
+      padding: 24px 28px;
+    }
+    .overview p { margin: 0 0 12px; color: #333; }
+    .overview p:last-child { margin: 0; }
+    .spec-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+      border: 1px solid #e2e6ea;
+      border-radius: 10px;
+      overflow: hidden;
+      font-size: 0.9rem;
+    }
+    .spec-table th, .spec-table td {
+      padding: 10px 16px;
+      text-align: left;
+      border-bottom: 1px solid #eef0f2;
+    }
+    .spec-table th {
+      background: #f4f6f8;
+      font-weight: 600;
+      color: #444;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .spec-table tr:last-child td { border-bottom: none; }
+    .spec-table td:first-child { color: #666; }
+    .spec-table td:last-child { font-weight: 500; }
+    footer {
+      text-align: center;
+      padding: 24px;
+      font-size: 0.82rem;
+      color: #aaa;
+      border-top: 1px solid #e2e6ea;
+    }
+    footer a { color: #5080b0; text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Cerebral Oximeter</h1>
+  <p class="subtitle">Single-Channel NIRS Relative Oxygenation Monitor &mdash; Rev 3.2</p>
+  <div class="badges">
+    <span class="badge">EE 201 - Biomedical Instrumentation</span>
+    <span class="badge">POTS Demonstration System</span>
+    <span class="badge">Prototype 1</span>
+  </div>
+</header>
+
+<main>
+
+  <p class="section-title">Overview</p>
+  <div class="overview">
+    <p>
+      A breadboard-level near-infrared spectroscopy (NIRS) device that detects relative changes
+      in cerebral oxygenation through the human forehead. Two LEDs (730&nbsp;nm and 850&nbsp;nm) illuminate
+      tissue while a BPW34 photodiode measures returned light, enabling visualization of oxygenation
+      trends during postural changes associated with POTS.
+    </p>
+    <p>
+      Signal chain: photodiode &rarr; MCP6022 transimpedance amplifier (100&nbsp;k&Omega;) &rarr; second-stage
+      gain (48&nbsp;V/V) &rarr; ADS1115 ADC (64&nbsp;SPS) &rarr; Arduino Nano 33 IoT with 4-state TDM and EMA filtering.
+    </p>
+  </div>
+
+  <p class="section-title">Key Specifications</p>
+  <table class="spec-table">
+    <thead>
+      <tr><th>Parameter</th><th>Value</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Wavelengths</td><td>730 nm and 850 nm</td></tr>
+      <tr><td>Photodetector</td><td>Vishay BPW34</td></tr>
+      <tr><td>TIA gain</td><td>100 k&Omega;</td></tr>
+      <tr><td>Stage 2 gain</td><td>48 V/V</td></tr>
+      <tr><td>ADC</td><td>TI ADS1115, 64 SPS, &plusmn;2.048 V PGA</td></tr>
+      <tr><td>MCU</td><td>Arduino Nano 33 IoT</td></tr>
+      <tr><td>TDM sequence</td><td>AmbientA &rarr; Red &rarr; AmbientB &rarr; IR (min 66.5 ms/cycle)</td></tr>
+      <tr><td>Output cadence</td><td>10 Hz serial</td></tr>
+      <tr><td>Optical safety</td><td>&lt;10 mW time-averaged per channel (bench-verified)</td></tr>
+      <tr><td>Precision target</td><td>&plusmn;2% relative at 95% confidence</td></tr>
+      <tr><td>Component cost</td><td>$55&ndash;$92 USD per station</td></tr>
+    </tbody>
+  </table>
+
+  <p class="section-title">Documents</p>
+  <div class="card-grid">
+    <a class="card" href="./README.md">
+      <div class="card-icon">&#128196;</div>
+      <h3>Technical Design Document</h3>
+      <p>Full design spec, circuit description, firmware architecture, and design change notices.</p>
+    </a>
+    <a class="card" href="./spec.txt">
+      <div class="card-icon">&#128221;</div>
+      <h3>System Specification</h3>
+      <p>Formal requirements and system-level specifications.</p>
+    </a>
+    <a class="card" href="./validation_and_verification_plan.txt">
+      <div class="card-icon">&#9989;</div>
+      <h3>V&amp;V Plan</h3>
+      <p>Phase-gated verification plan with explicit pass/fail criteria for all 5 phases.</p>
+    </a>
+    <a class="card" href="./validation.txt">
+      <div class="card-icon">&#128203;</div>
+      <h3>Validation Log</h3>
+      <p>Recorded test results and evidence log.</p>
+    </a>
+    <a class="card" href="./hardware-validation.txt">
+      <div class="card-icon">&#128268;</div>
+      <h3>Hardware Validation</h3>
+      <p>Hardware-specific verification records and nonconformance tracking.</p>
+    </a>
+    <a class="card" href="./vv_calculations.md">
+      <div class="card-icon">&#128202;</div>
+      <h3>V&amp;V Calculations</h3>
+      <p>Supporting calculations for optical safety, timing, and signal chain analysis.</p>
+    </a>
+    <a class="card" href="./BOM.csv">
+      <div class="card-icon">&#128737;</div>
+      <h3>Bill of Materials (CSV)</h3>
+      <p>Complete component list with part numbers and quantities.</p>
+    </a>
+    <a class="card" href="./datasheets/">
+      <div class="card-icon">&#128218;</div>
+      <h3>Datasheets</h3>
+      <p>Local copies of all component datasheets with HTML index.</p>
+    </a>
+  </div>
+
+  <p class="section-title">Phase Gate Status</p>
+  <table class="spec-table">
+    <thead>
+      <tr><th>Phase</th><th>Description</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Phase 1</td><td>Component Verification (pre-assembly)</td></tr>
+      <tr><td>Phase 2</td><td>Wiring and Integration (post-assembly, pre-power)</td></tr>
+      <tr><td>Phase 3</td><td>Powered Subsystem Verification</td></tr>
+      <tr><td>Phase 4</td><td>Bench System Validation (no human subject)</td></tr>
+      <tr><td>Phase 5</td><td>In-vivo Educational Demonstration</td></tr>
+    </tbody>
+  </table>
+
+</main>
+
+<footer>
+  <a href="https://github.com/Ely-S/Cerebro">github.com/Ely-S/Cerebro</a>
+  &mdash; EE 201 Biomedical Instrumentation
+</footer>
+
+</body>
+</html>
