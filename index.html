@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Cerebral Oximeter - Single-Channel NIRS</title>
+  <title>Cerebral Oximeter - Patient Driven Science</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; }
     body {
@@ -99,6 +99,7 @@
     }
     .overview p { margin: 0 0 12px; color: #333; }
     .overview p:last-child { margin: 0; }
+    .citation { font-size: 0.85rem; color: #666; border-left: 3px solid #b0c4de; padding-left: 12px; margin-top: 16px; }
     .spec-table {
       width: 100%;
       border-collapse: collapse;
@@ -139,27 +140,91 @@
 
 <header>
   <h1>Cerebral Oximeter</h1>
-  <p class="subtitle">Single-Channel NIRS Relative Oxygenation Monitor &mdash; Rev 3.2</p>
+  <p class="subtitle">Patient Driven Science &mdash; Single-Channel NIRS Cerebral Oxygenation Monitor</p>
   <div class="badges">
-    <span class="badge">EE 201 - Biomedical Instrumentation</span>
-    <span class="badge">POTS Demonstration System</span>
-    <span class="badge">Prototype 1</span>
+    <span class="badge">Patient Driven Science</span>
+    <span class="badge">POTS / Orthostatic Intolerance</span>
+    <span class="badge">Open Hardware</span>
+    <span class="badge">Rev 3.2</span>
   </div>
 </header>
 
 <main>
 
-  <p class="section-title">Overview</p>
+  <p class="section-title">About This Project</p>
   <div class="overview">
     <p>
-      A breadboard-level near-infrared spectroscopy (NIRS) device that detects relative changes
-      in cerebral oxygenation through the human forehead. Two LEDs (730&nbsp;nm and 850&nbsp;nm) illuminate
-      tissue while a BPW34 photodiode measures returned light, enabling visualization of oxygenation
-      trends during postural changes associated with POTS.
+      This device was built by patients, for patients. POTS (Postural Orthostatic Tachycardia Syndrome)
+      and orthostatic intolerance are conditions that are often invisible to outside observers and
+      difficult to demonstrate in clinical or educational settings. This project puts measurement
+      tools directly in the hands of the people who need them most.
     </p>
     <p>
-      Signal chain: photodiode &rarr; MCP6022 transimpedance amplifier (100&nbsp;k&Omega;) &rarr; second-stage
-      gain (48&nbsp;V/V) &rarr; ADS1115 ADC (64&nbsp;SPS) &rarr; Arduino Nano 33 IoT with 4-state TDM and EMA filtering.
+      Using near-infrared spectroscopy (NIRS), the device detects real-time relative changes in
+      cerebral oxygenation through the forehead. Two LEDs (730&nbsp;nm and 850&nbsp;nm) illuminate tissue
+      while a BPW34 photodiode captures returned light, producing a visible oxygenation trend during
+      postural changes &mdash; the kind of drop POTS patients experience every time they stand up.
+    </p>
+    <p>
+      Built from off-the-shelf components for under $100, this is an open hardware platform anyone
+      can build, verify, and use to document their own physiology.
+      Signal chain: photodiode &rarr; MCP6022 TIA (100&nbsp;k&Omega;) &rarr; stage 2 gain (48&nbsp;V/V) &rarr;
+      ADS1115 ADC (64&nbsp;SPS) &rarr; Arduino Nano 33 IoT with 4-state TDM and EMA filtering.
+    </p>
+  </div>
+
+  <p class="section-title">Why Patient Driven Science Matters</p>
+  <div class="overview">
+    <p>
+      Many chronic conditions &mdash; POTS, Long COVID, ME/CFS, and other dysautonomia syndromes &mdash;
+      are poorly understood, frequently dismissed, and chronically underfunded. Patients often wait
+      years for a diagnosis and longer still for research that reflects their lived experience.
+      Traditional medical research moves slowly and is shaped by institutional priorities that
+      don't always align with what patients actually need to know.
+    </p>
+    <p>
+      Patient driven science changes that. When patients build their own measurement tools, they can
+      document their own physiology on their own timeline, generate data that is grounded in real
+      symptoms and real conditions, and contribute evidence that the medical system has not yet
+      produced. This kind of self-directed inquiry has a long history of accelerating understanding
+      &mdash; from the HIV/AIDS activists who reshaped clinical trial design in the 1980s to the
+      patient communities today mapping Long COVID symptoms faster than any single research institution.
+    </p>
+    <p>
+      Open hardware tools lower the barrier to participation. A device that costs under $100 and
+      can be built and verified by an engineering student &mdash; or a patient with basic electronics
+      exposure &mdash; makes measurement accessible outside of hospitals and labs. Every person who
+      builds this device and records their own data is doing science that matters.
+    </p>
+  </div>
+
+  <p class="section-title">For ME/CFS and Long COVID</p>
+  <div class="overview">
+    <p>
+      Conventional orthostatic testing looks for two things: a drop in blood pressure (hypotension)
+      or a spike in heart rate (tachycardia). For many people with POTS, that is enough. But for a
+      large portion of ME/CFS and Long COVID patients, heart rate and blood pressure can look
+      completely normal during a tilt test &mdash; while cerebral blood flow is collapsing.
+    </p>
+    <p>
+      A 2020 controlled study by van Campen et&nbsp;al. measured cerebral blood flow in 429 ME/CFS
+      patients during head-up tilt testing. 90% showed abnormal cerebral blood flow reduction
+      exceeding 13%, compared to 7% in healthy controls. Critically, <strong>82% of those patients
+      had normal heart rate and blood pressure responses</strong> &mdash; meaning standard vital sign
+      monitoring would have missed the problem entirely.
+    </p>
+    <p>
+      This is why direct cerebral oxygenation measurement matters. A device that tracks NIRS signals
+      at the forehead can surface circulatory dysfunction that HR and BP monitoring cannot see.
+      For patients whose symptoms are dismissed because their vitals "look fine," this kind of
+      independent signal is not just useful &mdash; it may be the only objective evidence available.
+    </p>
+    <p class="citation">
+      van Campen, C.M.C., Verheugt, F.W.A., Rowe, P.C., &amp; Visser, F.C. (2020).
+      Cerebral blood flow is reduced in ME/CFS during head-up tilt testing even in the absence
+      of hypotension or tachycardia: A quantitative, controlled study using Doppler echography.
+      <em>Clinical Neurophysiology Practice</em>, 5, 50&ndash;58.
+      <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC7044650/" target="_blank" rel="noopener">PMC7044650</a>
     </p>
   </div>
 
@@ -245,7 +310,7 @@
 
 <footer>
   <a href="https://github.com/Ely-S/Cerebro">github.com/Ely-S/Cerebro</a>
-  &mdash; EE 201 Biomedical Instrumentation
+  &mdash; Patient Driven Science
 </footer>
 
 </body>
