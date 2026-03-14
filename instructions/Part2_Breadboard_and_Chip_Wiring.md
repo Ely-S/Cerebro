@@ -121,6 +121,60 @@ Divide your breadboard into three zones:
 
 > **Do NOT use the breadboard's long power rail strips as a ground bus.** This is the most common beginner mistake with star grounding. A power rail strip is a long conductive trace with resistance along its length - current flowing through one end creates a small voltage drop that contaminates signals at the other end. Instead, run an individual jumper wire from each ground point directly to the single STAR_GND tie-point. Yes, this means multiple wires converging on one spot. That is exactly what "star" means.
 
+```
+  STAR GROUND - CORRECT vs WRONG
+  ================================
+
+  WRONG - Daisy-chain / bus ground (DO NOT DO THIS):
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    Q1 Emit ---+--- MCP pin4 ---+--- BPW34 ---+--- ADS1115 GND
+               |                |              |
+          (shared trace with voltage drops along its length)
+               |  LED noise     |   couples    |
+               | ~~> ~~> ~~> ~~>| ~~> ~~> ~~> >|
+               |                |              |
+          LED switching noise travels along the shared
+          trace and contaminates the analog signals.
+
+
+  CORRECT - Star ground (DO THIS):
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+                  Arduino GND ----\
+                                   \
+              100uF cap (-) ----\   \
+                                 \   \
+               10uF cap (-) --\   \   \
+                               \   \   \
+          MCP6022 Pin 4 ----\   \   \   \
+                             \   \   \   \
+          MCP6022 Pin 3 --\   \   \   \   \
+                           \   \   \   \   \
+                1k Rg ----\ \   \   \   \   \
+                           | |   |   |   |   |
+                          ++-++--++--++--++--++---+
+                          |       STAR_GND        | <-- ONE point on breadboard
+                          |   (near ADS1115 GND)  |     (2-3 adjacent rows max)
+                          ++-++--++--++--++--++---+
+                           | |   |   |   |   |
+          BPW34 anode ----/ /   /   /   /   /
+                           /   /   /   /   /
+           0.1uF caps ----/   /   /   /   /
+                             /   /   /   /
+          ADS1115 GND ------/   /   /   /
+                               /   /   /
+          ADS1115 ADDR -------/   /   /
+                                 /   /
+          Q1 Emit (LED_GND) ---/   /    <-- Dedicated wire,
+          Q2 Emit (LED_GND) -----/          separate from analog!
+                                            (can share one wire
+                                             to STAR_GND)
+
+    Every ground wire is an independent spoke.
+    No ground current from one device flows
+    through another device's ground wire.
+```
+
 ### 3.2 5V Power Rail
 
 Wire from Arduino 5V pin through the fuse to a 5V distribution point:
@@ -151,6 +205,38 @@ From 5V_NODE, three things connect:
 
 - Run a wire from the Arduino GND pin to STAR_GND.
 
+```
+  POWER DISTRIBUTION OVERVIEW
+  ============================
+
+  USB Battery Pack
+       |
+       | USB cable
+       v
+  +--------------------+
+  |  Arduino Nano      |
+  |  33 IoT            |
+  |                    |
+  |  5V pin --+        |    3.3V pin --+
+  +-----------|--------+               |
+              |                        |
+           [FUSE]                      |
+           500mA                       |
+              |                        |
+           5V_NODE                  3.3V_RAIL
+              |                        |
+     +--------+--------+        +-----+-----+
+     |        |        |        |           |
+  [100uF] [150R]   [68R] x2  [10uF]     3.3V to:
+  to GND    |        |       to GND    - MCP6022 V+ (pin 8)
+            v        v                 - ADS1115 VDD
+         Green    To LED               - 0.1uF decoupling x2
+         LED      drivers
+            |    (Q1, Q2)
+            v
+         STAR_GND
+```
+
 ---
 
 ## Step 4: Wire the Power-On Indicator
@@ -169,6 +255,50 @@ This LED serves two purposes: it shows you the circuit is powered, and it draws 
 ## Step 5: Wire the LED Driver Circuits
 
 Each NIR LED is switched by a TIP31C NPN transistor. The Arduino GPIO pin turns the transistor on/off; the transistor switches the higher-current LED path.
+
+```
+  LED DRIVER CIRCUIT (one channel shown - build two of these)
+  ============================================================
+
+                          5V_NODE
+                            |
+                         [FUSE]
+                            |
+                         [68 Ohm]  (0.5W current limiter)
+                            |
+                            v
+                     +------+------+
+                     |  LED anode  |
+                     |   (from     |
+                     |  headband)  |  <-- 730nm or 850nm LED
+                     |             |      (in the headband probe)
+                     | LED cathode |
+                     +------+------+
+                            |
+                            |
+              Q1 (TIP31C)   |
+              +---------+   |
+              |         |   |
+  Arduino  -->|B       C|<--+   B = Base
+  D2 or D3   [470R]    |        C = Collector
+              |    |   E|        E = Emitter
+              |    +----+
+              |         |
+              |     LED_GND_RETURN  (dedicated wire!)
+              |         |
+              |         v
+              |      STAR_GND
+
+  When Arduino pin goes HIGH (3.3V):
+    3.3V -> 470R -> Base = ~5.5mA base current
+    Transistor turns ON (saturates)
+    Current flows: 5V -> 68R -> LED -> Collector -> Emitter -> GND
+    LED current: ~40-47mA depending on LED Vf
+
+  When Arduino pin goes LOW (0V):
+    No base current -> Transistor is OFF
+    LED is dark
+```
 
 ### 5.1 730nm LED Driver (Q1)
 
@@ -261,6 +391,33 @@ Between Pin 1 (OUT1) and Pin 2 (IN1-):
   - 10pF ceramic capacitor (Cf) IN PARALLEL with the 100k resistor
 ```
 
+```
+  STAGE 1: TRANSIMPEDANCE AMPLIFIER (TIA)
+  ========================================
+
+                     +----[100k Rf]----+
+                     |                 |
+                     |  +--[10pF Cf]---+  (Rf and Cf in PARALLEL)
+                     |  |              |
+                     |  |              |
+     BPW34           v  v              |
+     cathode ------> Pin 2 (IN1-)      |
+     (shielded       |           |\    |
+      wire)          |           | \   |
+                     |    MCP6022| _\  |
+     BPW34           |           |   |-----> Pin 1 (OUT1)
+     anode --------> |    Op-Amp | _ |       |
+     (to STAR_GND)   |     A    | / |       |
+                     |           | /        |
+      STAR_GND ----> Pin 3      |/          |
+                     (IN1+)                 |
+                                            v
+                                   To Stage 2 (Pin 5)
+
+  Photocurrent (nA) x 100k = Output voltage (mV)
+  Example: 10nA photocurrent -> 1mV output
+```
+
 #### Installing the Feedback Components
 
 - The 100k resistor and 10pF capacitor both connect between the same two points: Pin 1 and Pin 2.
@@ -280,6 +437,54 @@ Pin 6 (IN2-) --> Junction node:
   - 47k Ohm resistor (Rf2) from this node to Pin 7 (OUT2)
 
 Pin 7 (OUT2) --> ADS1115 A0 input
+```
+
+```
+  STAGE 2: NON-INVERTING GAIN AMPLIFIER
+  =======================================
+
+  From Stage 1                              To ADS1115
+  (Pin 1 OUT1)                              A0 input
+       |                                       ^
+       |                                       |
+       v                                       |
+       Pin 5 (IN2+)                            |
+       |           |\                          |
+       |           | \                         |
+       |    MCP6022| _\                        |
+       |           |   |---------> Pin 7 (OUT2)----> To ADS1115 A0
+       |    Op-Amp | _ |               |
+       |     B     | / |               |
+       |           | /                 |
+       |           |/                  |
+       |                               |
+       |       Pin 6 (IN2-) <---+------+
+       |                        |      |
+       |                     [47k Rf2] |
+       |                        |      |
+       |                        +------+
+       |                        |
+       |                     [1k Rg]
+       |                        |
+       |                     STAR_GND
+
+  Gain = 1 + (47k / 1k) = 48 V/V
+  Example: 1mV from Stage 1 -> 48mV output to ADC
+```
+
+```
+  COMPLETE TWO-STAGE SIGNAL PATH
+  ================================
+
+  BPW34           Stage 1 (TIA)           Stage 2 (Gain)        ADC
+  photodiode      100k feedback           48x amplifier
+  ~~~~~           ~~~~~~~~~~~~            ~~~~~~~~~~~~~
+  nA current ---> mV voltage -----------> tens-of-mV ---------> 16-bit
+  (from tissue)   (Pin 1 out)             (Pin 7 out)           digital
+                                                                counts
+  Example:
+  10 nA --------> 1.0 mV --------------> 48 mV --------------> ~768
+                                                                counts
 ```
 
 The gain of this stage is: **G = 1 + (Rf2 / Rg) = 1 + (47k / 1k) = 48 V/V**
@@ -393,6 +598,92 @@ With the circuit powered, verify these voltages with your multimeter (referenced
 | MCP6022 Pin 7 (OUT2) | 0V-3.3V range | Should be low with no light on probe |
 
 If all voltages check out, your wiring is correct. You can now switch to the USB battery pack for further testing.
+
+---
+
+## Complete Circuit Schematic
+
+```
+================================================================================
+                        FULL CIRCUIT SCHEMATIC
+================================================================================
+
+  USB Battery
+       |
+  +----+------------------ARDUINO NANO 33 IoT-------------------+
+  | USB                                                          |
+  |  5V ----> [FUSE 500mA] ----> 5V_NODE                        |
+  | 3.3V ----------------------------------> 3.3V_RAIL          |
+  |  GND --+                                                    |
+  |  D2  --|--> [470R] --> Q1 Base                               |
+  |  D3  --|--> [470R] --> Q2 Base                               |
+  |  A4  --|----(SDA)----> ADS1115 SDA                           |
+  |  A5  --|----(SCL)----> ADS1115 SCL                           |
+  +---------+---------------------------------------------------+
+            |
+            v
+         STAR_GND  <----------- (all grounds converge here)
+
+
+  === LED DRIVER (x2) =====================      === INDICATOR ============
+
+  5V_NODE                   5V_NODE               5V_NODE
+     |                         |                     |
+  [68R 0.5W]               [68R 0.5W]            [150R]
+     |                         |                     |
+  730nm LED (+)             850nm LED (+)          Green LED (+)
+     |                         |                     |
+  730nm LED (-)             850nm LED (-)          Green LED (-)
+     |                         |                     |
+  Q1 Collector              Q2 Collector          STAR_GND
+     |                         |
+  Q1 Emitter                Q2 Emitter
+     |                         |
+     +-------LED_GND_RETURN----+------> STAR_GND  (dedicated wire)
+
+
+  === ANALOG FRONT END (MCP6022 dual op-amp) ===========================
+
+                     +----[100k]----+
+                     |   +--[10pF]--+
+                     |   |          |
+  BPW34 cathode ---> Pin 2(IN1-)   |
+                     |       |\    |
+  STAR_GND --------> Pin 3  | \-->Pin 1(OUT1)---+
+                     (IN1+)  | /                 |
+                     3.3V -> Pin 8(V+)           |
+                  STAR_GND-> Pin 4(V-)           |
+                                                 |
+                     Pin 5(IN2+) <---------------+
+                     |       |\
+                     |       | \-->Pin 7(OUT2)---+------> ADS1115 A0
+                     |       | /       |         |
+                     Pin 6(IN2-)<------+-[47k]---+
+                     |
+                     +--[1k]---> STAR_GND
+
+  BPW34 anode -------> STAR_GND
+
+
+  === ADC (ADS1115) ====================================================
+
+  3.3V_RAIL ----> VDD   [0.1uF]--+
+  STAR_GND ----> GND  <----------+
+  STAR_GND ----> ADDR  (I2C address = 0x48)
+  MCP Pin 7 ---> A0
+  Arduino A4 <-- SDA
+  Arduino A5 <-- SCL
+
+
+  === DECOUPLING CAPS ==================================================
+
+  [100uF]:  5V_NODE ----||---- STAR_GND    (at 5V entry node)
+   [10uF]:  3.3V_RAIL --||---- STAR_GND    (near analog ICs)
+  [0.1uF]:  MCP Pin 8 --||---- MCP Pin 4   (across op-amp power)
+  [0.1uF]:  ADS VDD ----||---- ADS GND     (across ADC power)
+
+================================================================================
+```
 
 ---
 

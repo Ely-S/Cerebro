@@ -40,6 +40,52 @@ In this part you will build the optical probe: the forehead-mounted assembly tha
 
 ---
 
+## Finished Probe - What You Are Building
+
+Before starting, here is what the completed probe looks like from above (tissue-contact face up) and in cross-section:
+
+```
+  TOP VIEW (tissue-contact face - the side that touches the forehead)
+  ================================================================
+
+     +--------------------------------------------------+
+     |                                                  |
+     |    Photodiode (BPW34)          LEDs side-by-side |
+     |                                                  |
+     |       +-------+                +-----+-----+    |
+     |       |  BPW  |                | 730 | 850 |    |
+     |       |  34   |                | nm  | nm  |    |
+     |       | (lens)|                |[WAS]|     |    |
+     |       +-------+                +-----+-----+    |
+     |                                                  |
+     |       |<---------- 30mm c-to-c ---------->|      |
+     |                                                  |
+     +--------------------------------------------------+
+              ^                        ^
+              |                        |
+         7mm hole                 LED pockets
+```
+
+```
+  CROSS-SECTION (side view, cut through the center)
+  ==================================================
+
+     Wires exit to breadboard (back)
+      ___|________________________________________|___
+     |   |                                        |   |
+     |  BPW34                                 LEDs    |  <-- Black EVA foam
+     |  leads          foam body             leads    |      2cm x 4cm x 2cm
+     |___|________________________________________|___|
+         |                                        |
+      [LENS]                              [FLUSH SURFACE]
+         v                                        v
+    ================================================== <-- Tissue-contact face
+         |                                        |      (touches forehead)
+         |<------------- 30mm ------------------>|
+```
+
+---
+
 ## Step 1: Prepare the LED Pigtail Wires (Both LEDs)
 
 You will solder thin wires directly to each SMD LED before mounting them in the foam. This is the trickiest soldering in the entire project.
@@ -79,6 +125,28 @@ You will solder thin wires directly to each SMD LED before mounting them in the 
 - Label each wire pair with tape flags: mark anode (+) and cathode (-) for both LEDs.
 - Also label which LED is which (730nm vs 850nm). Mixing these up later will cause incorrect readings.
 
+```
+  FINISHED PIGTAILED LED (one of two)
+  ====================================
+
+    Red wire (+)       Black wire (-)
+        \                 /
+     [heat-shrink]   [heat-shrink]
+          \             /
+           \           /
+        +---+----+----+---+
+        |   Anode|Cath    |
+        |   pad  |pad     |  <-- SMD LED (2835 or PLCC-2 package)
+        |        |        |
+        +--------+--------+
+              ||
+          (emitting surface -
+           this side faces tissue)
+
+  Make two of these: one for 730nm, one for 850nm.
+  Label each pair clearly!
+```
+
 ---
 
 ## Step 2: Prepare the Foam Base
@@ -101,6 +169,37 @@ You will solder thin wires directly to each SMD LED before mounting them in the 
 - These pockets should be deep enough that the LED emitting surface sits flush with the tissue-contact face of the foam (not recessed, not protruding).
 - Include a small routing channel for the pigtail wires to exit out the back/top of the foam.
 
+```
+  FOAM BLOCK - LAYOUT (top view, looking down at tissue-contact face)
+  ====================================================================
+
+    |<---------------------- 4cm ---------------------->|
+
+    +---+----------------------------------------------+---+  ---
+    |   |                                              |   |   ^
+    |   |   +-------+                  +-----+-----+   |   |   |
+    |   |   | 7mm   |                  |pocket|pocket  |   |   2cm
+    |   |   | hole  |                  | 730  | 850 |  |   |  width
+    |   |   |       |                  |  nm  |  nm |  |   |   |
+    |   |   +-------+                  +-----+-----+   |   |   v
+    |   |                                              |   |  ---
+    +---+----------------------------------------------+---+
+
+            |<------------ 30mm c-to-c ----------->|
+
+    BACK VIEW (looking at the wire-exit side)
+    ==========================================
+
+    +--------------------------------------------------+  ---
+    |                                                  |   ^
+    |   ====                           ====  ====      |   |
+    |   wire                           wire  wire      |  2cm
+    |   channel                        channels        | height
+    |   (photodiode)                   (LED pigtails)  |   |
+    |                                                  |   v
+    +--------------------------------------------------+  ---
+```
+
 > **Why 30mm?** This source-detector separation determines the depth of tissue interrogated. At 30mm, the banana-shaped photon path reaches cortical brain tissue through the skull. Shorter distances sample only scalp; longer distances lose too much signal.
 
 ---
@@ -119,6 +218,41 @@ The 730nm LED has a wide beam (~121 degrees). Without a baffle, stray light will
 - Apply superglue to the bottom of the washer stack.
 - Carefully place the stack directly over the dome/emitting surface of the 730nm LED, centering the 3mm aperture over the LED.
 - Hold firmly until glue sets.
+
+```
+  730nm LED WITH WASHER BAFFLE (cross-section)
+  =============================================
+
+                    | 3mm |
+                    |<--->|
+               _____|     |_____
+              |  washer 3       |   ^
+              |_____|     |_____|   |
+              |  washer 2       |   | Baffle stack
+              |_____|     |_____|   | (2-3 washers)
+              |  washer 1       |   |
+              |_____|     |_____|   v
+              ======+=====+======
+              |     LED dome    |  <-- 730nm SMD LED
+              |    (emitter)    |
+              +-wire-+-wire-+---+
+                  +     -
+                anode  cathode
+
+    Light exits ONLY through the 3mm aperture,
+    directed straight into tissue. Stray sideways
+    light is blocked by the washer walls.
+
+
+  850nm LED - NO BAFFLE NEEDED (cross-section)
+  =============================================
+
+              +-----------------+
+              |     LED dome    |  <-- 850nm SMD LED
+              |    (emitter)    |
+              +-wire-+-wire-+---+
+                  +     -
+```
 
 > **The 850nm LED does NOT need a baffle.** Only the 730nm requires this modification.
 
@@ -150,6 +284,46 @@ The 730nm LED has a wide beam (~121 degrees). Without a baffle, stray light will
 - **Convex lens = active sensing surface** - this faces outward toward the tissue.
 - **Flat side = cathode** - this faces into the foam body, away from tissue.
 
+```
+  BPW34 PHOTODIODE ORIENTATION
+  ============================
+
+  CORRECT (lens toward tissue):
+
+       Foam body (back)
+      ___________________
+     |                   |
+     |    flat side      |  <-- Cathode mark (flat edge or dot)
+     |    (cathode)      |
+     |   +-----------+   |
+     |   |   BPW34   |   |
+     |   |  _-----_  |   |
+     |   | /  lens  \ |   |
+     |   |( convex  )|   |
+     |   | \       / |   |
+     |   |  `-----'  |   |
+     |   +-----------+   |
+     |___________________|
+              |
+              v
+       Tissue-contact face
+       (touches forehead)
+
+  SIDE VIEW:
+
+        lead (-)     lead (+)
+            \           /
+     ........\........./..........  <-- Foam surface (back)
+     :   +----+-------+----+    :
+     :   |flat|       |    |    :  <-- BPW34 body
+     :   |side| glass |lens|    :
+     :   +----+--===--+----+    :
+     .........|..===..|..........  <-- Foam surface (tissue-contact)
+              | lens  |
+              v  face v
+         (toward forehead)
+```
+
 ### 5.2 Insert and Wire the Photodiode
 
 - Insert the BPW34 into the 7mm hole with the **lens facing the tissue-contact side**.
@@ -158,6 +332,37 @@ The 730nm LED has a wide beam (~121 degrees). Without a baffle, stray light will
 #### What is Shielded Wire?
 
 Shielded wire (also called coaxial or screened cable) has two conductors: a **center conductor** (thin insulated wire in the middle) surrounded by a **shield** (braided metal mesh or foil wrapped around the outside, under the outer jacket). The shield blocks electromagnetic interference from reaching the center conductor.
+
+```
+  SHIELDED WIRE CROSS-SECTION
+  ============================
+
+        +-- Outer jacket (plastic)
+        |   +-- Shield braid (woven metal mesh)
+        |   |   +-- Inner insulation (plastic)
+        |   |   |   +-- Center conductor (copper wire)
+        |   |   |   |
+        v   v   v   v
+      +-+---+---+-+-+---+---+-+
+      | |:::::::| | | |:::::::| |
+      | |:::::::| | * | |:::::::| |
+      | |:::::::| | | |:::::::| |
+      +-+---+---+-+-+---+---+-+
+
+  End view showing concentric layers:
+
+         _______________
+        /  :::::::::::  \       ::: = Shield braid
+       / :: _________:: \
+      | :: / _______ \ :: |
+      | ::|/ inner  \|:: |
+      | ::|| ins.   ||:: |     * = Center conductor
+      | ::|| * wire ||:: |         (connects to CATHODE)
+      | ::|\_______/|:: |
+      | :: \_______/ :: |     Shield braid
+       \ ::::::::::::: /       (connects to ANODE/GND)
+        \______________/
+```
 
 **How to strip and solder shielded wire:**
 1. Strip about 10mm of the outer jacket to expose the braided shield.
@@ -200,6 +405,39 @@ This step determines whether your device works or produces garbage data. Take yo
 - Wrap the entire back and sides of the foam block (everything except the tissue-contact face) in opaque electrical tape.
 - Any pin-hole or thin spot in the foam is a potential light leak path.
 
+```
+  OPTICAL ISOLATION - WHAT TO SEAL (cross-section)
+  =================================================
+
+       Seal ALL of this with opaque tape
+       vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+      +###################################+
+      #  wires out       wires out        #
+      #  ====                 ====  ====  #  <-- Back: SEALED
+      #  :                    :     :     #
+      #  :BPW34          730nm: 850nm:    #
+      #  :                    :     :     #
+      +--+--------------------+-----+-----+
+      |  [LENS]          [WASHER]  [LED]  |  <-- Tissue face: OPEN
+      +-----------------------------------+      (only this side is exposed)
+
+  LIGHT LEAK DANGER ZONES (top view):
+  ====================================
+
+      +---+----------------------------------------------+---+
+      |   |                                              |   |
+    S |   |   +-------+    DANGER ZONE     +-----+-----+ |   | S
+    E |   |   | BPW34 |<--- check for --->| 730 | 850 | |   | E
+    A |   |   |       |    light paths    |  nm |  nm | |   | A
+    L |   |   +-------+  through foam OR  +-----+-----+ |   | L
+      |   |              across surface                  |   |
+      +---+----------------------------------------------+---+
+                 ^                              ^
+                 |                              |
+            Must NOT see             Must NOT leak
+          any LED light here       sideways through foam
+```
+
 > **Why this matters:** The photodiode is detecting nano-amps of photocurrent from light that has traveled through skull and brain tissue. Direct LED-to-photodiode light (even a tiny leak) produces micro-amps - a thousand times stronger. Even 0.1% leakage will completely overwhelm the tissue signal.
 
 ---
@@ -220,6 +458,48 @@ This step determines whether your device works or produces garbage data. Take yo
 
 - Route the pigtail wires (4 LED wires + shielded photodiode wire) along the headband toward one side.
 - Secure with small pieces of tape or thread loops so wires don't dangle or snag.
+
+```
+  COMPLETED HEADBAND ASSEMBLY (front view, as worn)
+  ==================================================
+
+                        Elastic headband
+           _______________|||_______________
+          /               |||               \
+         /                |||                \
+        |      +----------+++----------+      |
+        |      |       FOAM PROBE      |      |
+        |      |   [BPW34]  [730][850] |      |
+        |      +----------+++----------+      |
+        |        soft     |||  soft           |
+        |        padding  |||  padding        |
+         \                |||                /
+          \        wires--+++--->          /
+           \_______________|_____________/
+                           |
+                           | 4 LED wires +
+                           | 1 shielded photodiode wire
+                           | (secured along band with tape)
+                           |
+                           v
+                     To breadboard
+
+  PLACEMENT ON FOREHEAD (side view):
+  ===================================
+
+                     Headband
+                   ___/    \___
+                  /   PROBE    \
+                 / [===FOAM===] \
+         ______/___[tissue face]_\______
+        /          |  |  |  |           \
+       |    LEFT   | forehead |  RIGHT   |
+       |   temple  |          |  temple  |
+                   ^
+                   |
+              Above left eyebrow,
+              below hairline
+```
 
 ---
 
