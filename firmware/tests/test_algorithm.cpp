@@ -262,6 +262,99 @@ static void test_running_mean_mixed_signal() {
 }
 
 // ---------------------------------------------------------------------------
+// Regression tests (for bugs found in PR #10 review)
+// ---------------------------------------------------------------------------
+
+static void test_regression_dual_channel_shared_count() {
+  // REGRESSION (PR #10): runningMean() increments its count on every call.
+  // The original firmware called it twice per TDM cycle — once for Red,
+  // once for IR — using the SAME baselineCount variable. This doubled the
+  // denominator relative to the number of cycles, halving both baselines
+  // and making pctChange report ~+100% on a stable signal.
+  //
+  // Actual firmware bug (two separate sums, one shared count incremented twice):
+  //   baselineRed = runningMean(emaRed, baselineSumRed, baselineCount); // count++
+  //   baselineIR  = runningMean(emaIR,  baselineSumIR,  baselineCount); // count++ again
+  //
+  // Fix: accumulate sums manually, increment baselineCount once per cycle.
+
+  // --- CORRECT pattern (firmware fix) ---
+  float sumRed = 0.0f, sumIR = 0.0f;
+  unsigned long count = 0;
+  for (int i = 0; i < 450; i++) {  // 30s at 15 Hz
+    sumRed += 1200.0f;
+    sumIR  += 1000.0f;
+    count++;  // incremented once per cycle
+  }
+  float baselineRed = sumRed / (float)count;
+  float baselineIR  = sumIR  / (float)count;
+
+  EXPECT_NEAR(baselineRed, 1200.0f, 0.01f,
+              "regression: dual-channel baseline Red correct (count incremented once/cycle)");
+  EXPECT_NEAR(baselineIR,  1000.0f, 0.01f,
+              "regression: dual-channel baseline IR correct (count incremented once/cycle)");
+
+  // --- BUGGY pattern (two separate sums, shared count incremented twice/cycle) ---
+  float bugSumRed = 0.0f, bugSumIR = 0.0f;
+  unsigned long bugCount = 0;
+  float bugBaselineRed = 0.0f, bugBaselineIR = 0.0f;
+  for (int i = 0; i < 450; i++) {
+    // Mirrors the original firmware: runningMean() on each channel with shared counter
+    bugBaselineRed = runningMean(1200.0f, bugSumRed, bugCount);  // bugCount: 1,3,5,...
+    bugBaselineIR  = runningMean(1000.0f, bugSumIR,  bugCount);  // bugCount: 2,4,6,...
+  }
+  // After 450 cycles, bugCount == 900 (incremented twice per cycle).
+  // bugBaselineRed = 1200*450 / 900 = 600  (half the true value)
+  // bugBaselineIR  = 1000*450 / 900 = 500  (half the true value)
+  // pctChange on a stable signal would then report ~+100%, not ~0%.
+  EXPECT_NEAR(bugBaselineRed, 600.0f, 5.0f,
+              "regression: buggy pattern produces ~half of true baseline (Red)");
+  EXPECT_NEAR(bugBaselineIR,  500.0f, 5.0f,
+              "regression: buggy pattern produces ~half of true baseline (IR)");
+  // Confirm the count was doubled
+  EXPECT_EQ((float)bugCount, 900.0f,
+            "regression: shared count incremented twice per cycle => 900 after 450 cycles");
+}
+
+static void test_regression_ema_seed_zero_channel() {
+  // REGRESSION (PR #10): the original firmware used (emaRed == 0.0 && emaIR == 0.0)
+  // to detect the first sample. This is fragile: if after the first sample both
+  // EMA values drift back to exactly 0.0f (possible with dark-room readings and
+  // ambient subtraction), the seed condition re-triggers and re-seeds the filter
+  // mid-run, producing a false "rising signal" artifact.
+  //
+  // The fix uses `static bool emaSeeded` inside loop(). Because `emaSeeded` is a
+  // static local in loop(), it cannot be reset or observed from outside — its
+  // correctness must be verified by reading the firmware source, not by a unit
+  // test here. This function documents the invariant that CAN be tested at the
+  // algorithm.h boundary: applyEMA() starting from a zero-valued seed updates
+  // correctly on the very next sample (no stuck-at-zero behavior).
+
+  // Verify: EMA seeded at 0 and immediately updated with a non-zero signal
+  // produces a value > 0 after one step (no stuck-at-zero).
+  float ema = 0.0f;  // seed value (as if first sample was 0 — dark channel)
+  ema = applyEMA(1000.0f, ema, 0.025f);
+  // Expected: 0.025 * 1000 + 0.975 * 0 = 25.0
+  EXPECT_NEAR(ema, 25.0f, 0.001f,
+              "regression: EMA seeded at 0, updated with 1000 => 25.0 (alpha * sample)");
+  assert(ema > 0.0f);
+
+  // Verify the artifact magnitude: starting from 0 instead of the true signal
+  // (1000) means the EMA needs ~3*N_eff = 120 samples to recover. After 1 step
+  // it reports only 2.5% of the true signal — this quantifies why the fix matters.
+  float ema_correct_seed = 1000.0f;  // correct seed: first sample IS the signal
+  ema_correct_seed = applyEMA(1000.0f, ema_correct_seed, 0.025f);
+  // Expected: stays at 1000.0
+
+  float artifact_pct = fabsf(ema - ema_correct_seed) / ema_correct_seed * 100.0f;
+  // artifact_pct should be ~97.5% (25 vs 1000)
+  assert(artifact_pct > 90.0f);
+  tests_run++; tests_passed++;
+  printf("  (confirmed: zero-seeded EMA produces %.1f%% error on step 2 — fix matters)\n",
+         (double)artifact_pct);
+}
+
+// ---------------------------------------------------------------------------
 // Integration: EMA -> baseline -> pctChange pipeline
 // ---------------------------------------------------------------------------
 static void test_integration_stable_signal_near_zero_pct() {
@@ -380,6 +473,10 @@ int main() {
   test_running_mean_known_sequence();
   test_running_mean_30s_baseline();
   test_running_mean_mixed_signal();
+
+  printf("--- Regression (PR #10 review findings) ---\n");
+  test_regression_dual_channel_shared_count();
+  test_regression_ema_seed_zero_channel();
 
   printf("--- Integration (EMA -> baseline -> pctChange) ---\n");
   test_integration_stable_signal_near_zero_pct();

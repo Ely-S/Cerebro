@@ -170,22 +170,36 @@ void loop() {
 
   // Apply EMA filter.
   // First sample seeds the EMA directly to avoid a false "rising signal"
-  // artifact that would occur if the filter started at zero.
-  if (emaRed == 0.0 && emaIR == 0.0) {
-    emaRed = redSignal;
-    emaIR  = irSignal;
+  // artifact. A static bool flag is used instead of checking == 0.0 because
+  // a legitimate first sample could be zero (or one channel could be zero
+  // while the other is not), which would leave one EMA unseeded.
+  // emaSeeded is static: initialized once at power-on, persists for the full
+  // program lifetime. It intentionally does NOT reset after baseline — the EMA
+  // should never be re-seeded mid-run. Hardware reset or power-cycle reinitializes
+  // it automatically. (emaRed/emaIR are global; emaSeeded is local static — both
+  // reset together on power-cycle.)
+  static bool emaSeeded = false;
+  if (!emaSeeded) {
+    emaRed    = redSignal;
+    emaIR     = irSignal;
+    emaSeeded = true;
   } else {
     emaRed = applyEMA(redSignal, emaRed, ALPHA);
     emaIR  = applyEMA(irSignal,  emaIR,  ALPHA);
   }
 
   // Baseline accumulation: average all EMA-filtered samples over 30 seconds.
+  // Both channels share one baselineCount (they are always sampled together).
+  // runningMean() is NOT used here because it increments count on each call;
+  // calling it twice per cycle with a shared counter would halve both baselines.
   if (!baselineSet) {
-    baselineRed = runningMean(emaRed, baselineSumRed, baselineCount);
-    baselineIR  = runningMean(emaIR,  baselineSumIR,  baselineCount);
+    baselineSumRed += emaRed;
+    baselineSumIR  += emaIR;
+    baselineCount++;
+    baselineRed = baselineSumRed / (float)baselineCount;
+    baselineIR  = baselineSumIR  / (float)baselineCount;
 
     if (millis() - startTime >= BASELINE_PERIOD_MS) {
-      // baselineRed / baselineIR already hold the running mean
       baselineSet = true;
       Serial.println("Baseline established.");
     }
@@ -197,6 +211,10 @@ void loop() {
     lastOutputTime = now;
 
     if (baselineSet && baselineRed > 0 && baselineIR > 0) {
+      // Note: if baselineRed <= 0 || baselineIR <= 0, output is suppressed
+      // (calcPctChange would divide by zero or produce inverted signs). This
+      // indicates the probe was blocked or ambient-subtracted to a negative mean
+      // during baseline — a hardware/placement problem, not a firmware bug.
       // Percent change from baseline (Modified Beer-Lambert relative trend)
       // Target precision: +/-2% @ 95% confidence (per V&V Test 4.6)
       float pctRed = calcPctChange(emaRed, baselineRed);
@@ -209,7 +227,15 @@ void loop() {
       Serial.print(",");
       Serial.println(pctIR, 2);
 
-    } else if (!baselineSet) {
+    } else if (baselineSet) {
+      // baselineSet is true but baseline is non-positive: probe was blocked
+      // or ambient-subtracted to zero/negative during the 30s window.
+      Serial.print("WARNING: non-positive baseline (Red=");
+      Serial.print(baselineRed, 1);
+      Serial.print(", IR=");
+      Serial.print(baselineIR, 1);
+      Serial.println("). Check probe contact and optical isolation. Reset to retry.");
+    } else {
       // During baseline: show raw EMA counts for monitoring stability
       // Absolute values vary by subject/probe contact - look for stability, not magnitude
       Serial.print("BASELINE:");

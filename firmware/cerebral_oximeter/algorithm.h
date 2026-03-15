@@ -34,6 +34,10 @@ inline float applyEMA(float sample, float prevEMA, float alpha) {
 //   pct = ((current - baseline) / baseline) * 100
 //
 // Returns 0.0 if baseline == 0 (guard against divide-by-zero).
+// If baseline is negative (possible when ambient subtraction produces a
+// negative 30s mean), the returned sign is inverted relative to physiological
+// expectation. The firmware guards against this with a `baseline > 0` check
+// before calling this function.
 // ---------------------------------------------------------------------------
 inline float calcPctChange(float current, float baseline) {
   if (baseline == 0.0f) return 0.0f;
@@ -58,6 +62,19 @@ inline float ambientSubtract(float active, float ambient) {
 //
 // Incremental mean: given a previous running sum and count, returns the
 // updated mean after adding one new value. Updates sum and count in place.
+//
+// WARNING — single-caller-per-cycle only:
+// This function increments `count` on every call. If you call it more than
+// once per accumulation cycle with a shared `count`, the denominator will be
+// multiplied by the number of calls, producing a baseline that is 1/N of the
+// true mean (where N = calls per cycle). For dual-channel accumulation (Red +
+// IR) in the firmware, use separate manual sums and ONE shared count++:
+//
+//   baselineSumRed += emaRed;
+//   baselineSumIR  += emaIR;
+//   baselineCount++;
+//   baselineRed = baselineSumRed / (float)baselineCount;
+//   baselineIR  = baselineSumIR  / (float)baselineCount;
 // ---------------------------------------------------------------------------
 inline float runningMean(float newValue, float &sum, unsigned long &count) {
   sum += newValue;
