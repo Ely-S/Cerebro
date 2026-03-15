@@ -6,11 +6,11 @@
  * Revision: 3.2 (DCN-002: TIA Cf = 10pF)
  *
  * Signal chain:
- *   730nm/850nm LEDs (TIP31C drivers, D2/D3)
+ *   730nm/850nm LEDs (TIP31C drivers, GPIO17/GPIO10)
  *   -> BPW34 photodiode
  *   -> MCP6022 2-stage TIA (100k Rf, 10pF Cf, 48x gain)
  *   -> ADS1115 16-bit ADC (A0, I2C 0x48)
- *   -> Arduino Nano 33 IoT (A4=SDA, A5=SCL)
+ *   -> Arduino (GPIO21=SDA, GPIO22=SCL)
  *
  * Algorithm:
  *   4-state TDM: AmbientA -> 730nm -> AmbientB -> 850nm
@@ -32,8 +32,10 @@
 #include "algorithm.h"
 
 // --- Pin Definitions ---
-const int LED_730_PIN = 2;  // D2: 730nm (Red/Far-Red) LED via TIP31C Q1
-const int LED_850_PIN = 3;  // D3: 850nm (IR) LED via TIP31C Q2
+const int LED_730_PIN = 17;  // GPIO17: 730nm (Red/Far-Red) LED via TIP31C Q1
+const int LED_850_PIN = 10;  // GPIO10: 850nm (IR) LED via TIP31C Q2
+const int SDA_PIN     = 21;  // GPIO21: I2C SDA to ADS1115
+const int SCL_PIN     = 22;  // GPIO22: I2C SCL to ADS1115
 
 // --- ADC ---
 Adafruit_ADS1115 ads;
@@ -113,7 +115,9 @@ void performTDMCycle(float &redSignal, float &irSignal) {
   digitalWrite(LED_730_PIN, LOW);
   redSignal = ambientSubtract((float)active, (float)ambient);
 
-  // State 3: Ambient B (all LEDs off)
+  // State 3: Ambient B (all LEDs off — explicit for robustness)
+  digitalWrite(LED_730_PIN, LOW);
+  digitalWrite(LED_850_PIN, LOW);
   delay(1);
   ambient = readADC();
 
@@ -129,7 +133,7 @@ void performTDMCycle(float &redSignal, float &irSignal) {
 // setup()
 // ---------------------------------------------------------------------------
 void setup() {
-  Serial.begin(115200);
+  Serial.begin(9600);
   while (!Serial) { delay(10); }  // Wait for USB serial (remove for battery-only use)
 
   pinMode(LED_730_PIN, OUTPUT);
@@ -137,7 +141,7 @@ void setup() {
   digitalWrite(LED_730_PIN, LOW);
   digitalWrite(LED_850_PIN, LOW);
 
-  Wire.begin();
+  Wire.begin(SDA_PIN, SCL_PIN);
   if (!ads.begin()) {
     Serial.println("ERROR: ADS1115 not found. Check wiring:");
     Serial.println("  - ADS1115 VDD -> 3.3V (NOT 5V)");

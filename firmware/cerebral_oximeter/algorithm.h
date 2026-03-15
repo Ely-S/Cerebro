@@ -11,6 +11,12 @@
 #ifndef ALGORITHM_H
 #define ALGORITHM_H
 
+#ifdef ARDUINO
+  #include <math.h>
+#else
+  #include <cmath>
+#endif
+
 // ---------------------------------------------------------------------------
 // applyEMA()
 //
@@ -40,7 +46,7 @@ inline float applyEMA(float sample, float prevEMA, float alpha) {
 // before calling this function.
 // ---------------------------------------------------------------------------
 inline float calcPctChange(float current, float baseline) {
-  if (baseline == 0.0f) return 0.0f;
+  if (fabsf(baseline) < 1e-9f) return 0.0f;
   return ((current - baseline) / baseline) * 100.0f;
 }
 
