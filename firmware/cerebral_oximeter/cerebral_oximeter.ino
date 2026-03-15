@@ -2,7 +2,7 @@
  * Cerebral Oximeter - NIRS Oxygenation Trend Monitor
  * EE 201 - Biomedical Instrumentation
  *
- * Hardware: Arduino Nano 33 IoT + ADS1115 + MCP6022 + BPW34
+ * Hardware: Freenove ESP32-WROOM + ADS1115 + MCP6022 + BPW34
  * Revision: 3.2 (DCN-002: TIA Cf = 10pF)
  *
  * Signal chain:
@@ -141,6 +141,8 @@ void setup() {
   digitalWrite(LED_730_PIN, LOW);
   digitalWrite(LED_850_PIN, LOW);
 
+  // ESP32 Wire.begin(SDA, SCL) takes explicit pin arguments — this is the
+  // correct API for the Freenove ESP32-WROOM board (not Arduino MbedOS).
   Wire.begin(SDA_PIN, SCL_PIN);
   if (!ads.begin()) {
     Serial.println("ERROR: ADS1115 not found. Check wiring:");
