@@ -33,7 +33,7 @@
 
 // --- Pin Definitions ---
 const int LED_730_PIN = 17;  // GPIO17: 730nm (Red/Far-Red) LED via TIP31C Q1
-const int LED_850_PIN = 10;  // GPIO10: 850nm (IR) LED via TIP31C Q2
+const int LED_850_PIN = 16;  // GPIO10: 850nm (IR) LED via TIP31C Q2
 const int SDA_PIN     = 21;  // GPIO21: I2C SDA to ADS1115
 const int SCL_PIN     = 22;  // GPIO22: I2C SCL to ADS1115
 
@@ -51,7 +51,7 @@ float emaIR  = 0.0;
 
 // --- Baseline Detection ---
 // 30 seconds allows EMA to fully settle after power-on transients.
-const unsigned long BASELINE_PERIOD_MS = 30000;
+const unsigned long BASELINE_PERIOD_MS = 10000;
 unsigned long startTime    = 0;
 bool          baselineSet  = false;
 float         baselineRed  = 0.0;
@@ -65,8 +65,13 @@ unsigned long baselineCount    = 0;
 // --- Output Timing ---
 // TDM runs at ~15 Hz internally; output is decoupled to 10 Hz for
 // smooth Serial Plotter display.
-const unsigned long OUTPUT_INTERVAL_MS = 100;
+const unsigned long OUTPUT_INTERVAL_MS = 1000;
 unsigned long lastOutputTime = 0;
+
+// Latest raw ADC reading (updated each TDM cycle) for voltage logging
+// GAIN_TWO: +/-2.048V, resolution = 0.0625 mV/count
+const float MV_PER_COUNT = 0.0625f;
+int16_t lastRawADC = 0;
 
 // ---------------------------------------------------------------------------
 // readADC()
@@ -82,7 +87,8 @@ unsigned long lastOutputTime = 0;
 // ads.startADCReading(ADS1X15_REG_CONFIG_MUX_SINGLE_0, true) in setup().
 // ---------------------------------------------------------------------------
 int16_t readADC() {
-  return ads.readADC_SingleEnded(0);
+  lastRawADC = ads.readADC_SingleEnded(0);
+  return lastRawADC;
 }
 
 // ---------------------------------------------------------------------------
@@ -147,9 +153,9 @@ void setup() {
   if (!ads.begin()) {
     Serial.println("ERROR: ADS1115 not found. Check wiring:");
     Serial.println("  - ADS1115 VDD -> 3.3V (NOT 5V)");
-    Serial.println("  - ADS1115 GND -> STAR_GND");
-    Serial.println("  - ADS1115 SDA -> Arduino A4");
-    Serial.println("  - ADS1115 SCL -> Arduino A5");
+    Serial.println("  - ADS1115 GND -> GND");
+    Serial.print("  - ADS1115 SDA -> GPIO"); Serial.println(SDA_PIN);
+    Serial.print("  - ADS1115 SCL -> GPIO"); Serial.println(SCL_PIN);
     Serial.println("  - ADS1115 ADDR -> GND (address 0x48)");
     while (1) { delay(1000); }  // Halt - ADC required
   }
@@ -216,38 +222,23 @@ void loop() {
   if (now - lastOutputTime >= OUTPUT_INTERVAL_MS) {
     lastOutputTime = now;
 
+    // Log: photodiode voltage, raw signals, EMA, then pct change (or baseline status)
+    float mV = lastRawADC * MV_PER_COUNT;
+    Serial.print("PD:"); Serial.print(mV, 2); Serial.print("mV");
+    Serial.print(" R:");   Serial.print(redSignal, 1);
+    Serial.print(" IR:");  Serial.print(irSignal, 1);
+    Serial.print(" emaR:"); Serial.print(emaRed, 1);
+    Serial.print(" emaIR:"); Serial.print(emaIR, 1);
+
     if (baselineSet && baselineRed > 0 && baselineIR > 0) {
-      // Note: if baselineRed <= 0 || baselineIR <= 0, output is suppressed
-      // (calcPctChange would divide by zero or produce inverted signs). This
-      // indicates the probe was blocked or ambient-subtracted to a negative mean
-      // during baseline — a hardware/placement problem, not a firmware bug.
-      // Percent change from baseline (Modified Beer-Lambert relative trend)
-      // Target precision: +/-2% @ 95% confidence (per V&V Test 4.6)
       float pctRed = calcPctChange(emaRed, baselineRed);
       float pctIR  = calcPctChange(emaIR,  baselineIR);
-
-      // Arduino Serial Plotter interprets comma-separated values as separate traces:
-      //   Trace 1 (Red): 730nm channel - more sensitive to deoxygenated Hb
-      //   Trace 2 (IR):  850nm channel - more sensitive to oxygenated HbO2
-      Serial.print(pctRed, 2);
-      Serial.print(",");
-      Serial.println(pctIR, 2);
-
+      Serial.print(" %R:"); Serial.print(pctRed, 2);
+      Serial.print(" %IR:"); Serial.println(pctIR, 2);
     } else if (baselineSet) {
-      // baselineSet is true but baseline is non-positive: probe was blocked
-      // or ambient-subtracted to zero/negative during the 30s window.
-      Serial.print("WARNING: non-positive baseline (Red=");
-      Serial.print(baselineRed, 1);
-      Serial.print(", IR=");
-      Serial.print(baselineIR, 1);
-      Serial.println("). Check probe contact and optical isolation. Reset to retry.");
+      Serial.println(" WARNING: non-positive baseline");
     } else {
-      // During baseline: show raw EMA counts for monitoring stability
-      // Absolute values vary by subject/probe contact - look for stability, not magnitude
-      Serial.print("BASELINE:");
-      Serial.print(emaRed, 1);
-      Serial.print(",");
-      Serial.println(emaIR, 1);
+      Serial.println(" BASELINE");
     }
   }
 }
